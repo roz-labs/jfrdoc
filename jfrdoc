@@ -6,4 +6,14 @@
 # up automatically by the multi-file source launcher (JEP 458).
 set -euo pipefail
 DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-exec java --source 25 --class-path "$DIR/lib/zsmith.jar" "$DIR/jfrdoc.java" "$@"
+# UTF-8 on every stream so the report renders em-dashes, arrows, and
+# severity emojis correctly even on POSIX/C-locale hosts (containers,
+# CI). JFRDOC_JAVA_OPTS lets callers pass extra JVM flags, e.g.
+# -Djavax.net.ssl.trustStore=... if the runtime JDK cannot reach
+# api.anthropic.com behind a TLS-intercepting proxy.
+exec java \
+    -Dstdout.encoding=UTF-8 \
+    -Dstderr.encoding=UTF-8 \
+    -Dfile.encoding=UTF-8 \
+    ${JFRDOC_JAVA_OPTS:-} \
+    --source 25 --class-path "$DIR/lib/zsmith.jar" "$DIR/jfrdoc.java" "$@"

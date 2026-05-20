@@ -50,6 +50,32 @@ Generate a sample `.jfr` recording for local testing:
 ./samples/gen-sample.sh
 ```
 
+### End-to-end dogfood against Spring PetClinic
+
+`samples/gen-petclinic-sample.sh` clones [Spring
+PetClinic](https://github.com/spring-projects/spring-petclinic), builds it,
+runs it under a 60-second JFR profile window while driving HTTP load, then
+refreshes the three committed sample artifacts
+(`petclinic-report.md`, `petclinic-summary.json`,
+`petclinic-top-methods.json`) by invoking `./jfrdoc analyze` and the two
+`debug-tool` commands. Use it to refresh the dogfood snapshot after
+changes to the tools or the agent prompt:
+
+```bash
+./samples/gen-petclinic-sample.sh
+```
+
+Set `BUILD_JAVA_HOME` to an older JDK if the PetClinic Maven build hits
+TLS issues on your machine; the script still uses Java 25 (from `PATH`)
+to run the app and `./jfrdoc`. Set
+`JFRDOC_JAVA_OPTS="-Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts -Djavax.net.ssl.trustStorePassword=changeit"`
+if your JDK 25 cannot reach `api.anthropic.com` behind a TLS-intercepting
+proxy and needs to fall back to the system trust store.
+
+Important: redirect only stdout (`> report.md`), never `2>&1`. zsmith's
+streaming output goes to stderr; merging the streams duplicates the
+report in the file.
+
 Each individual tool can be exercised directly via the `debug-tool`
 subcommand — useful for verifying the JSON it returns to the agent
 loop without going through the full analysis pipeline:
