@@ -2,35 +2,28 @@
 
 **AI-powered JFR analyzer that tells you why your Spring Boot / Quarkus pod is OOMKilled — even when heap looks fine.**
 
-> Status: 🚧 Pre-alpha. Day 1 scaffold.
+> Status: 🚧 Pre-alpha. Day 5 — CPU-hotspot analysis end-to-end against real Spring Boot recordings. GC, allocation, lock-contention, and I/O tools still on the roadmap.
 
 ## Install
 
 Prerequisites:
 
 - **Java 25** or newer (uses implicit classes, text blocks, source-file mode)
-- **zsmith.jar** — the zero-dependency agent framework jfrdoc is built on
 
-Build zsmith from source and drop the jar into `lib/`:
+`lib/zsmith.jar` — the zero-dependency agent framework jfrdoc is built on — is committed in this repo, so you don't need to build it separately. See [`lib/README.md`](lib/README.md) for the bundled version and rebuild instructions.
 
-```bash
-git clone https://github.com/AdamBien/zsmith
-cd zsmith && ./zb.sh
-cp out/zsmith.jar /path/to/jfrdoc/lib/zsmith.jar
-```
-
-Then make sure `jfrdoc` is executable:
+Make sure the launcher is executable:
 
 ```bash
 chmod +x jfrdoc
 ```
 
-No Maven, no Gradle, no npm. Java 25's source-file mode runs the script directly.
+No Maven, no Gradle, no npm. Java 25's source-file mode runs the script directly (JEP 458 picks up sibling `.java` files automatically).
 
 ## Usage
 
 ```bash
-./jfrdoc analyze samples/test.jfr \
+./jfrdoc analyze samples/sample.jfr \
     --framework quarkus \
     --container-memory 2Gi \
     --container-cpu 1
@@ -67,21 +60,25 @@ loop without going through the full analysis pipeline:
 ./jfrdoc debug-tool jfr-top-methods samples/test.jfr --top-n 5 --framework quarkus
 ```
 
-## What it diagnoses
+## What it diagnoses today
 
-- OOMKill root cause (heap + off-heap + native memory vs container limit)
-- GC pressure under container memory limits
-- Allocation hotspots in your code
-- CPU throttling effects on GC pauses and latency
-- Thread model issues (platform vs virtual threads, pool sizing vs CPU limits)
+- **CPU hotspots** with category breakdown (user code vs framework vs JDK vs native), top callers, and Spring/Quarkus-aware framework attribution
+- **Recording context** (duration, JVM info, event distribution) so you know what the recording actually contains before drawing conclusions
+
+The vision is broader (OOMKill root cause, GC pressure, allocation hotspots, CPU throttling, virtual-thread sizing) — see [Roadmap](#roadmap). Today's tooling is CPU-only and the agent's report is explicit about that limitation.
+
+## Example output
+
+[`samples/petclinic-report.md`](samples/petclinic-report.md) is a real end-to-end run against a 60s JFR recording of Spring PetClinic. Supporting raw tool outputs are in [`samples/petclinic-summary.json`](samples/petclinic-summary.json) and [`samples/petclinic-top-methods.json`](samples/petclinic-top-methods.json) — useful both as a demo and as a fixture when iterating on the agent's prompt.
 
 ## How it works
 
-jfrdoc reads `.jfr` recordings via `jdk.jfr.consumer.RecordingFile` from the JDK. It runs a multi-agent system built on [zsmith](https://github.com/AdamBien/zsmith), with specialized tools per concern (CPU, GC, allocation, threads) that each query a slice of the recording. The agents then produce a markdown report with findings, supporting evidence, and concrete recommendations.
+jfrdoc reads `.jfr` recordings via `jdk.jfr.consumer.RecordingFile` from the JDK. A single Claude-driven agent built on [zsmith](https://github.com/AdamBien/zsmith) calls two tools — `jfr_summary` (metadata + event distribution) and `jfr_top_methods` (CPU hotspot aggregation with framework-aware categorization) — and synthesizes a markdown report with findings, supporting evidence, and concrete recommendations. As more tools are added (GC, allocation, locks, I/O), the same agent will reach for them.
 
 ## Roadmap
 
-- **This week:** JFR tool prototypes + first end-to-end analysis
+- **Done:** CLI scaffold, `jfr_summary` + `jfr_top_methods` tools, agent wiring, first dogfood run on Spring PetClinic
+- **Next:** GC / allocation / lock-contention / I/O tools, framework-aware allocation attribution
 - **Next month:** K8s-aware diagnostics, multiple `.jfr` support
 - **Future:** hosted SaaS with history and trends
 
