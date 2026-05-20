@@ -1,6 +1,7 @@
 # Java
 *.class
 *.jar
+!lib/zsmith.jar
 
 # Sample JFR recordings (not committed)
 samples/*.jfr

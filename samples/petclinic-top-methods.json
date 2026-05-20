@@ -1,0 +1,212 @@
+{
+  "top_methods": [
+    {
+      "method": "java.lang.StringLatin1.hashCode:195",
+      "top_caller": "java.lang.String.hashCode",
+      "rank": 1,
+      "top_caller_share_pct": 100,
+      "category": "jdk",
+      "pct_of_total": 8.6,
+      "samples": 601
+    },
+    {
+      "method": "java.util.Arrays.binarySearch0:1713",
+      "top_caller": "java.util.Arrays.binarySearch",
+      "rank": 2,
+      "top_caller_share_pct": 100,
+      "category": "jdk",
+      "pct_of_total": 5,
+      "samples": 351
+    },
+    {
+      "method": "java.net.URL.<init>:741",
+      "top_caller": "java.net.URL.<init>",
+      "rank": 3,
+      "top_caller_share_pct": 100,
+      "category": "jdk",
+      "pct_of_total": 4.7,
+      "samples": 327
+    },
+    {
+      "method": "java.util.HashMap.getNode:586",
+      "top_caller": "java.util.HashMap.get",
+      "rank": 4,
+      "top_caller_share_pct": 99.3,
+      "category": "jdk",
+      "pct_of_total": 4.2,
+      "samples": 293
+    },
+    {
+      "method": "java.net.URL.<init>:694",
+      "top_caller": "java.net.URL.<init>",
+      "rank": 5,
+      "top_caller_share_pct": 100,
+      "category": "jdk",
+      "pct_of_total": 4.1,
+      "samples": 283
+    },
+    {
+      "method": "org.springframework.boot.loader.net.protocol.jar.UrlJarFiles.getCached:81",
+      "top_caller": "org.springframework.boot.loader.net.protocol.jar.UrlJarFiles.getOrCreate",
+      "rank": 6,
+      "top_caller_share_pct": 100,
+      "category": "framework",
+      "pct_of_total": 3.8,
+      "samples": 267
+    },
+    {
+      "method": "jdk.internal.loader.URLClassPath.getLoader:396",
+      "top_caller": "jdk.internal.loader.URLClassPath.findResource",
+      "rank": 7,
+      "top_caller_share_pct": 100,
+      "category": "jdk",
+      "pct_of_total": 3.5,
+      "samples": 246
+    },
+    {
+      "method": "java.lang.ThreadLocal$ThreadLocalMap.getEntry:491",
+      "top_caller": "java.lang.ThreadLocal.get",
+      "rank": 8,
+      "top_caller_share_pct": 100,
+      "category": "jdk",
+      "pct_of_total": 2.6,
+      "samples": 184
+    },
+    {
+      "method": "java.lang.Class.getName:951",
+      "top_caller": "java.net.URL.isBuiltinStreamHandler",
+      "rank": 9,
+      "top_caller_share_pct": 97.5,
+      "category": "jdk",
+      "pct_of_total": 2.2,
+      "samples": 157
+    },
+    {
+      "method": "java.lang.String.equalsIgnoreCase:2056",
+      "top_caller": "org.springframework.boot.loader.net.protocol.jar.JarFileUrlKey.equalsIgnoringCase",
+      "rank": 10,
+      "top_caller_share_pct": 100,
+      "category": "jdk",
+      "pct_of_total": 1.9,
+      "samples": 134
+    },
+    {
+      "method": "java.net.URLStreamHandler.parseURL:331",
+      "top_caller": "java.net.URL.<init>",
+      "rank": 11,
+      "top_caller_share_pct": 100,
+      "category": "jdk",
+      "pct_of_total": 1.6,
+      "samples": 109
+    },
+    {
+      "method": "java.lang.StringLatin1.toLowerCase:423",
+      "top_caller": "java.lang.String.toLowerCase",
+      "rank": 12,
+      "top_caller_share_pct": 100,
+      "category": "jdk",
+      "pct_of_total": 1.5,
+      "samples": 104
+    },
+    {
+      "method": "jdk.internal.util.ArraysSupport.hashCodeOfUnsigned:275",
+      "top_caller": "java.lang.StringLatin1.hashCode",
+      "rank": 13,
+      "top_caller_share_pct": 100,
+      "category": "jdk",
+      "pct_of_total": 1.4,
+      "samples": 101
+    },
+    {
+      "method": "java.util.concurrent.ConcurrentHashMap.get:958",
+      "top_caller": "jdk.internal.loader.BuiltinClassLoader.findMiscResource",
+      "rank": 14,
+      "top_caller_share_pct": 17.5,
+      "category": "jdk",
+      "pct_of_total": 1.4,
+      "samples": 97
+    },
+    {
+      "method": "org.springframework.boot.loader.net.protocol.jar.Handler.indexOfSeparator:174",
+      "top_caller": "org.springframework.boot.loader.net.protocol.jar.Handler.indexOfSeparator",
+      "rank": 15,
+      "top_caller_share_pct": 100,
+      "category": "framework",
+      "pct_of_total": 1.2,
+      "samples": 82
+    },
+    {
+      "method": "jdk.internal.util.ArraysSupport.mismatch:563",
+      "top_caller": "java.lang.String.startsWith",
+      "rank": 16,
+      "top_caller_share_pct": 86.4,
+      "category": "jdk",
+      "pct_of_total": 1.2,
+      "samples": 81
+    },
+    {
+      "method": "org.springframework.boot.loader.net.protocol.jar.Handler.parseURL:57",
+      "top_caller": "java.net.URL.<init>",
+      "rank": 17,
+      "top_caller_share_pct": 100,
+      "category": "framework",
+      "pct_of_total": 1.1,
+      "samples": 75
+    },
+    {
+      "method": "org.springframework.boot.loader.net.protocol.jar.UrlJarFiles$Cache.putIfAbsent:187",
+      "top_caller": "org.springframework.boot.loader.net.protocol.jar.UrlJarFiles.cacheIfAbsent",
+      "rank": 18,
+      "top_caller_share_pct": 100,
+      "category": "framework",
+      "pct_of_total": 1.1,
+      "samples": 74
+    },
+    {
+      "method": "java.lang.ThreadLocal$ThreadLocalMap.getEntryAfterMiss:514",
+      "top_caller": "java.lang.ThreadLocal$ThreadLocalMap.getEntry",
+      "rank": 19,
+      "top_caller_share_pct": 100,
+      "category": "jdk",
+      "pct_of_total": 0.9,
+      "samples": 66
+    },
+    {
+      "method": "java.net.URL.<init>:630",
+      "top_caller": "java.net.URL.<init>",
+      "rank": 20,
+      "top_caller_share_pct": 95.1,
+      "category": "jdk",
+      "pct_of_total": 0.9,
+      "samples": 61
+    }
+  ],
+  "recording": {
+    "duration_seconds": 44.7,
+    "path": "/home/user/jfrdoc/samples/petclinic.jfr"
+  },
+  "framework_used_for_categorization": "spring",
+  "categories": {
+    "jdk": {
+      "pct": 64.1,
+      "samples": 4476
+    },
+    "framework": {
+      "pct": 32.6,
+      "samples": 2278
+    },
+    "user_code": {
+      "pct": 3.3,
+      "samples": 231
+    },
+    "native": {
+      "pct": 0,
+      "samples": 0
+    }
+  },
+  "execution_samples": {
+    "total": 6985,
+    "with_stack_trace": 6985,
+    "skipped_no_trace": 0
+  }
+}

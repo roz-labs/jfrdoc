@@ -1,0 +1,57 @@
+{
+  "jvm": {
+    "jvmVersion": "OpenJDK 64-Bit Server VM (25.0.2+10-Ubuntu-124.04) for linux-amd64 JRE (25.0.2+10-Ubuntu-124.04), built on 2026-01-22T23:59:02Z with gcc 13.3.0",
+    "jvmName": "OpenJDK 64-Bit Server VM",
+    "jvmArguments": "-XX:StartFlightRecording=delay=15s,duration=60s,filename=/tmp/petclinic.jfr,settings=profile",
+    "javaArguments": "target/spring-petclinic-4.0.0-SNAPSHOT.jar",
+    "jvmStartTime": "2026-05-19T23:54:13.086Z"
+  },
+  "path": "samples/petclinic.jfr",
+  "distinctEventTypes": 99,
+  "recordingEnd": "2026-05-19T23:55:28.403244777Z",
+  "recordingStart": "2026-05-19T23:54:28.309663377Z",
+  "totalEvents": 130268,
+  "recordingDurationSeconds": 60.093,
+  "topEventTypes": [
+    {
+      "count": 37333,
+      "type": "jdk.GCPhaseParallel"
+    },
+    {
+      "count": 34771,
+      "type": "jdk.JavaMonitorEnter"
+    },
+    {
+      "count": 12864,
+      "type": "jdk.ObjectAllocationSample"
+    },
+    {
+      "count": 12010,
+      "type": "jdk.JavaExceptionThrow"
+    },
+    {
+      "count": 6985,
+      "type": "jdk.ExecutionSample"
+    },
+    {
+      "count": 4255,
+      "type": "jdk.PromoteObjectInNewPLAB"
+    },
+    {
+      "count": 4157,
+      "type": "jdk.ThreadPark"
+    },
+    {
+      "count": 2642,
+      "type": "jdk.NativeMethodSample"
+    },
+    {
+      "count": 2595,
+      "type": "jdk.TenuringDistribution"
+    },
+    {
+      "count": 2347,
+      "type": "jdk.SocketWrite"
+    }
+  ]
+}
