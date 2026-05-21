@@ -3,6 +3,7 @@ import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Properties;
 
 import airhacks.zsmith.agent.boundary.Agent;
 import airhacks.zsmith.tools.control.Tool;
@@ -152,20 +153,15 @@ Path promptsDir() {
 
 boolean apiKeyAvailable() {
     if (System.getProperty("anthropic.api.key") != null) return true;
-    Path props = Path.of(System.getProperty("user.home"), ".zsmith", "app.properties");
-    if (!Files.exists(props)) return false;
-    try {
-        for (String line : Files.readAllLines(props)) {
-            String trimmed = line.trim();
-            if (trimmed.startsWith("#")) continue;
-            if (trimmed.startsWith("anthropic.api.key") && trimmed.contains("=")) {
-                String value = trimmed.substring(trimmed.indexOf('=') + 1).trim();
-                if (!value.isEmpty()) return true;
-            }
-        }
-    } catch (IOException ignored) {
+    Path file = Path.of(System.getProperty("user.home"), ".zsmith", "app.properties");
+    if (!Files.exists(file)) return false;
+    var props = new Properties();
+    try (var in = Files.newInputStream(file)) {
+        props.load(in);
+    } catch (IOException e) {
+        return false;
     }
-    return false;
+    return !props.getProperty("anthropic.api.key", "").trim().isEmpty();
 }
 
 String usage() {
