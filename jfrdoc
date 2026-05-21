@@ -15,5 +15,6 @@ exec java \
     -Dstdout.encoding=UTF-8 \
     -Dstderr.encoding=UTF-8 \
     -Dfile.encoding=UTF-8 \
+    -Djfrdoc.home="$DIR" \
     ${JFRDOC_JAVA_OPTS:-} \
     --source 25 --class-path "$DIR/lib/zsmith.jar" "$DIR/jfrdoc.java" "$@"
