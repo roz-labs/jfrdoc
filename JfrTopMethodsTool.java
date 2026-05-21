@@ -9,7 +9,6 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import airhacks.zsmith.tools.control.Tool;
 import jdk.jfr.consumer.RecordedClass;
@@ -26,43 +25,6 @@ public class JfrTopMethodsTool implements Tool {
     static final int MIN_TOP_N = 1;
     static final int MAX_TOP_N = 100;
     static final String DEFAULT_FRAMEWORK = "other";
-
-    static final Set<String> ALWAYS_FRAMEWORK_PREFIXES = Set.of(
-            "org.springframework.",
-            "org.apache.",
-            "org.hibernate.",
-            "org.eclipse.",
-            "io.quarkus.",
-            "io.smallrye.",
-            "io.vertx.",
-            "io.netty.",
-            "jakarta.",
-            "javax.",
-            "com.fasterxml.",
-            "com.google.",
-            "reactor.",
-            "kotlin.",
-            "scala."
-    );
-
-    static final Set<String> SPRING_EXTRA_PREFIXES = Set.of(
-            "org.thymeleaf.",
-            "org.slf4j.",
-            "ch.qos.logback."
-    );
-
-    static final Set<String> QUARKUS_EXTRA_PREFIXES = Set.of(
-            "org.jboss.",
-            "io.agroal.",
-            "org.graalvm."
-    );
-
-    static final Set<String> JDK_PREFIXES = Set.of(
-            "java.",
-            "jdk.",
-            "sun.",
-            "com.sun."
-    );
 
     @Override
     public String toolName() {
@@ -116,15 +78,21 @@ public class JfrTopMethodsTool implements Tool {
             if (raw != null && !raw.isEmpty()) framework = raw;
         }
 
+        FrameworkCategorizer categorizer;
         try {
-            return analyze(path, topN, framework).toString(2);
+            categorizer = FrameworkCategorizer.forFramework(framework);
+        } catch (IOException e) {
+            return "Error: Could not load categorization rules: " + e.getMessage();
+        }
+
+        try {
+            return analyze(path, topN, framework, categorizer).toString(2);
         } catch (IOException e) {
             return "Error: Could not read JFR file: " + e.getMessage();
         }
     }
 
-    static JSONObject analyze(Path path, int topN, String framework) throws IOException {
-        var extraFrameworkPrefixes = extraFrameworkPrefixes(framework);
+    static JSONObject analyze(Path path, int topN, String framework, FrameworkCategorizer categorizer) throws IOException {
 
         var methodAgg = new LinkedHashMap<String, MethodStats>();
         var categoryCounts = new HashMap<String, Long>();
@@ -189,7 +157,7 @@ public class JfrTopMethodsTool implements Tool {
                             String methodName = method.getName();
                             int line = top.getLineNumber();
                             methodKey = fqcn + "." + methodName + (line >= 0 ? ":" + line : "");
-                            category = categorize(fqcn, extraFrameworkPrefixes);
+                            category = categorizer.categorize(fqcn);
                         }
                     }
                 }
@@ -283,29 +251,6 @@ public class JfrTopMethodsTool implements Tool {
         var ct = cm.getType();
         if (ct == null || ct.getName() == null) return null;
         return ct.getName() + "." + cm.getName();
-    }
-
-    static String categorize(String fqcn, Set<String> extraFrameworkPrefixes) {
-        if (fqcn == null) return "native";
-        if (startsWithAny(fqcn, JDK_PREFIXES)) return "jdk";
-        if (startsWithAny(fqcn, ALWAYS_FRAMEWORK_PREFIXES)) return "framework";
-        if (startsWithAny(fqcn, extraFrameworkPrefixes)) return "framework";
-        return "user_code";
-    }
-
-    static boolean startsWithAny(String s, Set<String> prefixes) {
-        for (String p : prefixes) {
-            if (s.startsWith(p)) return true;
-        }
-        return false;
-    }
-
-    static Set<String> extraFrameworkPrefixes(String framework) {
-        return switch (framework) {
-            case "spring" -> SPRING_EXTRA_PREFIXES;
-            case "quarkus" -> QUARKUS_EXTRA_PREFIXES;
-            default -> Set.of();
-        };
     }
 
     static int clamp(int v, int min, int max) {
