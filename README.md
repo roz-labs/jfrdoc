@@ -16,7 +16,7 @@ categorization, top callers, and concrete fixes you can ship today.
   <img alt="License" src="https://img.shields.io/badge/license-MIT-green">
 </p>
 
-> 🚧 **Day 5.** CPU-hotspot analysis end-to-end against real Spring Boot recordings. GC, allocation, lock-contention, and I/O tools next.
+> 🚧 **Day 5.** CPU-hotspot analysis and GC behavior end-to-end against real Spring Boot recordings. Allocation, lock-contention, and I/O tools next.
 
 ---
 
@@ -89,23 +89,25 @@ No Maven, no Gradle, no npm. `lib/zsmith.jar` (the zero-dependency agent framewo
 | ✅ | **Top hotspots** with top callers and Spring/Quarkus-aware attribution | `### Top Hotspots` |
 | ✅ | **Findings** — severity-tagged observations with numeric evidence | `## Findings` |
 | ✅ | **Recommendations** — actionable fixes tied to each finding | `## Recommendations` |
-| 🛠 | GC pressure, allocation hotspots, lock contention, I/O wait | _roadmap_ |
+| ✅ | **GC behavior** — collector config, pause distribution (p50/p95/p99/max), pause overhead, heap occupancy, anomalies | `## Memory & GC` |
+| 🛠 | Allocation hotspots, lock contention, I/O wait | _roadmap_ |
 | 🛠 | OOMKill root cause, container fit, virtual-thread sizing, K8s context | _roadmap_ |
 
-The agent's report is explicit about today's CPU-only scope in its **Analysis Limitations** section, so nothing is hidden.
+The agent's report is explicit about today's scope (CPU + GC) in its **Analysis Limitations** section, so nothing is hidden.
 
 ---
 
 ## How it works
 
-jfrdoc reads `.jfr` files via `jdk.jfr.consumer.RecordingFile` from the JDK — **no java agent, no runtime overhead in your app**. A single Claude-driven agent built on [zsmith](https://github.com/AdamBien/zsmith) calls two tools:
+jfrdoc reads `.jfr` files via `jdk.jfr.consumer.RecordingFile` from the JDK — **no java agent, no runtime overhead in your app**. A single Claude-driven agent built on [zsmith](https://github.com/AdamBien/zsmith) calls three tools:
 
 | Tool | Purpose |
 |-|-|
 | `jfr_summary` | High-level metadata, JVM info, event distribution |
 | `jfr_top_methods` | CPU hotspot aggregation with framework-aware categorization |
+| `jfr_gc_stats` | GC collector config, pause distribution, heap occupancy, anomalies |
 
-…then synthesizes a markdown report with findings, evidence, and recommendations. As more tools land (GC, allocation, locks, I/O), the same agent reaches for them.
+…then synthesizes a markdown report with findings, evidence, and recommendations. As more tools land (allocation, locks, I/O), the same agent reaches for them.
 
 ---
 
@@ -130,29 +132,43 @@ Exercise each tool directly without the agent loop — useful for verifying the 
 ./jfrdoc debug-tool jfr-summary     samples/sample.jfr
 ./jfrdoc debug-tool jfr-top-methods samples/sample.jfr --top-n 10
 ./jfrdoc debug-tool jfr-top-methods samples/sample.jfr --top-n 5 --framework quarkus
+./jfrdoc debug-tool jfr-gc-stats    samples/sample.jfr
 ```
 
 ### Refresh the dogfood snapshot
 
-`samples/gen-petclinic-sample.sh` clones Spring PetClinic, builds it, runs it under a 60 s JFR window with HTTP load against `/owners`, `/vets`, `/oups`, …, and refreshes the three committed sample artifacts via `./jfrdoc analyze` and the two `debug-tool` commands.
+Two independent steps. Step 1 records a fresh JFR in a container (no host JDK / Maven needed). Step 2 runs jfrdoc against the recording.
+
+**Step 1 — record `samples/petclinic.jfr`** (needs `docker` + `docker compose`):
 
 ```bash
-./samples/gen-petclinic-sample.sh
+docker compose up --build --abort-on-container-exit --exit-code-from loadgen
+docker compose down
 ```
 
-| Env var | When to set it |
-|-|-|
-| `BUILD_JAVA_HOME` | The PetClinic Maven build fails TLS on your JDK 25. Point this at a JDK whose truststore works (the jfrdoc run itself stays on the Java 25 from `PATH`). |
-| `JFRDOC_JAVA_OPTS` | JDK 25 can't reach `api.anthropic.com` behind a TLS-intercepting proxy. e.g. `-Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts -Djavax.net.ssl.trustStorePassword=changeit` |
-| `PETCLINIC_PORT` | PetClinic's default 8080 conflicts with something local. |
-| `JFR_DELAY` / `JFR_DURATION` / `LOAD_SECONDS` | Adjust the recording window or load duration. |
+`docker-compose.yml` runs Spring PetClinic under cgroup limits of 1 CPU / 2 GB and a 60 s JFR window, while an `alpine/curl` sidecar drives load against `/owners`, `/vets.html`, `/owners/{id}/edit`, etc. The recording is bind-mounted to `./samples/petclinic.jfr` so it appears on the host the moment the JVM finalizes it. Change the limits, JFR window, or load endpoints by editing `docker-compose.yml` directly — there are no env-var indirections.
+
+**Step 2 — analyze with jfrdoc** (needs Java 25 + your Anthropic key):
+
+```bash
+./jfrdoc analyze samples/petclinic.jfr \
+    --framework spring --container-cpu 1 --container-memory 2Gi \
+    > samples/petclinic-report.md
+
+./jfrdoc debug-tool jfr-summary     samples/petclinic.jfr > samples/petclinic-summary.json
+./jfrdoc debug-tool jfr-top-methods samples/petclinic.jfr --framework spring --top-n 20 \
+    > samples/petclinic-top-methods.json
+./jfrdoc debug-tool jfr-gc-stats samples/petclinic.jfr > samples/petclinic-gc-stats.json
+```
+
+**Why containers, not host `java -jar`?** The JVM honors cgroup limits (`-XX:UseContainerSupport` is default on JDK 25), so GC heuristics, ForkJoin pool size, and `Runtime.availableProcessors()` all reflect the constrained environment — which is exactly what jfrdoc's `--container-cpu` / `--container-memory` flags claim in the report header. As a bonus, the build is reproducible across macOS / Linux / Windows because both build and run happen inside `eclipse-temurin:25-jdk`, so host Maven version, BSD vs GNU coreutils quirks, and corporate TLS-MITM proxies stop mattering for the recording step.
 
 ---
 
 ## Roadmap
 
-- ✅ **Done** — CLI scaffold, `jfr_summary` + `jfr_top_methods` tools, agent wiring, first dogfood on Spring PetClinic
-- 🛠 **Next** — GC / allocation / lock-contention / I/O tools, framework-aware allocation attribution
+- ✅ **Done** — CLI scaffold, `jfr_summary` + `jfr_top_methods` + `jfr_gc_stats` tools, agent wiring, first dogfood on Spring PetClinic
+- 🛠 **Next** — allocation / lock-contention / I/O tools, framework-aware allocation attribution
 - 📦 **Next month** — K8s-aware diagnostics, multi-`.jfr` correlation
 - ☁ **Future** — hosted SaaS with history and trends
 

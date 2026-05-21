@@ -1,0 +1,67 @@
+{
+  "summary": {
+    "total_gcs": 905,
+    "p99_pause_ms": 3.3,
+    "total_pause_time_ms": 1774.31,
+    "max_pause_ms": 115.7,
+    "p50_pause_ms": 1.35,
+    "gcs_per_minute": 903,
+    "avg_pause_ms": 1.96,
+    "p95_pause_ms": 1.92,
+    "pause_overhead_pct": 2.95
+  },
+  "by_cause": [
+    {
+      "count": 904,
+      "cause": "Allocation Failure"
+    },
+    {
+      "count": 1,
+      "cause": "Metadata GC Threshold"
+    }
+  ],
+  "configuration": {
+    "concurrent_gc_threads": 0,
+    "uses_dynamic_gc_threads": true,
+    "young_collector": "DefNew",
+    "old_collector": "SerialOld",
+    "gc_time_ratio": 99,
+    "parallel_gc_threads": 0,
+    "pause_target_ms": null
+  },
+  "by_name": [
+    {
+      "max_pause_ms": 70.17,
+      "name": "DefNew",
+      "count": 904,
+      "avg_pause_ms": 1.83,
+      "total_pause_ms": 1658.61
+    },
+    {
+      "max_pause_ms": 115.7,
+      "name": "SerialOld",
+      "count": 1,
+      "avg_pause_ms": 115.7,
+      "total_pause_ms": 115.7
+    }
+  ],
+  "recording": {
+    "duration_seconds": 60.1,
+    "path": "/Users/ridvanozcan/code/jfrdoc/samples/petclinic.jfr"
+  },
+  "heap": {
+    "snapshots": 1810,
+    "max_used_mb": 65.7,
+    "min_used_mb": 39,
+    "max_used_pct_of_committed": 94.9,
+    "avg_used_after_gc_mb": 39.8,
+    "committed_size_mb": 94.3
+  },
+  "anomalies": {
+    "long_pauses_over_100ms": 1,
+    "explicit_system_gcs": 0,
+    "full_gcs": 0,
+    "humongous_allocations": 0,
+    "long_pauses_over_500ms": 0
+  }
+}

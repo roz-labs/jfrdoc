@@ -1,57 +1,71 @@
 {
   "jvm": {
-    "jvmVersion": "OpenJDK 64-Bit Server VM (25.0.2+10-LTS) for linux-amd64 JRE (25.0.2+10-LTS), built on 2026-01-20T00:00:00Z with gcc 14.2.0",
+    "jvmVersion": "OpenJDK 64-Bit Server VM (25.0.3+9-LTS) for linux-aarch64 JRE (25.0.3+9-LTS), built on 2026-04-21T00:00:00Z with gcc 14.2.0",
     "jvmName": "OpenJDK 64-Bit Server VM",
-    "jvmArguments": "-XX:StartFlightRecording=delay=15s,duration=60s,filename=/tmp/petclinic.jfr,settings=profile",
-    "javaArguments": "target/spring-petclinic-4.0.0-SNAPSHOT.jar",
-    "jvmStartTime": "2026-05-20T01:04:39.548Z"
+    "jvmArguments": "-XX:StartFlightRecording=delay=15s,duration=60s,filename=/jfr/petclinic.jfr,settings=profile",
+    "javaArguments": "/app.jar",
+    "jvmStartTime": "2026-05-21T23:11:41.190Z"
   },
   "path": "samples/petclinic.jfr",
-  "distinctEventTypes": 100,
-  "recordingEnd": "2026-05-20T01:05:54.941753387Z",
-  "recordingStart": "2026-05-20T01:04:54.837975325Z",
-  "totalEvents": 125031,
-  "recordingDurationSeconds": 60.103,
+  "distinctEventTypes": 90,
+  "recordingEnd": "2026-05-21T23:12:56.746378403Z",
+  "recordingStart": "2026-05-21T23:11:56.612025474Z",
+  "notableEventsPresent": {
+    "executionSamples": true,
+    "allocations": true,
+    "io": true,
+    "gc": true,
+    "locks": true,
+    "exceptions": true
+  },
+  "totalEvents": 88505,
+  "recordingDurationSeconds": 60.134,
   "topEventTypes": [
     {
-      "count": 33271,
-      "type": "jdk.ThreadPark"
-    },
-    {
-      "count": 28632,
-      "type": "jdk.GCPhaseParallel"
-    },
-    {
-      "count": 17364,
+      "count": 17212,
       "type": "jdk.ObjectAllocationSample"
     },
     {
-      "count": 16778,
+      "count": 14683,
       "type": "jdk.JavaExceptionThrow"
     },
     {
-      "count": 4877,
+      "count": 13641,
+      "type": "jdk.ThreadPark"
+    },
+    {
+      "count": 13560,
+      "type": "jdk.TenuringDistribution"
+    },
+    {
+      "count": 3620,
+      "type": "jdk.MetaspaceChunkFreeListSummary"
+    },
+    {
+      "count": 3620,
+      "type": "jdk.GCReferenceStatistics"
+    },
+    {
+      "count": 3256,
       "type": "jdk.ExecutionSample"
     },
     {
-      "count": 3454,
-      "type": "jdk.PromoteObjectInNewPLAB"
+      "count": 2716,
+      "type": "jdk.GCPhasePauseLevel1"
     },
     {
-      "count": 3330,
-      "type": "jdk.JavaMonitorEnter"
-    },
-    {
-      "count": 2677,
-      "type": "jdk.SocketWrite"
-    },
-    {
-      "count": 2584,
+      "count": 2081,
       "type": "jdk.NativeMethodSample"
     },
     {
-      "count": 2265,
-      "type": "jdk.TenuringDistribution"
+      "count": 1810,
+      "type": "jdk.GCHeapSummary"
     }
-  ]
+  ],
+  "derived": {
+    "javaExceptionThrowCount": 14683,
+    "executionSamplesPerSecond": 54.1,
+    "executionSamplesCount": 3256,
+    "javaExceptionThrowPerSecond": 244.2
+  }
 }

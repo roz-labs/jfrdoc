@@ -1,51 +1,58 @@
 # jfrdoc Analysis Report
 
 ## Executive Summary
-The Spring PetClinic JVM is spending nearly all of its CPU in JDK plumbing (63.2%) and Spring Boot loader code (33.6%), with only 3.2% in actual user code. The hotspot signature — `URL.<init>`, `HashMap.getNode`, `String.startsWith`, and `spring-boot-loader` `Handler.indexOfSeparator` — is classic nested-jar classpath resolution overhead from the Spring Boot fat-jar launcher. Additionally, 16,778 `JavaExceptionThrow` events in 60 seconds (~280/sec) suggests exception-driven control flow somewhere in the stack.
+This Spring Boot application is running on the **Serial GC** (DefNew + SerialOld) — a single-threaded collector that is inappropriate for a server workload, producing 903 GCs/minute and a 115.7 ms SerialOld pause. CPU time is dominated by **Spring Boot's nested-JAR URL loader** (URL construction, JarFileUrlKey hashing/equality, ZIP lookups), with only 4.4% of samples in user code and a sustained **244 exceptions thrown per second** indicating a hot exception-driven control path.
 
 ## Recording Context
-- **File**: /home/user/jfrdoc/samples/petclinic.jfr
-- **Duration**: 60.103 s
-- **JVM**: OpenJDK 64-Bit Server VM 25.0.2+10-LTS (OpenJDK)
-- **OS**: linux-amd64
+- **File**: /Users/ridvanozcan/code/jfrdoc/samples/petclinic.jfr
+- **Duration**: 60.134 s
+- **JVM**: OpenJDK 64-Bit Server VM 25.0.3+9-LTS (linux-aarch64)
+- **OS**: Linux aarch64
 - **Framework**: spring
 - **Container limits**: memory=2Gi cpu=1
-- **Total events captured**: 125,031
+- **Total events captured**: 88,505
 
 ## CPU Profile
-The category split is highly unusual for a steady-state Spring Boot app: **user_code is only 3.2%**, while **JDK code dominates at 63.2%** and **framework (Spring) at 33.6%**. A healthy PetClinic under load typically shows 30–60% user_code; 3.2% indicates the JVM is either idle/lightly loaded or burning cycles on resource/class lookup rather than business logic. The top 10 hotspots are entirely infrastructure: hash lookups, string comparisons, URL construction, and Spring Boot's nested-jar `Handler`. No native code samples were recorded.
+CPU is heavily skewed toward JDK and Spring Boot loader internals: **56.3% JDK / 39.3% framework / 4.4% user code / 0% native**. The user-code share is far below the typical 30–60% band for a Spring Boot app under load, and the framework share is concentrated in `org.springframework.boot.loader.net.protocol.jar.*` — the nested-JAR URL handler that resolves classpath resources at runtime. The top 8 hotspots are all either `java.net.URL.<init>` variants, `JarFileUrlKey` hash/equality, or `Arrays.binarySearch` from JAR entry lookups, which is consistent with repeated `ClassLoader.getResource(...)` / URL parsing on the request path rather than business logic.
 
 ### Top Hotspots
-1. `java.util.HashMap.getNode:579` — 346 samples (7.1%, jdk) ← called from `java.util.HashMap.get`
-   - Heavy `HashMap.get` traffic combined with the URL/classpath hotspots below strongly suggests classloader resource-cache lookups during request handling.
-2. `java.lang.StringLatin1.hashCode:195` — 221 samples (4.5%, jdk) ← called from `java.lang.String.hashCode`
-   - Repeated hashing of the same strings — likely resource paths or URLs being re-resolved rather than cached.
-3. `java.util.Arrays.binarySearch0:1713` — 207 samples (4.2%, jdk) ← called from `java.util.Arrays.binarySearch`
-   - Binary search in hot path is consistent with sorted resource/entry tables in the JAR index — again pointing at classpath scanning.
-4. `jdk.internal.util.ArraysSupport.mismatch:563` — 203 samples (4.2%, jdk) ← called from `java.lang.String.startsWith` (92.1%)
-5. `org.springframework.boot.loader.net.protocol.jar.Handler.indexOfSeparator:174` — 195 samples (4.0%, framework) ← called from `org.springframework.boot.loader.net.protocol.jar.Handler.indexOfSeparator`
-6. `java.net.URL.<init>:741` — 175 samples (3.6%, jdk) ← called from `java.net.URL.<init>`
-7. `java.net.URL.<init>:694` — 168 samples (3.4%, jdk) ← called from `java.net.URL.<init>`
-8. `java.lang.ThreadLocal$ThreadLocalMap.getEntry:491` — 153 samples (3.1%, jdk) ← called from `java.lang.ThreadLocal.get`
-9. `java.lang.StringLatin1.regionMatchesCI:387` — 141 samples (2.9%, jdk) ← called from `java.lang.String.regionMatches`
-10. `jdk.internal.loader.URLClassPath.getLoader:396` — 125 samples (2.6%, jdk) ← called from `jdk.internal.loader.URLClassPath.findResource`
+1. `java.util.Arrays.binarySearch0:1713` — 191 samples (5.9%, jdk) ← called from `java.util.Arrays.binarySearch`
+   - Binary searches over sorted arrays, dominantly invoked from JAR entry lookups inside the Spring Boot loader.
+2. `java.net.URL.<init>:630` — 172 samples (5.3%, jdk) ← called from `java.net.URL.<init>`
+   - Repeated URL object construction; consistent with resource resolution against nested JARs on every request.
+3. `java.util.Objects.hashCode:97` — 134 samples (4.1%, jdk) ← called from `org.springframework.boot.loader.net.protocol.jar.JarFileUrlKey.hashCode`
+   - Hashing `JarFileUrlKey` instances for the URL→JarFile cache; indicates the cache is being keyed/probed at high frequency.
+4. `java.net.URL.<init>:741` — 125 samples (3.8%, jdk) ← called from `java.net.URL.<init>`
+5. `java.lang.ThreadLocal$ThreadLocalMap.getEntryAfterMiss:514` — 125 samples (3.8%, jdk) ← called from `java.lang.ThreadLocal$ThreadLocalMap.getEntry`
+6. `jdk.internal.util.ArraysSupport.mismatch:555` — 124 samples (3.8%, jdk) ← called from `java.lang.String.startsWith`
+7. `java.lang.String.equalsIgnoreCase:2056` — 102 samples (3.1%, jdk) ← called from `org.springframework.boot.loader.net.protocol.jar.JarFileUrlKey.equalsIgnoringCase`
+8. `java.net.URL.<init>:764` — 69 samples (2.1%, jdk) ← called from `java.net.URL.<init>`
+9. `org.springframework.boot.loader.net.protocol.jar.Handler.indexOfSeparator:174` — 64 samples (2.0%, framework) ← called from `org.springframework.boot.loader.net.protocol.jar.Handler.indexOfSeparator`
+10. `org.springframework.boot.loader.net.protocol.jar.UrlJarFiles.getCached:81` — 53 samples (1.6%, framework) ← called from `org.springframework.boot.loader.net.protocol.jar.UrlJarFiles.getOrCreate`
+
+## Memory & GC
+The JVM is configured with the **Serial collector** (`DefNew` young + `SerialOld` old) — a stop-the-world, single-threaded GC. Over the 60 s recording there were **905 GCs (903/minute)**, virtually all "Allocation Failure", consuming **2.95% of wall time** in pauses. The average and p95 young pauses are tiny (1.96 ms / 1.92 ms), but the tail is poor: **p99 = 3.3 ms** and a **single SerialOld pause of 115.7 ms**. Heap committed is only **94.3 MB** with used ranging **39–65.7 MB** (peaking at 94.9% of committed), indicating the JVM has not been told it may use anything close to the 2Gi container limit.
+
+### GC Anomalies
+- **1 long pause over 100 ms** (115.7 ms SerialOld) — a single full-old collection that stalled the application for >100 ms, an SLO risk for latency-sensitive endpoints.
 
 ## Findings
-- **🔴 Spring Boot nested-jar classpath resolution dominates CPU**: Hotspots #4–#7 and #10 are all URL parsing, `startsWith`, and `URLClassPath.findResource` paths from the Spring Boot fat-jar launcher. **Evidence**: `Handler.indexOfSeparator` 4.0%, `URL.<init>` 3.6%+3.4%=7.0%, `URLClassPath.getLoader` 2.6%, plus `String.startsWith` (via `ArraysSupport.mismatch`) 4.2% — together >20% of CPU in nested-jar URL handling. **Why it matters**: Every request appears to trigger repeated resource lookups through the loader, wasting CPU that should go to business logic on a 1-CPU container.
-- **🟡 Extremely low user-code share**: Only 3.2% of CPU samples are in application code. **Evidence**: `categories.user_code.pct = 3.2` (154 of 4,877 samples). **Why it matters**: Either load is too light for this profile to be meaningful, or infrastructure overhead is starving the app — both warrant validating the test scenario before drawing perf conclusions.
-- **🟡 High exception-throw rate**: 16,778 `JavaExceptionThrow` events in 60 s (~280/sec). **Evidence**: 4th most frequent event type in the recording. **Why it matters**: Exception construction fills stack traces and is expensive; if used as control flow it can silently consume CPU and pollute logs. Not visible in top CPU methods but worth confirming.
-- **🔵 GC and allocation activity present but not in top CPU**: `GCPhaseParallel` (28,632) and `ObjectAllocationSample` (17,364) are heavily represented as events. **Evidence**: event counts only; no GC method appears in top 10 CPU samples. **Why it matters**: Context for follow-up — GC is active but not currently a CPU hotspot in this 60 s window.
+- **🔴 Serial GC selected on a server workload**: The JVM is using DefNew + SerialOld, a single-threaded collector intended for tiny/client workloads. **Evidence**: `configuration.young_collector=DefNew`, `configuration.old_collector=SerialOld`, 905 GCs in 60 s (903/min), one 115.7 ms SerialOld pause. **Why it matters**: Serial GC scales poorly and produces unbounded full-GC pauses; on a 1-CPU container it also blocks the only worker thread during collection.
+- **🔴 Heap committed far below container limit**: Heap is committed at only 94.3 MB out of a 2Gi container, and peaks at 94.9% of committed, driving the extreme GC frequency. **Evidence**: `heap.committed_size_mb=94.3`, `heap.max_used_mb=65.7`, `max_used_pct_of_committed=94.9`, 904 Allocation Failure GCs. **Why it matters**: An undersized heap on an oversized container wastes the memory budget and forces ~15 GCs/second, inflating CPU overhead and tail latency.
+- **🟡 Spring Boot nested-JAR URL handler dominates CPU**: ~25–30% of samples are inside `org.springframework.boot.loader.net.protocol.jar.*` and `java.net.URL.<init>` paths, while user code is only 4.4%. **Evidence**: top 10 methods include `JarFileUrlKey.hashCode/equalsIgnoringCase`, `Handler.indexOfSeparator`, `UrlJarFiles.getCached`, `Canonicalizer.canonicalizeAfter`, plus four `URL.<init>` frames; `categories.user_code.pct=4.4`. **Why it matters**: Hot resource/URL resolution against the fat-jar layout means the application pays classpath-lookup cost on the request path instead of doing work.
+- **🟡 High Java exception throw rate (244/s)**: Exceptions are being thrown at 244.2/second sustained over the recording. **Evidence**: `derived.javaExceptionThrowPerSecond=244.2`, `javaExceptionThrowCount=14,683` in 60 s. **Why it matters**: Exception construction captures stack traces and is expensive; rates this high almost always indicate exception-driven control flow (e.g., `ClassNotFoundException` probing, parsing failures) rather than real error conditions.
+- **🔵 Recording sampling density is adequate**: 54.1 execution samples/second over 60 s yields 3,256 samples with stack traces and 0 skipped. **Evidence**: `derived.executionSamplesPerSecond=54.1`, `with_stack_trace=3256`. **Why it matters**: Confidence in the hotspot ranking is reasonable; no caveat needed.
 
 ## Recommendations
-1. **Address "Spring Boot nested-jar classpath resolution dominates CPU"**: Repackage or run the app in a way that avoids per-request nested-jar URL resolution. Options, in order of preference: (a) build with `spring-boot-maven-plugin` `<layout>ZIP</layout>` plus `spring-boot.run.unpack=true`, or extract the jar at image build time (`java -Djarmode=tools -jar app.jar extract`) and run the exploded layout — this is the standard Spring Boot 3.2+ recommendation and eliminates the `org.springframework.boot.loader.net.protocol.jar.Handler` hot path entirely; (b) build a native image with Spring Boot AOT if startup/throughput on 1 CPU is critical.
-2. **Address "Extremely low user-code share"**: Before tuning further, confirm the recording captured representative load. Re-run JFR during a sustained load test (e.g., k6/JMeter at target RPS) so user-code samples are statistically meaningful; the current profile may be dominated by warm-up or idle classloading.
-3. **Address "High exception-throw rate"**: Enable `-XX:+UnlockDiagnosticVMOptions -XX:+PrintConcurrentLocks` is not needed here — instead, add a JFR view or run `jfr print --events jdk.JavaExceptionThrow petclinic.jfr | head -50` to identify the exception classes and call sites. If they are from validation, auth, or `NoSuchElementException` in Optional flows, refactor to non-exceptional control flow.
+1. **Switch off Serial GC** (addresses *Serial GC selected on a server workload*): Add `-XX:+UseG1GC` (default on modern JDKs but evidently overridden here) or `-XX:+UseZGC` to the container JVM args. Verify no explicit `-XX:+UseSerialGC` is set in the Dockerfile, Helm chart, or `JAVA_TOOL_OPTIONS`.
+2. **Right-size the heap to the container** (addresses *Heap committed far below container limit*): Set `-XX:MaxRAMPercentage=70` (or explicit `-Xmx1400m`) so the JVM uses the 2Gi budget. This alone should cut GC frequency from ~903/min to a small fraction.
+3. **Reduce nested-JAR URL resolution cost** (addresses *Spring Boot nested-JAR URL handler dominates CPU*): Repackage the app with `spring-boot-maven-plugin` layout `CLASSIC` extracted (`java -Djarmode=tools -jar app.jar extract`) and run from the exploded layout, or migrate to Spring Boot's AOT / native build. Also audit application code and libraries for repeated `ClassLoader.getResource(...)` calls on the request path and cache the results.
+4. **Diagnose and eliminate the exception hot path** (addresses *High Java exception throw rate*): Enable `-XX:+UnlockDiagnosticVMOptions -XX:+DebugNonSafepoints` and capture a second JFR with `jdk.JavaExceptionThrow` stack traces enabled (`settings=profile` already captures these) — group by exception type, then fix the offending library or code (commonly Jackson type probing, `Class.forName` fallback chains, or Tomcat request attribute lookups).
 
 ## Analysis Limitations
-This build analyzes CPU samples only. The following are NOT yet covered and would change the picture if data is available:
-- Garbage collection behavior (pause times, frequency, generational pressure)
-- Heap and off-heap memory pressure vs container limits
-- Object allocation hotspots (allocation rate, TLAB pressure)
-- Lock contention and thread blocking
+This build analyzes CPU samples and GC behavior. The following are NOT yet covered and would change the picture if data is available:
+- Heap and off-heap memory pressure vs container limits (partial — see Memory & GC above for heap data)
+- Object allocation hotspots (allocation rate, TLAB pressure) — note `jdk.ObjectAllocationSample` is the top event type in this file (17,212 events), so dedicated allocation analysis would likely be high-yield
+- Lock contention and thread blocking (13,641 `jdk.ThreadPark` events present)
 - I/O wait (file, socket)
 - Class loading and JIT compilation overhead

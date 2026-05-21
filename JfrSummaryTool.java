@@ -93,13 +93,48 @@ public class JfrSummaryTool implements Tool {
         if (earliest != null) {
             summary.put("recordingStart", earliest.toString());
             summary.put("recordingEnd", latest.toString());
-            summary.put("recordingDurationSeconds",
-                    Duration.between(earliest, latest).toMillis() / 1000.0);
+            double durationSec = Duration.between(earliest, latest).toMillis() / 1000.0;
+            summary.put("recordingDurationSeconds", durationSec);
+            summary.put("notableEventsPresent", notableEventsPresent(counts));
+            summary.put("derived", derivedRates(counts, durationSec));
         }
         if (jvmInfo != null) {
             summary.put("jvm", jvmInfo);
         }
         return summary;
+    }
+
+    static JSONObject notableEventsPresent(Map<String, Long> counts) {
+        return new JSONObject()
+                .put("executionSamples", counts.getOrDefault("jdk.ExecutionSample", 0L) > 0)
+                .put("gc", counts.keySet().stream().anyMatch(k -> k.startsWith("jdk.GC")))
+                .put("allocations", counts.getOrDefault("jdk.ObjectAllocationSample", 0L) > 0
+                        || counts.getOrDefault("jdk.ObjectAllocationInNewTLAB", 0L) > 0
+                        || counts.getOrDefault("jdk.ObjectAllocationOutsideTLAB", 0L) > 0)
+                .put("locks", counts.getOrDefault("jdk.JavaMonitorEnter", 0L) > 0
+                        || counts.getOrDefault("jdk.ThreadPark", 0L) > 0)
+                .put("io", counts.getOrDefault("jdk.FileRead", 0L) > 0
+                        || counts.getOrDefault("jdk.FileWrite", 0L) > 0
+                        || counts.getOrDefault("jdk.SocketRead", 0L) > 0
+                        || counts.getOrDefault("jdk.SocketWrite", 0L) > 0)
+                .put("exceptions", counts.getOrDefault("jdk.JavaExceptionThrow", 0L) > 0);
+    }
+
+    static JSONObject derivedRates(Map<String, Long> counts, double durationSec) {
+        var rates = new JSONObject();
+        long execSamples = counts.getOrDefault("jdk.ExecutionSample", 0L);
+        long exceptions = counts.getOrDefault("jdk.JavaExceptionThrow", 0L);
+        rates.put("executionSamplesCount", execSamples);
+        rates.put("javaExceptionThrowCount", exceptions);
+        if (durationSec > 0) {
+            rates.put("executionSamplesPerSecond", round1(execSamples / durationSec));
+            rates.put("javaExceptionThrowPerSecond", round1(exceptions / durationSec));
+        }
+        return rates;
+    }
+
+    static double round1(double v) {
+        return Math.round(v * 10.0) / 10.0;
     }
 
     static JSONObject readJvmInfo(jdk.jfr.consumer.RecordedEvent e) {
