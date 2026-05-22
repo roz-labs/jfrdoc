@@ -28,23 +28,24 @@ A real snippet from [`samples/petclinic-report.md`](samples/petclinic-report.md)
 
 ```markdown
 ## CPU Profile
-The category split is highly unusual for a steady-state Spring Boot app:
-user_code is only 3.2%, while JDK code dominates at 63.2% and framework
-(Spring) at 33.6%.
+CPU is heavily skewed toward JDK and Spring Boot loader internals:
+56.3% JDK / 39.3% framework / 4.4% user code / 0% native. The top 8
+hotspots are all either java.net.URL.<init> variants, JarFileUrlKey
+hash/equality, or Arrays.binarySearch from JAR entry lookups.
 
 ### Top Hotspots
-1. java.util.HashMap.getNode:579        — 346 samples (7.1%, jdk)
-2. java.lang.StringLatin1.hashCode:195  — 221 samples (4.5%, jdk)
-3. java.util.Arrays.binarySearch0:1713  — 207 samples (4.2%, jdk)
+1. java.util.Arrays.binarySearch0:1713  — 191 samples (5.9%, jdk)
+2. java.net.URL.<init>:630              — 172 samples (5.3%, jdk)
+3. java.util.Objects.hashCode:97        — 134 samples (4.1%, jdk)
 ...
 
 ## Findings
-- 🔴 Spring Boot nested-jar classpath resolution dominates CPU.
-  Evidence: Handler.indexOfSeparator 4.0%, URL.<init> 7.0%,
-  URLClassPath.getLoader 2.6% — >20% of CPU in nested-jar URL handling.
-  Why it matters: every request triggers repeated resource lookups
-  through the loader, wasting CPU that should go to business logic
-  on a 1-CPU container.
+- 🔴 Serial GC selected on a server workload.
+  Evidence: young_collector=DefNew, old_collector=SerialOld,
+  905 GCs in 60 s (903/min), one 115.7 ms SerialOld pause.
+  Why it matters: Serial GC scales poorly and produces unbounded
+  full-GC pauses; on a 1-CPU container it also blocks the only
+  worker thread during collection.
 ```
 
 ---
