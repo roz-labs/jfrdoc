@@ -10,7 +10,7 @@ import airhacks.zsmith.tools.control.Tool;
 
 record Config(String jfrFile, String memory, String cpu, String framework) {}
 
-List<Tool> TOOLS = List.of(new JfrSummaryTool(), new JfrTopMethodsTool(), new JfrGcStatsTool());
+List<Tool> TOOLS = List.of(new JfrSummaryTool(), new JfrTopMethodsTool(), new JfrGcStatsTool(), new JfrAllocationTool(), new JfrMemoryTool());
 
 void main(String[] args) {
     if (args.length == 0 || args[0].equals("--help") || args[0].equals("-h")) {
@@ -113,10 +113,17 @@ void runAnalyze(Config config) {
         return;
     }
 
+    String containerMemoryMb = "not specified";
+    if (config.memory() != null) {
+        Integer mb = JfrMemoryTool.parseMemoryToMb(config.memory());
+        if (mb != null) containerMemoryMb = mb.toString();
+    }
+
     String systemPrompt = promptTemplate
             .replace("{{jfr_path}}", jfrPath.toAbsolutePath().toString())
             .replace("{{framework}}", config.framework())
             .replace("{{container_memory}}", config.memory() == null ? "not specified" : config.memory())
+            .replace("{{container_memory_mb}}", containerMemoryMb)
             .replace("{{container_cpu}}", config.cpu() == null ? "not specified" : config.cpu());
 
     PrintStream originalOut = System.out;

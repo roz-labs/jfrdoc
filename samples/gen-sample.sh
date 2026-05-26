@@ -24,7 +24,8 @@ void main() throws Exception {
 }
 EOF
 
-java -XX:StartFlightRecording=duration=8s,filename=sample.jfr,settings=profile \
+java -XX:NativeMemoryTracking=summary \
+     -XX:StartFlightRecording=duration=8s,filename=sample.jfr,settings=profile \
      --source 25 "$WORKLOAD"
 
 echo "Wrote $(pwd)/sample.jfr"

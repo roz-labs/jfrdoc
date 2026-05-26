@@ -38,8 +38,18 @@ final class DebugCommand {
                 System.err.println("Error: " + flag + " requires a value");
                 System.exit(1);
             }
-            String key = flag.substring(2).replace('-', '_');
-            input.put(key, args[++i]);
+            String val = args[++i];
+            if (flag.equals("--container-memory")) {
+                Integer mb = JfrMemoryTool.parseMemoryToMb(val);
+                if (mb == null) {
+                    System.err.println("Error: invalid --container-memory value: " + val);
+                    System.exit(1);
+                }
+                input.put("container_memory_mb", mb.intValue());
+            } else {
+                String key = flag.substring(2).replace('-', '_');
+                input.put(key, val);
+            }
             i++;
         }
 

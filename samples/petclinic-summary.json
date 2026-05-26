@@ -2,14 +2,14 @@
   "jvm": {
     "jvmVersion": "OpenJDK 64-Bit Server VM (25.0.3+9-LTS) for linux-aarch64 JRE (25.0.3+9-LTS), built on 2026-04-21T00:00:00Z with gcc 14.2.0",
     "jvmName": "OpenJDK 64-Bit Server VM",
-    "jvmArguments": "-XX:StartFlightRecording=delay=15s,duration=60s,filename=/jfr/petclinic.jfr,settings=profile",
+    "jvmArguments": "-XX:NativeMemoryTracking=summary -XX:StartFlightRecording=delay=15s,duration=120s,filename=/jfr/petclinic.jfr,settings=profile",
     "javaArguments": "/app.jar",
-    "jvmStartTime": "2026-05-21T23:11:41.190Z"
+    "jvmStartTime": "2026-05-26T20:58:11.062Z"
   },
   "path": "samples/petclinic.jfr",
-  "distinctEventTypes": 90,
-  "recordingEnd": "2026-05-21T23:12:56.746378403Z",
-  "recordingStart": "2026-05-21T23:11:56.612025474Z",
+  "distinctEventTypes": 92,
+  "recordingEnd": "2026-05-26T21:00:26.619680096Z",
+  "recordingStart": "2026-05-26T20:58:26.483371453Z",
   "notableEventsPresent": {
     "executionSamples": true,
     "allocations": true,
@@ -18,54 +18,54 @@
     "locks": true,
     "exceptions": true
   },
-  "totalEvents": 88505,
-  "recordingDurationSeconds": 60.134,
+  "totalEvents": 197763,
+  "recordingDurationSeconds": 120.136,
   "topEventTypes": [
     {
-      "count": 17212,
-      "type": "jdk.ObjectAllocationSample"
-    },
-    {
-      "count": 14683,
-      "type": "jdk.JavaExceptionThrow"
-    },
-    {
-      "count": 13641,
+      "count": 36745,
       "type": "jdk.ThreadPark"
     },
     {
-      "count": 13560,
+      "count": 34869,
+      "type": "jdk.ObjectAllocationSample"
+    },
+    {
+      "count": 31099,
+      "type": "jdk.JavaExceptionThrow"
+    },
+    {
+      "count": 30585,
       "type": "jdk.TenuringDistribution"
     },
     {
-      "count": 3620,
+      "count": 8160,
       "type": "jdk.MetaspaceChunkFreeListSummary"
     },
     {
-      "count": 3620,
+      "count": 8160,
       "type": "jdk.GCReferenceStatistics"
     },
     {
-      "count": 3256,
+      "count": 7341,
       "type": "jdk.ExecutionSample"
     },
     {
-      "count": 2716,
+      "count": 6121,
       "type": "jdk.GCPhasePauseLevel1"
     },
     {
-      "count": 2081,
+      "count": 4447,
       "type": "jdk.NativeMethodSample"
     },
     {
-      "count": 1810,
+      "count": 4080,
       "type": "jdk.GCHeapSummary"
     }
   ],
   "derived": {
-    "javaExceptionThrowCount": 14683,
-    "executionSamplesPerSecond": 54.1,
-    "executionSamplesCount": 3256,
-    "javaExceptionThrowPerSecond": 244.2
+    "javaExceptionThrowCount": 31099,
+    "executionSamplesPerSecond": 61.1,
+    "executionSamplesCount": 7341,
+    "javaExceptionThrowPerSecond": 258.9
   }
 }

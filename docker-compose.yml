@@ -7,7 +7,8 @@ services:
     volumes:
       - ./samples:/jfr
     command:
-      - -XX:StartFlightRecording=delay=15s,duration=60s,filename=/jfr/petclinic.jfr,settings=profile
+      - -XX:NativeMemoryTracking=summary
+      - -XX:StartFlightRecording=delay=15s,duration=120s,filename=/jfr/petclinic.jfr,settings=profile
       - -jar
       - /app.jar
     healthcheck:
@@ -23,7 +24,7 @@ services:
     entrypoint: ["sh", "-c"]
     command:
       - |
-        end=$$(( $$(date +%s) + 80 ))
+        end=$$(( $$(date +%s) + 150 ))
         while [ $$(date +%s) -lt $$end ]; do
           for ep in / /owners /owners?lastName=Davis /owners/1 /owners/1/edit /owners/2/pets/new /vets.html /owners/find; do
             curl -s -o /dev/null "http://petclinic:8080$$ep" &
