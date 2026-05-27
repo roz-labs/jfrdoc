@@ -28,24 +28,25 @@ A real snippet from [`samples/petclinic-report.md`](samples/petclinic-report.md)
 
 ```markdown
 ## CPU Profile
-CPU is heavily skewed toward JDK and Spring Boot loader internals:
-56.3% JDK / 39.3% framework / 4.4% user code / 0% native. The top 8
-hotspots are all either java.net.URL.<init> variants, JarFileUrlKey
-hash/equality, or Arrays.binarySearch from JAR entry lookups.
+Sampling density is healthy at 61.1 samples/sec across 7,341 attributed
+samples (0% unattributed). The category split is 62.9% JDK / 34.3% framework
+/ 2.8% user code — extremely skewed away from user code for a Spring Boot
+app under load. The top 10 hotspots are all java.net.URL construction,
+JarFileUrlKey hashing/equals, and URLClassPath.findResource.
 
 ### Top Hotspots
-1. java.util.Arrays.binarySearch0:1713  — 191 samples (5.9%, jdk)
-2. java.net.URL.<init>:630              — 172 samples (5.3%, jdk)
-3. java.util.Objects.hashCode:97        — 134 samples (4.1%, jdk)
+1. java.util.Arrays.binarySearch0:1713  — 417 samples (5.7%, jdk)
+2. java.net.URL.<init>:630              — 354 samples (4.8%, jdk)
+3. ThreadLocalMap.getEntryAfterMiss:514 — 326 samples (4.4%, jdk)
 ...
 
 ## Findings
-- 🔴 Serial GC selected on a server workload.
+- 🔴 Serial GC on a web service with 429 MB/s allocation rate.
   Evidence: young_collector=DefNew, old_collector=SerialOld,
-  905 GCs in 60 s (903/min), one 115.7 ms SerialOld pause.
-  Why it matters: Serial GC scales poorly and produces unbounded
-  full-GC pauses; on a 1-CPU container it also blocks the only
-  worker thread during collection.
+  max_pause_ms=127.28, gcs_per_minute=1018.8, heap peak 96.7% of committed.
+  Why it matters: SerialOld pauses are STW and unpredictable; under load
+  this produces visible request tail-latency spikes and offers no
+  concurrency for old-gen collection.
 ```
 
 ---
@@ -86,23 +87,25 @@ No Maven, no Gradle, no npm. `lib/zsmith.jar` (the zero-dependency agent framewo
 | | What | Where |
 |-|-|-|
 | ✅ | **Recording context** — duration, JVM, OS, framework, container limits | `## Recording Context` |
-| ✅ | **CPU profile split** — user code vs framework vs JDK vs native | `## CPU Profile` |
+| ✅ | **CPU profile split** — user code vs framework vs JDK (on-CPU Java only; native CPU is out of scope) | `## CPU Profile` |
 | ✅ | **Top hotspots** with top callers and Spring/Quarkus-aware attribution | `### Top Hotspots` |
 | ✅ | **Findings** — severity-tagged observations with numeric evidence | `## Findings` |
 | ✅ | **Recommendations** — actionable fixes tied to each finding | `## Recommendations` |
 | ✅ | **GC behavior** — collector config, pause distribution (p50/p95/p99/max), pause overhead, anomalies | `## Garbage Collection` |
 | ✅ | **Memory footprint** — heap + metaspace + code cache + thread stacks + per-category NMT, with container-fit verdict | `## Memory Footprint` |
 | ✅ | **Allocation hotspots** — rate (MB/s), top classes, top sites with category | `## Allocation Hotspots` |
+| ✅ | **Instrumentation-health signals** — `sample_quality` block on CPU + allocation tools surfaces unattributed samples/bytes; flagged as a 🟡 finding when ≥5% so you know when to trust the attribution | `## CPU Profile`, `## Allocation Hotspots` |
 | 🛠 | Lock contention, I/O wait, exception-throw breakdown | _roadmap_ |
+| 🛠 | Native-method sampling (`jdk.NativeMethodSample`) — separate tool for blocked/busy-in-native time; keeps the CPU tool's on-CPU Java scope clean | _roadmap_ |
 | 🛠 | Virtual-thread sizing, K8s context | _roadmap_ |
 
-The agent's report is explicit about today's scope (CPU + GC) in its **Analysis Limitations** section, so nothing is hidden.
+The agent's report is explicit about today's scope (CPU + GC + allocation + memory) in its **Analysis Limitations** section, so nothing is hidden.
 
 ---
 
 ## How it works
 
-jfrdoc reads `.jfr` files via `jdk.jfr.consumer.RecordingFile` from the JDK — **no java agent, no runtime overhead in your app**. A single Claude-driven agent built on [zsmith](https://github.com/AdamBien/zsmith) calls three tools:
+jfrdoc reads `.jfr` files via `jdk.jfr.consumer.RecordingFile` from the JDK — **no java agent, no runtime overhead in your app**. A single Claude-driven agent built on [zsmith](https://github.com/AdamBien/zsmith) calls five tools:
 
 | Tool | Purpose |
 |-|-|
@@ -118,7 +121,7 @@ jfrdoc reads `.jfr` files via `jdk.jfr.consumer.RecordingFile` from the JDK — 
 
 ## Sample report
 
-[`samples/petclinic-report.md`](samples/petclinic-report.md) — end-to-end run against a 60-second JFR of [Spring PetClinic](https://github.com/spring-projects/spring-petclinic) 4.0.0-SNAPSHOT under HTTP load.
+[`samples/petclinic-report.md`](samples/petclinic-report.md) — end-to-end run against a 120-second JFR of [Spring PetClinic](https://github.com/spring-projects/spring-petclinic) 4.0.0-SNAPSHOT under HTTP load.
 Raw tool outputs (handy as prompt-tuning fixtures): [`petclinic-summary.json`](samples/petclinic-summary.json), [`petclinic-top-methods.json`](samples/petclinic-top-methods.json), [`petclinic-gc-stats.json`](samples/petclinic-gc-stats.json), [`petclinic-allocation.json`](samples/petclinic-allocation.json), [`petclinic-memory.json`](samples/petclinic-memory.json).
 
 ---
@@ -159,7 +162,7 @@ docker compose up --build --abort-on-container-exit --exit-code-from loadgen
 docker compose down
 ```
 
-`docker-compose.yml` runs Spring PetClinic under cgroup limits of 1 CPU / 2 GB and a 60 s JFR window, while an `alpine/curl` sidecar drives load against `/owners`, `/vets.html`, `/owners/{id}/edit`, etc. The recording is bind-mounted to `./samples/petclinic.jfr` so it appears on the host the moment the JVM finalizes it. Change the limits, JFR window, or load endpoints by editing `docker-compose.yml` directly — there are no env-var indirections.
+`docker-compose.yml` runs Spring PetClinic under cgroup limits of 1 CPU / 2 GB and a 120 s JFR window, while an `alpine/curl` sidecar drives load against `/owners`, `/vets.html`, `/owners/{id}/edit`, etc. The recording is bind-mounted to `./samples/petclinic.jfr` so it appears on the host the moment the JVM finalizes it. Change the limits, JFR window, or load endpoints by editing `docker-compose.yml` directly — there are no env-var indirections.
 
 **Step 2 — analyze with jfrdoc** (needs Java 25 + your Anthropic key):
 
@@ -185,7 +188,7 @@ docker compose down
 ## Roadmap
 
 - ✅ **Done** — CLI scaffold, `jfr_summary` + `jfr_top_methods` + `jfr_gc_stats` + `jfr_allocation` + `jfr_memory` tools, agent wiring, first dogfood on Spring PetClinic
-- 🛠 **Next** — lock-contention / I/O tools, exception-throw breakdown
+- 🛠 **Next** — lock-contention / I/O tools, native-method sampling tool (separate from `jfr_top_methods` to keep on-CPU Java scope clean), exception-throw breakdown
 - 📦 **Next month** — K8s-aware diagnostics, multi-`.jfr` correlation
 - ☁ **Future** — hosted SaaS with history and trends
 

@@ -33,10 +33,14 @@ public class JfrTopMethodsTool implements Tool {
 
     @Override
     public String description() {
-        return "Aggregates jdk.ExecutionSample events from a JFR file to identify CPU hotspots. "
-                + "Returns the top N methods by sample count with category (user_code / framework / jdk / native), "
-                + "dominant caller, and category breakdown over total samples. "
-                + "Use this to answer 'where is CPU being spent?'";
+        return "Aggregates jdk.ExecutionSample events from a JFR file to identify on-CPU Java hotspots. "
+                + "Returns the top N methods by sample count with category (user_code / framework / jdk), "
+                + "dominant caller, and category breakdown over attributed samples. "
+                + "Use this to answer 'where is on-CPU Java time being spent?' "
+                + "Scope: on-CPU Java only. Native CPU time and blocked-in-native time (jdk.NativeMethodSample) are out of scope. "
+                + "Also returns a sample_quality block (separate from attribution categories) reporting how many samples could not be resolved to a Java method and why "
+                + "(no_stack_trace, native_top_frame, unknown_method_or_class). A healthy recording has unattributed_pct near zero; "
+                + "a materially non-zero value indicates instrumentation gaps, not where CPU is being spent.";
     }
 
     enum Field { path, top_n, framework }
@@ -96,13 +100,14 @@ public class JfrTopMethodsTool implements Tool {
 
         var methodAgg = new LinkedHashMap<String, MethodStats>();
         var categoryCounts = new HashMap<String, Long>();
-        for (String c : List.of("user_code", "framework", "jdk", "native")) {
+        for (String c : List.of("user_code", "framework", "jdk")) {
             categoryCounts.put(c, 0L);
         }
 
         long totalSamples = 0;
-        long withTrace = 0;
-        long skippedNoTrace = 0;
+        long noStackTrace = 0;
+        long nativeTopFrame = 0;
+        long unknownMethodOrClass = 0;
         Instant earliest = null;
         Instant latest = null;
 
@@ -117,50 +122,33 @@ public class JfrTopMethodsTool implements Tool {
                 if (latest == null || ts.isAfter(latest)) latest = ts;
 
                 RecordedStackTrace trace = e.getStackTrace();
-                if (trace == null) {
-                    skippedNoTrace++;
-                    categoryCounts.merge("native", 1L, Long::sum);
-                    var key = "<no-stack-trace>";
-                    var stats = methodAgg.computeIfAbsent(key, k -> new MethodStats("native"));
-                    stats.samples++;
+                if (trace == null || trace.getFrames().isEmpty()) {
+                    noStackTrace++;
                     continue;
                 }
                 var frames = trace.getFrames();
-                if (frames.isEmpty()) {
-                    skippedNoTrace++;
-                    categoryCounts.merge("native", 1L, Long::sum);
-                    var key = "<no-stack-trace>";
-                    var stats = methodAgg.computeIfAbsent(key, k -> new MethodStats("native"));
-                    stats.samples++;
-                    continue;
-                }
-                withTrace++;
 
                 RecordedFrame top = frames.get(0);
-                String methodKey;
-                String category;
                 if (!top.isJavaFrame()) {
-                    methodKey = "<native frame>";
-                    category = "native";
-                } else {
-                    RecordedMethod method = top.getMethod();
-                    if (method == null) {
-                        methodKey = "<unknown method>";
-                        category = "native";
-                    } else {
-                        RecordedClass cls = method.getType();
-                        if (cls == null || cls.getName() == null) {
-                            methodKey = "<unknown class>." + method.getName();
-                            category = "native";
-                        } else {
-                            String fqcn = cls.getName();
-                            String methodName = method.getName();
-                            int line = top.getLineNumber();
-                            methodKey = fqcn + "." + methodName + (line >= 0 ? ":" + line : "");
-                            category = categorizer.categorize(fqcn);
-                        }
-                    }
+                    nativeTopFrame++;
+                    continue;
                 }
+                RecordedMethod method = top.getMethod();
+                if (method == null) {
+                    unknownMethodOrClass++;
+                    continue;
+                }
+                RecordedClass cls = method.getType();
+                if (cls == null || cls.getName() == null) {
+                    unknownMethodOrClass++;
+                    continue;
+                }
+
+                String fqcn = cls.getName();
+                String methodName = method.getName();
+                int line = top.getLineNumber();
+                String methodKey = fqcn + "." + methodName + (line >= 0 ? ":" + line : "");
+                String category = categorizer.categorize(fqcn);
 
                 categoryCounts.merge(category, 1L, Long::sum);
                 var stats = methodAgg.computeIfAbsent(methodKey, k -> new MethodStats(category));
@@ -172,6 +160,9 @@ public class JfrTopMethodsTool implements Tool {
                 }
             }
         }
+
+        long unattributed = noStackTrace + nativeTopFrame + unknownMethodOrClass;
+        long attributed = totalSamples - unattributed;
 
         var result = new JSONObject();
 
@@ -185,18 +176,25 @@ public class JfrTopMethodsTool implements Tool {
         }
         result.put("recording", recording);
 
-        var samples = new JSONObject();
-        samples.put("total", totalSamples);
-        samples.put("with_stack_trace", withTrace);
-        samples.put("skipped_no_trace", skippedNoTrace);
-        result.put("execution_samples", samples);
+        result.put("execution_samples", new JSONObject().put("total", totalSamples));
+
+        var quality = new JSONObject();
+        quality.put("attributed_samples", attributed);
+        quality.put("unattributed_samples", unattributed);
+        quality.put("unattributed_pct", totalSamples == 0 ? 0.0 : round1(100.0 * unattributed / totalSamples));
+        var breakdown = new JSONObject();
+        breakdown.put("no_stack_trace", noStackTrace);
+        breakdown.put("native_top_frame", nativeTopFrame);
+        breakdown.put("unknown_method_or_class", unknownMethodOrClass);
+        quality.put("breakdown", breakdown);
+        result.put("sample_quality", quality);
 
         var categories = new JSONObject();
-        for (String c : List.of("user_code", "framework", "jdk", "native")) {
+        for (String c : List.of("user_code", "framework", "jdk")) {
             long count = categoryCounts.getOrDefault(c, 0L);
             var co = new JSONObject();
             co.put("samples", count);
-            co.put("pct", totalSamples == 0 ? 0.0 : round1(100.0 * count / totalSamples));
+            co.put("pct", attributed == 0 ? 0.0 : round1(100.0 * count / attributed));
             categories.put(c, co);
         }
         result.put("categories", categories);

@@ -347,17 +347,30 @@
       "estimated_mb": 460.7,
       "samples": 222,
       "pct_of_bytes": 0.9
-    },
-    "native": {
-      "estimated_mb": 4.1,
-      "samples": 55,
-      "pct_of_bytes": 0
     }
   },
-  "samples": {
-    "total": 34869,
-    "with_stack_trace": 34814,
-    "skipped_no_trace": 55
+  "samples": {"total": 34869},
+  "sample_quality": {
+    "attributed_bytes": 54081769896,
+    "unattributed_bytes": 4308760,
+    "unattributed_pct_of_bytes": 0,
+    "breakdown": {
+      "native_top_frame": {
+        "bytes": 0,
+        "samples": 0
+      },
+      "unknown_method_or_class": {
+        "bytes": 0,
+        "samples": 0
+      },
+      "no_stack_trace": {
+        "bytes": 4308760,
+        "samples": 55
+      }
+    },
+    "attributed_samples": 34814,
+    "unattributed_samples": 55,
+    "unattributed_pct_of_samples": 0.2
   },
   "estimated_allocation_rate": {
     "total_estimated_mb": 51580.5,

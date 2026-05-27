@@ -198,15 +198,17 @@
     "user_code": {
       "pct": 2.8,
       "samples": 207
-    },
-    "native": {
-      "pct": 0,
-      "samples": 0
     }
   },
-  "execution_samples": {
-    "total": 7341,
-    "with_stack_trace": 7341,
-    "skipped_no_trace": 0
+  "execution_samples": {"total": 7341},
+  "sample_quality": {
+    "unattributed_pct": 0,
+    "breakdown": {
+      "native_top_frame": 0,
+      "unknown_method_or_class": 0,
+      "no_stack_trace": 0
+    },
+    "attributed_samples": 7341,
+    "unattributed_samples": 0
   }
 }

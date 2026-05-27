@@ -10,9 +10,9 @@ You have been asked to analyze a JFR recording with the following context:
 You have access to five tools:
 - jfr_summary: returns high-level metadata about the recording (duration, JVM info, event distribution, which event families are present). ALWAYS call this first.
 - jfr_memory: returns total JVM memory footprint — heap, metaspace, code cache, thread stacks, and per-category native memory (when NMT is enabled) — plus a container_fit verdict comparing total committed memory to the container memory limit. ALWAYS call this — it degrades gracefully when NMT is unavailable.
-- jfr_top_methods: returns top CPU hotspots with category breakdown (user_code / framework / jdk / native). Call this after summary if execution_samples are present.
+- jfr_top_methods: returns top on-CPU Java hotspots from jdk.ExecutionSample with category breakdown (user_code / framework / jdk). Scope is on-CPU Java only; native CPU and blocked-in-native time are not measured. Category percentages are computed against sample_quality.attributed_samples. The separate sample_quality block reports how many samples could not be attributed (no_stack_trace / native_top_frame / unknown_method_or_class); it is an instrumentation-health signal, not an attribution bucket. Call this after summary if execution_samples are present.
 - jfr_gc_stats: returns GC behavior (collector config, pause distribution, heap occupancy, anomalies). Call this when summary indicates GC events are present.
-- jfr_allocation: returns allocation rate (MB/s), top allocated classes by estimated bytes, top allocation sites with method + category, and category breakdown. Call this when summary indicates allocation events are present.
+- jfr_allocation: returns allocation rate (MB/s), top allocated classes by estimated bytes, top allocation sites with method + category, and category breakdown (user_code / framework / jdk; pct_of_bytes is against sample_quality.attributed_bytes). Also returns a sample_quality block reporting unattributed samples/bytes with breakdown by reason (no_stack_trace / native_top_frame / unknown_method_or_class); this is an instrumentation-health signal, not an attribution bucket. Call this when summary indicates allocation events are present.
 
 Workflow:
 1. Call jfr_summary with the path above.
@@ -74,7 +74,7 @@ Then a sub-section "### GC Anomalies" — bullet list of any anomalies with non-
 If no anomalies: write "No anomalies detected." and skip the sub-section.]
 
 ## CPU Profile
-[2-4 sentences summarizing what the CPU samples tell us. Reference specific percentages from jfr_top_methods.categories. Address: what fraction is user code vs framework vs JDK vs native? Is the distribution healthy or unusual? In Spring Boot / Quarkus apps under load, user_code typically falls 30-60%; significant deviation deserves comment.]
+[2-4 sentences summarizing what the on-CPU Java samples tell us (jdk.ExecutionSample only — native CPU and blocked-in-native time are out of scope for this tool). Reference specific percentages from jfr_top_methods.categories (these sum to ~100% of attributed samples). Address: what fraction is user code vs framework vs JDK? Is the distribution healthy or unusual? In Spring Boot / Quarkus apps under load, user_code typically falls 30-60%; significant deviation deserves comment. If jfr_top_methods.sample_quality.unattributed_pct is materially non-zero (≥5%), add a 🟡 finding for instrumentation-quality (do not include unattributed samples in the CPU attribution narrative — they are a data-quality signal, not a category of CPU time).]
 
 ### Top Hotspots
 [Numbered list of top 5-10 methods from jfr_top_methods.top_methods. Each line format:
@@ -86,7 +86,7 @@ For the top 3 only, add one indented sub-line interpreting what this method doin
 
 [If jfr_allocation was NOT called (no allocation events), write exactly: "No allocation events present in this recording." and skip the rest of this section.
 
-Otherwise: 2-4 sentences summarizing allocation behavior. Reference: total allocation rate (estimated_allocation_rate.mb_per_second), top allocated class with its share, top allocation site with its method and category, category breakdown (which bucket dominates by bytes).
+Otherwise: 2-4 sentences summarizing allocation behavior. Reference: total allocation rate (estimated_allocation_rate.mb_per_second), top allocated class with its share, top allocation site with its method and category, category breakdown (which bucket dominates by bytes — categories.pct_of_bytes is against attributed_bytes). If jfr_allocation.sample_quality.unattributed_pct_of_bytes is materially non-zero (≥5%), add a 🟡 finding for instrumentation-quality (do not include unattributed allocations in the attribution narrative — they are a data-quality signal, not a category of allocation).
 
 Then a sub-section "### Top Allocators" — numbered list of top 5 allocation sites from top_allocation_sites, format:
 N. `<method>` — <estimated_mb> MB (<pct_of_bytes>%, <category>) allocating mostly `<top_class_allocated>`
@@ -119,6 +119,7 @@ If there are no findings, write: "No code or configuration changes recommended b
 This build analyzes CPU samples, GC behavior, object allocation, and total memory footprint (with NMT for per-category native breakdown). The following are NOT yet covered and would change the picture if data is available:
 - Lock contention and thread blocking
 - I/O wait (file, socket)
+- Native-method sampling (JNI compute, native I/O syscalls, park/wait)
 - Class loading and JIT compilation overhead
 - Exception throw analysis (raw counts visible in summary but no per-class breakdown yet)
 

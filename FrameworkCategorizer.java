@@ -17,7 +17,9 @@ public record FrameworkCategorizer(
     }
 
     public String categorize(String fqcn) {
-        if (fqcn == null) return "native";
+        if (fqcn == null) {
+            throw new IllegalArgumentException("fqcn must not be null; callers should route unresolved samples to sample_quality, not categorize()");
+        }
         if (startsWithAny(fqcn, jdk)) return "jdk";
         if (startsWithAny(fqcn, alwaysFramework)) return "framework";
         if (startsWithAny(fqcn, extraFramework)) return "framework";

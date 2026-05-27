@@ -38,7 +38,10 @@ public class JfrAllocationTool implements Tool {
         return "Analyzes object allocation hotspots from jdk.ObjectAllocationSample events. "
                 + "Returns: estimated allocation rate (MB/s), top allocated classes by estimated bytes, "
                 + "top allocation sites (methods doing the most allocation), and allocation breakdown "
-                + "by category (user_code / framework / jdk / native). "
+                + "by category (user_code / framework / jdk). Category percentages are computed against attributed_bytes. "
+                + "Also returns a sample_quality block (separate from attribution categories) reporting how many events could not be resolved to a Java allocation site and why "
+                + "(no_stack_trace, native_top_frame, unknown_method_or_class), in both samples and bytes. A healthy recording has unattributed_pct_of_bytes near zero; "
+                + "a materially non-zero value indicates instrumentation gaps, not where allocation is happening. "
                 + "Call this when summary.notable_events_present.allocation is true.";
     }
 
@@ -99,7 +102,7 @@ public class JfrAllocationTool implements Tool {
         var classAgg = new LinkedHashMap<String, ClassStats>();
         var siteAgg = new LinkedHashMap<String, SiteStats>();
         var categoryAgg = new HashMap<String, long[]>();
-        for (String c : List.of("user_code", "framework", "jdk", "native")) {
+        for (String c : List.of("user_code", "framework", "jdk")) {
             categoryAgg.put(c, new long[2]);
         }
 
@@ -107,9 +110,10 @@ public class JfrAllocationTool implements Tool {
         long outsideTlabEvents = 0;
 
         long totalSamples = 0;
-        long withTrace = 0;
-        long skippedNoTrace = 0;
         long totalBytes = 0;
+        long noStackTraceSamples = 0, noStackTraceBytes = 0;
+        long nativeTopFrameSamples = 0, nativeTopFrameBytes = 0;
+        long unknownMethodOrClassSamples = 0, unknownMethodOrClassBytes = 0;
         Instant earliest = null;
         Instant latest = null;
 
@@ -135,38 +139,31 @@ public class JfrAllocationTool implements Tool {
                     RecordedStackTrace trace = e.getStackTrace();
                     List<RecordedFrame> frames = trace == null ? null : trace.getFrames();
                     if (trace == null || frames == null || frames.isEmpty()) {
-                        skippedNoTrace++;
-                        bumpCategory(categoryAgg, "native", weight);
-                        recordSite(siteAgg, "<no-stack-trace>", "native", weight, className);
+                        noStackTraceSamples++; noStackTraceBytes += weight;
                         continue;
                     }
-                    withTrace++;
 
                     RecordedFrame top = frames.get(0);
-                    String siteKey;
-                    String category;
                     if (!top.isJavaFrame()) {
-                        siteKey = "<native frame>";
-                        category = "native";
-                    } else {
-                        RecordedMethod method = top.getMethod();
-                        if (method == null) {
-                            siteKey = "<unknown method>";
-                            category = "native";
-                        } else {
-                            RecordedClass cls = method.getType();
-                            if (cls == null || cls.getName() == null) {
-                                siteKey = "<unknown class>." + method.getName();
-                                category = "native";
-                            } else {
-                                String fqcn = cls.getName();
-                                String methodName = method.getName();
-                                int line = top.getLineNumber();
-                                siteKey = fqcn + "." + methodName + (line >= 0 ? ":" + line : "");
-                                category = categorizer.categorize(fqcn);
-                            }
-                        }
+                        nativeTopFrameSamples++; nativeTopFrameBytes += weight;
+                        continue;
                     }
+                    RecordedMethod method = top.getMethod();
+                    if (method == null) {
+                        unknownMethodOrClassSamples++; unknownMethodOrClassBytes += weight;
+                        continue;
+                    }
+                    RecordedClass cls = method.getType();
+                    if (cls == null || cls.getName() == null) {
+                        unknownMethodOrClassSamples++; unknownMethodOrClassBytes += weight;
+                        continue;
+                    }
+
+                    String fqcn = cls.getName();
+                    String methodName = method.getName();
+                    int line = top.getLineNumber();
+                    String siteKey = fqcn + "." + methodName + (line >= 0 ? ":" + line : "");
+                    String category = categorizer.categorize(fqcn);
 
                     bumpCategory(categoryAgg, category, weight);
                     recordSite(siteAgg, siteKey, category, weight, className);
@@ -180,6 +177,11 @@ public class JfrAllocationTool implements Tool {
                 }
             }
         }
+
+        long unattributedSamples = noStackTraceSamples + nativeTopFrameSamples + unknownMethodOrClassSamples;
+        long unattributedBytes = noStackTraceBytes + nativeTopFrameBytes + unknownMethodOrClassBytes;
+        long attributedSamples = totalSamples - unattributedSamples;
+        long attributedBytes = totalBytes - unattributedBytes;
 
         double durationSeconds = 0.0;
         if (earliest != null && latest != null) {
@@ -195,11 +197,7 @@ public class JfrAllocationTool implements Tool {
         recording.put("duration_seconds", round1(durationSeconds));
         result.put("recording", recording);
 
-        var samples = new JSONObject();
-        samples.put("total", totalSamples);
-        samples.put("with_stack_trace", withTrace);
-        samples.put("skipped_no_trace", skippedNoTrace);
-        result.put("samples", samples);
+        result.put("samples", new JSONObject().put("total", totalSamples));
 
         var rate = new JSONObject();
         rate.put("total_estimated_bytes", totalBytes);
@@ -207,19 +205,38 @@ public class JfrAllocationTool implements Tool {
         rate.put("mb_per_second", round1(mbPerSecond));
         result.put("estimated_allocation_rate", rate);
 
+        var quality = new JSONObject();
+        quality.put("attributed_samples", attributedSamples);
+        quality.put("attributed_bytes", attributedBytes);
+        quality.put("unattributed_samples", unattributedSamples);
+        quality.put("unattributed_bytes", unattributedBytes);
+        quality.put("unattributed_pct_of_samples",
+                totalSamples == 0 ? 0.0 : round1(100.0 * unattributedSamples / totalSamples));
+        quality.put("unattributed_pct_of_bytes",
+                totalBytes == 0 ? 0.0 : round1(100.0 * unattributedBytes / totalBytes));
+        var breakdown = new JSONObject();
+        breakdown.put("no_stack_trace",
+                new JSONObject().put("samples", noStackTraceSamples).put("bytes", noStackTraceBytes));
+        breakdown.put("native_top_frame",
+                new JSONObject().put("samples", nativeTopFrameSamples).put("bytes", nativeTopFrameBytes));
+        breakdown.put("unknown_method_or_class",
+                new JSONObject().put("samples", unknownMethodOrClassSamples).put("bytes", unknownMethodOrClassBytes));
+        quality.put("breakdown", breakdown);
+        result.put("sample_quality", quality);
+
         var categories = new JSONObject();
-        for (String c : List.of("user_code", "framework", "jdk", "native")) {
+        for (String c : List.of("user_code", "framework", "jdk")) {
             long[] arr = categoryAgg.get(c);
             var co = new JSONObject();
             co.put("samples", arr[0]);
             co.put("estimated_mb", round1(toMb(arr[1])));
-            co.put("pct_of_bytes", totalBytes == 0 ? 0.0 : round1(100.0 * arr[1] / totalBytes));
+            co.put("pct_of_bytes", attributedBytes == 0 ? 0.0 : round1(100.0 * arr[1] / attributedBytes));
             categories.put(c, co);
         }
         result.put("categories", categories);
 
         result.put("top_allocated_classes", topClasses(classAgg, topN, totalBytes));
-        result.put("top_allocation_sites", topSites(siteAgg, topN, totalBytes));
+        result.put("top_allocation_sites", topSites(siteAgg, topN, attributedBytes));
         result.put("large_object_allocations", largeObjectAllocations(outsideTlabEvents, outsideTlabByClass));
         result.put("framework_used_for_categorization", framework);
         return result;
