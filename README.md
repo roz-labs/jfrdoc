@@ -76,7 +76,7 @@ EOF
 
 > ⚠️ **Redirect only stdout** (`> report.md`). zsmith's progress chatter goes to stderr — merging the streams with `2>&1` duplicates the report inside the file.
 
-Each analysis costs roughly **$0.30** in Anthropic API charges with `claude-opus-4-7`.
+Each analysis costs roughly **$0.40** in Anthropic API charges with `claude-opus-4-7`.
 
 No Maven, no Gradle, no npm. `lib/zsmith.jar` (the zero-dependency agent framework jfrdoc is built on) is committed in this repo, so the launcher runs out of the box. See [`lib/README.md`](lib/README.md) for version and rebuild instructions.
 
@@ -95,7 +95,8 @@ No Maven, no Gradle, no npm. `lib/zsmith.jar` (the zero-dependency agent framewo
 | ✅ | **Memory footprint** — heap + metaspace + code cache + thread stacks + per-category NMT, with container-fit verdict | `## Memory Footprint` |
 | ✅ | **Allocation hotspots** — rate (MB/s), top classes, top sites with category | `## Allocation Hotspots` |
 | ✅ | **Instrumentation-health signals** — `sample_quality` block on CPU + allocation tools surfaces unattributed samples/bytes; flagged as a 🟡 finding when ≥5% so you know when to trust the attribution | `## CPU Profile`, `## Allocation Hotspots` |
-| 🛠 | Lock contention, I/O wait, exception-throw breakdown | _roadmap_ |
+| ✅ | **Concurrency & locks** — monitor contention + thread parking with park-site categorization, so 36k benign pool-idle parks aren't mistaken for contention | `## Concurrency & Locks` |
+| 🛠 | I/O wait, exception-throw breakdown | _roadmap_ |
 | 🛠 | Native-method sampling (`jdk.NativeMethodSample`) — separate tool for blocked/busy-in-native time; keeps the CPU tool's on-CPU Java scope clean | _roadmap_ |
 | 🛠 | Virtual-thread sizing, K8s context | _roadmap_ |
 
@@ -105,7 +106,7 @@ The agent's report is explicit about today's scope (CPU + GC + allocation + memo
 
 ## How it works
 
-jfrdoc reads `.jfr` files via `jdk.jfr.consumer.RecordingFile` from the JDK — **no java agent, no runtime overhead in your app**. A single Claude-driven agent built on [zsmith](https://github.com/AdamBien/zsmith) calls five tools:
+jfrdoc reads `.jfr` files via `jdk.jfr.consumer.RecordingFile` from the JDK — **no java agent, no runtime overhead in your app**. A single Claude-driven agent built on [zsmith](https://github.com/AdamBien/zsmith) calls six tools:
 
 | Tool | Purpose |
 |-|-|
@@ -114,15 +115,16 @@ jfrdoc reads `.jfr` files via `jdk.jfr.consumer.RecordingFile` from the JDK — 
 | `jfr_gc_stats` | GC collector config, pause distribution, heap occupancy, anomalies |
 | `jfr_allocation` | Allocation rate (MB/s), top allocated classes, top allocation sites with category |
 | `jfr_memory` | Total JVM memory footprint (heap, metaspace, code cache, threads, NMT) with container-fit verdict |
+| `jfr_lock_contention` | Monitor contention + thread parking with heuristic category hints (pool-idle vs connection-pool vs lock-acquire) |
 
-…then synthesizes a markdown report with findings, evidence, and recommendations. As more tools land (locks, I/O), the same agent reaches for them.
+…then synthesizes a markdown report with findings, evidence, and recommendations. As more tools land (I/O, exceptions), the same agent reaches for them.
 
 ---
 
 ## Sample report
 
 [`samples/petclinic-report.md`](samples/petclinic-report.md) — end-to-end run against a 120-second JFR of [Spring PetClinic](https://github.com/spring-projects/spring-petclinic) 4.0.0-SNAPSHOT under HTTP load.
-Raw tool outputs (handy as prompt-tuning fixtures): [`petclinic-summary.json`](samples/petclinic-summary.json), [`petclinic-top-methods.json`](samples/petclinic-top-methods.json), [`petclinic-gc-stats.json`](samples/petclinic-gc-stats.json), [`petclinic-allocation.json`](samples/petclinic-allocation.json), [`petclinic-memory.json`](samples/petclinic-memory.json).
+Raw tool outputs (handy as prompt-tuning fixtures): [`petclinic-summary.json`](samples/petclinic-summary.json), [`petclinic-top-methods.json`](samples/petclinic-top-methods.json), [`petclinic-gc-stats.json`](samples/petclinic-gc-stats.json), [`petclinic-allocation.json`](samples/petclinic-allocation.json), [`petclinic-memory.json`](samples/petclinic-memory.json), [`petclinic-lock-contention.json`](samples/petclinic-lock-contention.json).
 
 ---
 
@@ -137,12 +139,13 @@ Generate a tiny `.jfr` for fast local iteration (8 s of allocation churn):
 Exercise each tool directly without the agent loop — useful for verifying the JSON the agent sees:
 
 ```bash
-./jfrdoc debug-tool jfr-summary     samples/sample.jfr
-./jfrdoc debug-tool jfr-top-methods samples/sample.jfr --top-n 10
-./jfrdoc debug-tool jfr-top-methods samples/sample.jfr --top-n 5 --framework quarkus
-./jfrdoc debug-tool jfr-gc-stats    samples/sample.jfr
-./jfrdoc debug-tool jfr-allocation  samples/sample.jfr --framework spring --top-n 10
-./jfrdoc debug-tool jfr-memory      samples/sample.jfr --container-memory 2Gi
+./jfrdoc debug-tool jfr-summary         samples/sample.jfr
+./jfrdoc debug-tool jfr-top-methods     samples/sample.jfr --top-n 10
+./jfrdoc debug-tool jfr-top-methods     samples/sample.jfr --top-n 5 --framework quarkus
+./jfrdoc debug-tool jfr-gc-stats        samples/sample.jfr
+./jfrdoc debug-tool jfr-allocation      samples/sample.jfr --framework spring --top-n 10
+./jfrdoc debug-tool jfr-memory          samples/sample.jfr --container-memory 2Gi
+./jfrdoc debug-tool jfr-lock-contention samples/sample.jfr --top-n 10
 ```
 
 > 💡 **Recommended JVM flags for richest analysis.** For full memory analysis (per-category native memory and the `container_fit` verdict), enable Native Memory Tracking when generating the JFR:
@@ -179,6 +182,8 @@ docker compose down
     > samples/petclinic-allocation.json
 ./jfrdoc debug-tool jfr-memory samples/petclinic.jfr --container-memory 2Gi \
     > samples/petclinic-memory.json
+./jfrdoc debug-tool jfr-lock-contention samples/petclinic.jfr --top-n 10 \
+  > samples/petclinic-lock-contention.json
 ```
 
 **Why containers, not host `java -jar`?** The JVM honors cgroup limits (`-XX:UseContainerSupport` is default on JDK 25), so GC heuristics, ForkJoin pool size, and `Runtime.availableProcessors()` all reflect the constrained environment — which is exactly what jfrdoc's `--container-cpu` / `--container-memory` flags claim in the report header. As a bonus, the build is reproducible across macOS / Linux / Windows because both build and run happen inside `eclipse-temurin:25-jdk`, so host Maven version, BSD vs GNU coreutils quirks, and corporate TLS-MITM proxies stop mattering for the recording step.
@@ -187,8 +192,8 @@ docker compose down
 
 ## Roadmap
 
-- ✅ **Done** — CLI scaffold, `jfr_summary` + `jfr_top_methods` + `jfr_gc_stats` + `jfr_allocation` + `jfr_memory` tools, agent wiring, first dogfood on Spring PetClinic
-- 🛠 **Next** — lock-contention / I/O tools, native-method sampling tool (separate from `jfr_top_methods` to keep on-CPU Java scope clean), exception-throw breakdown
+- ✅ **Done** — CLI scaffold, `jfr_summary` + `jfr_top_methods` + `jfr_gc_stats` + `jfr_allocation` + `jfr_memory` + `jfr_lock_contention` tools, agent wiring, first dogfood on Spring PetClinic
+- 🛠 **Next** — I/O wait tool, native-method sampling tool (separate from `jfr_top_methods` to keep on-CPU Java scope clean), exception-throw breakdown
 - 📦 **Next month** — K8s-aware diagnostics, multi-`.jfr` correlation
 - ☁ **Future** — hosted SaaS with history and trends
 

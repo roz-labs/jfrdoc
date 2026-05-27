@@ -95,7 +95,7 @@ public class JfrSummaryTool implements Tool {
             summary.put("recordingEnd", latest.toString());
             double durationSec = Duration.between(earliest, latest).toMillis() / 1000.0;
             summary.put("recordingDurationSeconds", durationSec);
-            summary.put("notableEventsPresent", notableEventsPresent(counts));
+            summary.put("notable_events_present", notableEventsPresent(counts));
             summary.put("derived", derivedRates(counts, durationSec));
         }
         if (jvmInfo != null) {
@@ -106,13 +106,13 @@ public class JfrSummaryTool implements Tool {
 
     static JSONObject notableEventsPresent(Map<String, Long> counts) {
         return new JSONObject()
-                .put("executionSamples", counts.getOrDefault("jdk.ExecutionSample", 0L) > 0)
+                .put("execution_samples", counts.getOrDefault("jdk.ExecutionSample", 0L) > 0)
                 .put("gc", counts.keySet().stream().anyMatch(k -> k.startsWith("jdk.GC")))
-                .put("allocations", counts.getOrDefault("jdk.ObjectAllocationSample", 0L) > 0
+                .put("allocation", counts.getOrDefault("jdk.ObjectAllocationSample", 0L) > 0
                         || counts.getOrDefault("jdk.ObjectAllocationInNewTLAB", 0L) > 0
                         || counts.getOrDefault("jdk.ObjectAllocationOutsideTLAB", 0L) > 0)
-                .put("locks", counts.getOrDefault("jdk.JavaMonitorEnter", 0L) > 0
-                        || counts.getOrDefault("jdk.ThreadPark", 0L) > 0)
+                .put("monitor_contention", counts.getOrDefault("jdk.JavaMonitorEnter", 0L) > 0)
+                .put("thread_parking", counts.getOrDefault("jdk.ThreadPark", 0L) > 0)
                 .put("io", counts.getOrDefault("jdk.FileRead", 0L) > 0
                         || counts.getOrDefault("jdk.FileWrite", 0L) > 0
                         || counts.getOrDefault("jdk.SocketRead", 0L) > 0

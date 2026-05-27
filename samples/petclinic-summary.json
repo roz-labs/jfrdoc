@@ -9,15 +9,16 @@
   "path": "samples/petclinic.jfr",
   "distinctEventTypes": 92,
   "recordingEnd": "2026-05-26T21:00:26.619680096Z",
-  "recordingStart": "2026-05-26T20:58:26.483371453Z",
-  "notableEventsPresent": {
-    "executionSamples": true,
-    "allocations": true,
+  "notable_events_present": {
+    "allocation": true,
+    "thread_parking": true,
     "io": true,
+    "monitor_contention": true,
     "gc": true,
-    "locks": true,
+    "execution_samples": true,
     "exceptions": true
   },
+  "recordingStart": "2026-05-26T20:58:26.483371453Z",
   "totalEvents": 197763,
   "recordingDurationSeconds": 120.136,
   "topEventTypes": [

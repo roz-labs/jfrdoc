@@ -1,7 +1,7 @@
 # jfrdoc Analysis Report
 
 ## Executive Summary
-The application is burning ~63% of on-CPU time and ~24% of allocated bytes inside Spring Boot's nested-jar URL/classloader machinery (`java.net.URL`, `JarFileUrlKey`, `URLClassPath.findResource`), driving an unusually high allocation rate of ~429 MB/s and a young-GC frequency of ~17/sec. The app is configured with the **Serial GC** (DefNew + SerialOld) on a 1-CPU container — workable here, but it produced one 127 ms SerialOld pause and is a poor match for an allocation-heavy web workload. Memory footprint is safe (~428 MB of 2048 MB) and exception throw rate is 258.9/sec, which is elevated and worth a look.
+This Spring Boot PetClinic recording is dominated by Spring Boot Loader nested-JAR resource resolution overhead: ~97% of on-CPU Java samples are spent in JDK/framework URL parsing, classpath lookup, and JAR cache code rather than application logic, while allocation runs at ~430 MB/s with `byte[]`, `String`, and `java.net.URL` being churned by the same loader code paths. Container fit is safe (428 MB committed of 2048 MB), but there is real synchronized contention on Spring Boot loader monitors (`UrlNestedJarFile`, `UrlJarFiles$Cache`) and a high Java exception throw rate of 259/s.
 
 ## Recording Context
 - **File**: /Users/ridvanozcan/code/jfrdoc/samples/petclinic.jfr
@@ -10,12 +10,10 @@ The application is burning ~63% of on-CPU time and ~24% of allocated bytes insid
 - **OS**: linux-aarch64
 - **Framework**: spring
 - **Container limits**: memory=2Gi cpu=1
-- **Total events captured**: 197,763
+- **Total events captured**: 197763
 
 ## Memory Footprint
-Container fit: **SAFE** — 427.6 MB committed of 2048 MB limit (79.1% headroom). The dominant native category is JFR's own `Tracing` arena at 112.1 MB (26.2%), which is recording overhead, not application footprint; the real top consumers are Java Heap (97.4 MB), Metaspace (84.6 MB), and Code Cache (69.3 MB). Heap peaked at 65.9 MB against a 94.2 MB committed size — very small for a 2 GB container.
-
-The metaspace signal `metaspace_near_committed` is set (97.6 MB used of 98.3 MB committed); this is normal post-startup behavior but indicates metaspace will expand on further class loading. Code cache has plenty of room (39.4 MB used of 240 MB committed). 33 threads peak — modest.
+Container fit: SAFE — 427.6 MB committed of 2048 MB limit (79.1% headroom). NMT is enabled, so we have full visibility into native memory categories. The dominant category is `Tracing` (112.1 MB, 26.2%) — this is overhead from the active JFR `profile` settings recording itself, not application code. Heap is small (94.2 MB committed, peak 65.9 MB used) and metaspace sits at 98.3 MB committed of 1152 MB reserved (signal `metaspace_unbounded` is set, but with only 97.6 MB used this is informational, not urgent).
 
 ### Memory Breakdown
 - **Tracing**: 112.1 MB committed (26.2%, 112.1 MB reserved)
@@ -28,60 +26,73 @@ The metaspace signal `metaspace_near_committed` is set (97.6 MB used of 98.3 MB 
 - **Native Memory Tracking**: 10.8 MB committed (2.5%, 10.8 MB reserved)
 
 ## Garbage Collection
-The JVM is running **Serial GC** (DefNew young + SerialOld old) — an unusual choice for a Spring Boot service. Young GCs fire at **1018.8/min (~17/sec)** with p99 = 2.44 ms and average 1.61 ms, totaling 2.74% pause overhead — acceptable on average. However, one **SerialOld full collection** ran for **127.28 ms**, and the heap reached **96.7% of committed** before that GC, indicating the small heap (94.2 MB committed, 65.9 MB peak used) is being pushed hard by the 429 MB/s allocation rate.
+The JVM is running the **Serial GC** (DefNew young + SerialOld old) — unusual and inappropriate for a server workload, almost certainly a container-sizing default (single-CPU container triggers SerialGC selection). GC ran 2040 times (1018.8/min) with 2.74% pause overhead; pauses are tiny on average (p50 1.33 ms, p99 2.44 ms), but one SerialOld full collection took 127.28 ms. Despite the `total_pause_time_ms` being modest, the high collection frequency reflects intense allocation churn against a small young generation.
 
 ### GC Anomalies
-- **1 long pause >100 ms** (the SerialOld at 127.28 ms) — a single tail-latency spike that any request landing in that window would feel.
-- Note: `by_cause` reports 0 full GCs in the anomaly counter but `by_name` shows 1 SerialOld collection; either way, an old-gen collection occurring at all on a 2-minute recording with this much allocation pressure is a warning that the heap is undersized for the workload.
+- **1 long pause > 100 ms** (127.28 ms): a single SerialOld stop-the-world full collection — the only old-gen collection in the recording.
 
 ## CPU Profile
-Sampling density is healthy at 61.1 samples/sec across 7,341 attributed samples (0% unattributed). The category split is **62.9% JDK / 34.3% framework / 2.8% user code** — extremely skewed away from user code for a Spring Boot app under load. The top 10 hotspots are all `java.net.URL` construction, `JarFileUrlKey` hashing/equals, and `URLClassPath.findResource`, indicating that Spring Boot's nested-jar URL handler (`org.springframework.boot.loader.net.protocol.jar.*`) is repeatedly resolving classpath resources during request processing rather than serving cached results.
+On-CPU Java time is overwhelmingly in **JDK code (62.9%)** and **framework code (34.3%)**, with only **2.8% in user code** — extremely unusual for a Spring Boot application under load. The top hotspots are not business logic at all but Spring Boot's nested-JAR loader machinery (`org.springframework.boot.loader.net.protocol.jar.*`) and the JDK URL/URLClassPath plumbing it sits on top of (URL parsing, `Arrays.binarySearch`, `ThreadLocalMap.getEntryAfterMiss`, `ParseUtil.encodePath`). Sample density is healthy at 61.1 samples/s with 100% attribution.
 
 ### Top Hotspots
 1. `java.util.Arrays.binarySearch0:1713` — 417 samples (5.7%, jdk) ← called from `java.util.Arrays.binarySearch`
-   - Used by the nested-jar `ZipContent` index lookups — a symptom of repeated classpath resource resolution.
+   - Binary search inside JAR/classpath entry lookup — invoked transitively from resource resolution.
 2. `java.net.URL.<init>:630` — 354 samples (4.8%, jdk) ← called from `java.net.URL.<init>`
-   - URL object construction in the hot path; expensive because of parsing and authority handling.
-3. `java.lang.ThreadLocal$ThreadLocalMap.getEntryAfterMiss:514` — 326 samples (4.4%, jdk) ← called from `ThreadLocalMap.getEntry`
-   - ThreadLocal misses suggest many distinct ThreadLocals per request (common with Spring's request-scoped context, MDC, tracing).
-4. `jdk.internal.loader.URLClassPath$Loader.findResource:534` — 308 samples (4.2%, jdk) ← called from `URLClassPath.findResource`
-5. `java.util.Objects.hashCode:97` — 288 samples (3.9%, jdk) ← called from `JarFileUrlKey.hashCode`
+   - URL object construction is being repeated thousands of times per second, pointing at uncached resource lookups through the Spring Boot nested-JAR handler.
+3. `java.lang.ThreadLocal$ThreadLocalMap.getEntryAfterMiss:514` — 326 samples (4.4%, jdk) ← called from `java.lang.ThreadLocal$ThreadLocalMap.getEntry`
+   - ThreadLocal map collisions (linear probe past the initial slot), typically a symptom of many ThreadLocals or thread reuse across heavy contexts.
+4. `jdk.internal.loader.URLClassPath$Loader.findResource:534` — 308 samples (4.2%, jdk) ← called from `jdk.internal.loader.URLClassPath.findResource`
+5. `java.util.Objects.hashCode:97` — 288 samples (3.9%, jdk) ← called from `org.springframework.boot.loader.net.protocol.jar.JarFileUrlKey.hashCode`
 6. `java.net.URL.<init>:741` — 285 samples (3.9%, jdk) ← called from `java.net.URL.<init>`
-7. `java.lang.String.equalsIgnoreCase:2056` — 234 samples (3.2%, jdk) ← called from `JarFileUrlKey.equalsIgnoringCase`
-8. `jdk.internal.util.ArraysSupport.mismatch:555` — 228 samples (3.1%, jdk) ← called from `String.startsWith`
-9. `sun.net.www.ParseUtil.firstEncodeIndex:95` — 212 samples (2.9%, jdk) ← called from `ParseUtil.encodePath`
+7. `java.lang.String.equalsIgnoreCase:2056` — 234 samples (3.2%, jdk) ← called from `org.springframework.boot.loader.net.protocol.jar.JarFileUrlKey.equalsIgnoringCase`
+8. `jdk.internal.util.ArraysSupport.mismatch:555` — 228 samples (3.1%, jdk) ← called from `java.lang.String.startsWith`
+9. `sun.net.www.ParseUtil.firstEncodeIndex:95` — 212 samples (2.9%, jdk) ← called from `sun.net.www.ParseUtil.encodePath`
 10. `java.net.URL.<init>:764` — 208 samples (2.8%, jdk) ← called from `java.net.URL.<init>`
 
 ## Allocation Hotspots
-Allocation rate is **429.5 MB/s** — high for a sample app and the primary driver of the 17/sec young-GC cadence. `byte[]` alone accounts for **43.9% (22.6 GB over 2 min)**, followed by `java.lang.String` (17.8%) and `java.net.URL` (16.9%). The top allocation site is `Arrays.copyOfRange:3849` (14.3 GB, 27.7%) — typical of JAR/ZIP reads and `String.getBytes`. By category, **75.3% of bytes come from the JDK and 23.8% from the framework**, with user code at only 0.9% — i.e., almost no allocation pressure originates from Petclinic's own business code. `java.net.URL` (16.9%) and `JarFileUrlKey` (8.2%) appearing this high in *runtime* allocation (not startup) confirms the nested-jar handler is being invoked per-request.
+Allocation rate is **429.5 MB/s** sustained over 120 s — very high for a small heap, and the root reason GC fires every ~60 ms. **75.3% of allocated bytes are categorized as JDK** and **23.8% as framework**, with user code at only **0.9%**. The top allocated class is `byte[]` (43.9%), followed by `String` (17.8%), `java.net.URL` (16.9%), and Spring Boot's `JarFileUrlKey` (8.2%) — the same nested-JAR loader pattern visible in the CPU profile, manifesting as constant garbage from URL construction, byte-buffer copies, and cache key creation.
 
 ### Top Allocators
 1. `java.util.Arrays.copyOfRange:3849` — 14275 MB (27.7%, jdk) allocating mostly `byte[]`
-   - Backing-array slicing during nested-jar entry reads and string construction; reducing the URL/jar lookups upstream will cut this dramatically.
-2. `jdk.internal.misc.Unsafe.allocateUninitializedArray:1396` — 7223.4 MB (14.0%, jdk) allocating mostly `byte[]`
-   - General `byte[]` factory path; same upstream cause — buffer allocations triggered by repeated resource I/O.
+   - Generic byte-array copy hot path; given the call sites visible elsewhere, this is feeding nested-JAR entry reads and stream buffering.
+2. `jdk.internal.misc.Unsafe.allocateUninitializedArray:1396` — 7223.4 MB (14%, jdk) allocating mostly `byte[]`
+   - Low-level raw byte buffer allocation, again driven downstream by repeated JAR entry reads.
 3. `java.lang.StringLatin1.newString:760` — 7017.3 MB (13.6%, jdk) allocating mostly `java.lang.String`
 4. `jdk.internal.loader.URLClassPath$Loader.findResource:514` — 4400.1 MB (8.5%, jdk) allocating mostly `java.net.URL`
 5. `org.springframework.boot.loader.net.protocol.jar.JarUrlConnection.open:340` — 4308.2 MB (8.4%, framework) allocating mostly `java.net.URL`
 
+## Concurrency & Locks
+Real `synchronized` contention is present: **813 JavaMonitorEnter events totaling 33.5 s of waiting**, concentrated on Spring Boot Loader's `UrlNestedJarFile` (16.4 s) and `UrlJarFiles$Cache` (13.0 s) monitors — the same nested-JAR machinery dominating CPU and allocation. The connection pool is **not** under pressure (no `connection_pool_wait` events). 100% of ThreadPark time falls in `pool_idle_wait` (1059 s on `awaitNanos`, typical executor/HikariCP idle threads waiting for work) — this is **benign**, not contention, despite the 36,745 ThreadPark events.
+
+### Contended Monitors
+1. `org.springframework.boot.loader.net.protocol.jar.UrlNestedJarFile` — 395 events, 16448.6 ms total (41.6 ms avg, max 83.3 ms) at `org.springframework.boot.loader.jar.NestedJarFile.hasEntry:251`
+2. `org.springframework.boot.loader.net.protocol.jar.UrlJarFiles$Cache` — 326 events, 12988.9 ms total (39.8 ms avg, max 79.4 ms) at `org.springframework.boot.loader.net.protocol.jar.UrlJarFiles$Cache.get:158`
+3. `java.lang.Object` — 36 events, 1691.3 ms total (47 ms avg, max 74.2 ms) at `sun.nio.ch.EPollSelectorImpl.clearInterrupt:295`
+4. `java.util.Hashtable` — 39 events, 1668.5 ms total (42.8 ms avg, max 71.8 ms) at `java.util.Hashtable.get:382`
+5. `java.util.jar.JarFile` — 7 events, 311 ms total (44.4 ms avg, max 49.9 ms) at `java.util.zip.ZipFile.getEntry:289`
+
+### Notable Park Sites
+All thread parking matches normal pool-idle or scheduled-task patterns — no findings.
+
 ## Findings
-- **🔴 Spring Boot nested-jar URL/classpath resolution dominates CPU and allocation**: The Spring Boot loader's `JarFileUrlKey` / `URLClassPath.findResource` path is the largest on-CPU and allocation hotspot, suggesting classpath-resource lookups (e.g., `ClassLoader.getResource`, Thymeleaf template lookups, `ResourceLoader.getResource`) are being invoked per request rather than cached. **Evidence**: top 10 CPU hotspots are all URL/jar/classpath frames (62.9% jdk + framework jar handler frames); `java.net.URL` is 16.9% of allocated bytes and `JarFileUrlKey` 8.2%; `URLClassPath$Loader.findResource` allocates 4.4 GB in 120 s. **Why it matters**: a runnable-jar app burns the bulk of its CPU on classloader bookkeeping instead of business logic, capping throughput on the 1-CPU container.
-- **🔴 Serial GC on a web service with 429 MB/s allocation rate**: Configuration is `DefNew` + `SerialOld`, which is the default only on very small/low-CPU JVMs; it produced a 127 ms SerialOld pause. **Evidence**: `configuration.young_collector = DefNew`, `old_collector = SerialOld`, `max_pause_ms = 127.28`, `gcs_per_minute = 1018.8`, heap peak 96.7% of committed. **Why it matters**: SerialOld pauses are STW and unpredictable; under load this will produce visible request tail-latency spikes and offers no concurrency for old-gen collection.
-- **🟡 Very high allocation rate (429.5 MB/s) on a small heap (94 MB committed)**: Allocation throughput is forcing young GCs every ~60 ms. **Evidence**: `estimated_allocation_rate.mb_per_second = 429.5`, `gcs_per_minute = 1018.8`. **Why it matters**: even with sub-2 ms young pauses, this volume of GC inflates CPU overhead (2.74% pause time, plus mutator slowdown from allocation-path pressure) and limits headroom for traffic spikes.
-- **🟡 Elevated exception throw rate (258.9/sec)**: Java exceptions are being constructed at a sustained high rate. **Evidence**: `derived.javaExceptionThrowPerSecond = 258.9`; `java.io.EOFException` shows up directly in allocation top-classes (333 MB) coming from `NioEndpoint$NioSocketWrapper.fillReadBuffer`. **Why it matters**: exception construction captures stack traces and is expensive; using EOFException as control flow for socket reads is a known Tomcat-NIO cost and contributes to allocation pressure.
-- **🟡 ThreadLocalMap miss path appears in top-3 CPU**: `ThreadLocalMap.getEntryAfterMiss` at 4.4% suggests many distinct ThreadLocal keys per thread. **Evidence**: rank 3 hotspot, 326 samples (4.4%). **Why it matters**: cumulative ThreadLocal lookup cost on every request adds up; can indicate Spring context propagation, MDC, or observability libraries thrashing the cache.
-- **🔵 Memory footprint comfortably within container limit**: 427.6 MB committed of 2048 MB, 79.1% headroom. **Evidence**: `container_fit.verdict = safe`. **Why it matters**: no OOMKill risk; container is significantly over-provisioned for current workload.
+- **🔴 Spring Boot nested-JAR resolution dominates CPU, allocation, and lock contention**: Resource/URL resolution through `org.springframework.boot.loader.net.protocol.jar.*` and the JDK `URL`/`URLClassPath` it calls accounts for the top 10 CPU hotspots, ~30%+ of allocated bytes, and the top two contended monitors. **Evidence**: top CPU samples include `URL.<init>` (multiple lines, ~13% combined), `JarFileUrlKey.hashCode`/`equalsIgnoringCase` (~7%), `URLClassPath.findResource` (~6%); allocation: `java.net.URL` 16.9% and `JarFileUrlKey` 8.2% of bytes; monitor contention: `UrlNestedJarFile` (16.4 s) and `UrlJarFiles$Cache` (13.0 s) account for 88% of all monitor wait time. **Why it matters**: only 2.8% of CPU and 0.9% of allocation reach user/business code — the application is paying enormous overhead per request to locate resources inside the fat JAR.
+- **🔴 Serial GC selected on a server workload**: Young collector is `DefNew` and old is `SerialOld`. **Evidence**: `configuration.young_collector="DefNew"`, `configuration.old_collector="SerialOld"`; 2040 GCs in 120 s (1018.8/min); one 127.28 ms SerialOld stop-the-world pause. **Why it matters**: SerialGC is single-threaded and inappropriate for any latency-sensitive service; it is being auto-selected because the container CPU limit is 1, and any future allocation crisis will produce long full-GC pauses (already saw 127 ms).
+- **🔴 Allocation rate of 429.5 MB/s on a 94 MB heap**: Sustained allocation pressure is driving GC every ~60 ms. **Evidence**: `estimated_allocation_rate.mb_per_second=429.5`; heap committed 94.2 MB, peak used 65.9 MB (96.7% of committed); 2039 Allocation Failure GCs. **Why it matters**: The throughput cost (2.74% pause overhead is the visible part — the implicit cost is the CPU time inside the allocator and GC threads) is being paid by classpath/URL machinery, not user code.
+- **🟡 High Java exception throw rate**: 259 exceptions/second sustained. **Evidence**: `derived.javaExceptionThrowPerSecond=258.9` (31,099 events / 120 s); top allocator #11 is `java.io.EOFException` from `NioEndpoint.fillReadBuffer` (333 MB allocated, 124 samples). **Why it matters**: Exception construction (with stack capture) is expensive and using exceptions for control flow — visible here in Tomcat's NIO read path — is a known anti-pattern; this rate suggests either control-flow exception use or repeated I/O EOFs on partial reads.
+- **🟡 Contention on legacy `Hashtable` and `Collections.SynchronizedMap`**: Small but non-zero. **Evidence**: `Hashtable.get:382` 39 events / 1668.5 ms; `Collections$SynchronizedMap.get` 2 events / 67.9 ms. **Why it matters**: These types are coarse-grained `synchronized`; under higher load they will scale poorly compared to `ConcurrentHashMap`.
+- **🟢 Single SerialOld full GC pause of 127 ms**: One-off event. **Evidence**: `anomalies.long_pauses_over_100ms=1`, `by_name SerialOld max_pause_ms=127.28`. **Why it matters**: Tail latency spike candidate; not actionable on its own but tied to the GC-selection finding above.
+- **🔵 JFR Tracing overhead is the largest native category**: `Tracing` 112.1 MB committed (26.2% of total). **Evidence**: NMT category table. **Why it matters**: Expected because the recording is taken with `settings=profile`; not an application issue, but worth knowing this overhead is not present in production unless JFR is always-on at profile settings.
 
 ## Recommendations
-1. **Address the nested-jar URL hotspot** (re: "Spring Boot nested-jar URL/classpath resolution dominates"): identify the per-request code path triggering `ClassLoader.getResource` / `ResourceLoader.getResource` calls — common culprits are Thymeleaf template resolution without caching, custom resource lookups, or libraries calling `getResource` per invocation. Verify `spring.thymeleaf.cache=true` in production profile. Consider running with `java -jar app.jar` only for dev; for production, **extract the fat jar** (`java -Djarmode=tools -jar app.jar extract`) and run from the exploded layout, which bypasses the nested-jar URL handler entirely and typically removes most of this CPU/allocation cost.
-2. **Switch off Serial GC** (re: "Serial GC on a web service"): explicitly select G1 with `-XX:+UseG1GC` (or ZGC with `-XX:+UseZGC` if pauses matter more than throughput). Serial GC was likely auto-selected because the container is detected as "small"; on a 1-CPU/2Gi pod G1 will still work and gives concurrent old-gen collection. While doing so, bump heap with `-Xmx512m -Xms512m` (or higher) to reduce young-GC frequency — there is 1.5 GB of container headroom.
-3. **Investigate exception-throw rate** (re: "Elevated exception throw rate"): enable `jdk.JavaExceptionThrow` per-class aggregation in a follow-up recording, or add temporary logging. If `EOFException` from Tomcat NIO dominates, this is benign client-disconnect handling and can be ignored; if app-thrown exceptions dominate, fix the control-flow misuse.
-4. **Profile ThreadLocal usage** (re: "ThreadLocalMap miss path"): identify which observability/tracing/context-propagation library is installing many ThreadLocals. If using Micrometer Tracing or Sleuth, ensure context propagation is configured efficiently; consider scoped values (JEP 446) if on a JDK that supports them in a future upgrade.
-5. **Right-size the container** (re: "Memory footprint comfortably within container limit"): once GC and allocation are fixed, the 2 GB limit can likely be reduced to 1 GB to save cluster capacity — but only after re-measuring with G1 and an exploded jar layout.
+1. **Spring Boot nested-JAR resolution dominates** — Repackage the application to avoid the nested-JAR loader at runtime. Options: (a) build an exploded image (`java -cp 'BOOT-INF/lib/*:BOOT-INF/classes' org.springframework.boot.loader.launch.JarLauncher` after `jar -xf`), (b) use Spring Boot's `layertools` and a layered Dockerfile so classes/libs live as plain files in the image, or (c) build a native image with Spring Boot AOT. Any of these eliminates `JarFileUrlKey` / `UrlNestedJarFile` / `URLClassPath` hot paths entirely. Also audit application/library code (likely Thymeleaf or a custom `ResourceLoader`) that is calling `getResource()` per request rather than caching, since the loader cache itself is being hammered.
+2. **Serial GC selected on server workload** — Raise the container CPU request/limit to at least 2 (this alone causes the JVM to auto-select G1), or explicitly add `-XX:+UseG1GC` to JVM args. With a 2 GiB container, also set `-Xmx` explicitly (e.g. `-Xmx1g`) so the heap can grow beyond 94 MB and reduce GC frequency.
+3. **Allocation rate of 429.5 MB/s** — Largely resolved by recommendation #1 (the allocation is being driven by the loader paths). After repackaging, re-profile; if allocation pressure persists, the next suspect is repeated `String` concatenation in hot paths (`StringConcatHelper.doConcat` is allocator #8 at 3.5%).
+4. **High Java exception throw rate** — Investigate the source. Likely two contributors: (a) `EOFException` from Tomcat NIO reads (visible at allocator #11) indicating clients dropping connections or pipelined-read edge cases — check access logs for short/incomplete requests; (b) application code or a Spring component using exceptions for control flow. Enable an exception-class breakdown (e.g. `-Xlog:exceptions` briefly, or a JFR custom filter) to identify the dominant exception type.
+5. **Contention on `Hashtable` / `SynchronizedMap`** — Trace the `Hashtable.get:382` call site (likely a JDK-internal or older library); if it lives in your code, migrate to `ConcurrentHashMap`. Low priority while it is < 5% of total monitor wait time.
 
 ## Analysis Limitations
-This build analyzes CPU samples, GC behavior, object allocation, and total memory footprint (with NMT for per-category native breakdown). The following are NOT yet covered and would change the picture if data is available:
-- Lock contention and thread blocking (`jdk.ThreadPark` is the #1 event at 36,745 — worth a dedicated look)
-- I/O wait (file, socket)
+This build analyzes CPU samples, GC behavior, object allocation, total memory footprint (with NMT for per-category native breakdown), and lock contention / thread parking. The following are NOT yet covered and would change the picture if data is available:
+- I/O wait (file, socket) — jdk.FileRead, jdk.FileWrite, jdk.SocketRead, jdk.SocketWrite events not yet analyzed
+- Native-method sampling (JNI compute, native I/O syscalls, park/wait)
 - Class loading and JIT compilation overhead
-- Exception throw analysis (raw counts and rate visible, but no per-class breakdown yet — relevant given the 258.9/sec rate)
+- Exception throw analysis (raw counts visible in summary but no per-class breakdown yet)
