@@ -339,13 +339,13 @@
       "pct_of_bytes": 75.3
     },
     "framework": {
-      "estimated_mb": 12275.2,
-      "samples": 7202,
+      "estimated_mb": 12267.6,
+      "samples": 7195,
       "pct_of_bytes": 23.8
     },
     "user_code": {
-      "estimated_mb": 460.7,
-      "samples": 222,
+      "estimated_mb": 468.3,
+      "samples": 229,
       "pct_of_bytes": 0.9
     }
   },
