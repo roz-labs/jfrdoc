@@ -4,7 +4,8 @@
 
 <p align="center">
 Hand jfrdoc a JVM Flight Recorder recording and it tells you where your<br>
-Spring Boot or Quarkus app is burning CPU — with framework-aware<br>
+Spring Boot or Quarkus app is burning CPU, allocating memory, pausing for GC,<br>
+contending for locks, or throwing exceptions — with framework-aware<br>
 categorization, top callers, and concrete fixes you can ship today.
 </p>
 
