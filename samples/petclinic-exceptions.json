@@ -1,0 +1,110 @@
+{
+  "summary": {
+    "total_errors_thrown": 0,
+    "without_stack_trace": 0,
+    "throws_per_second": 259.6,
+    "total_exceptions_thrown": 31099,
+    "unique_exception_classes": 3,
+    "with_stack_trace": 31099
+  },
+  "signals": {
+    "control_flow_smell": false,
+    "throw_rate_high": true,
+    "throw_rate_very_high": false,
+    "single_site_dominant": true,
+    "framework_used_for_categorization": "spring",
+    "dominant_class_pct": 96.6,
+    "single_class_dominant": true,
+    "dominant_class": "java.io.EOFException"
+  },
+  "recording": {
+    "duration_seconds": 119.8,
+    "path": "/Users/ridvanozcan/code/jfrdoc/samples/petclinic.jfr"
+  },
+  "top_throwing_sites": [
+    {
+      "site": "org.apache.tomcat.util.net.NioEndpoint$NioSocketWrapper.fillReadBuffer:1339",
+      "top_caller": "org.apache.tomcat.util.net.NioEndpoint$NioSocketWrapper.read:1223",
+      "dominant_exception_class": "java.io.EOFException",
+      "rank": 1,
+      "dominant_exception_share_pct": 100,
+      "category": "framework",
+      "pct_of_total": 96.6,
+      "events": 30052
+    },
+    {
+      "site": "sun.nio.ch.SelectionKeyImpl.ensureValid:75",
+      "top_caller": "sun.nio.ch.SelectionKeyImpl.readyOps:138",
+      "dominant_exception_class": "java.nio.channels.CancelledKeyException",
+      "rank": 2,
+      "dominant_exception_share_pct": 100,
+      "category": "jdk",
+      "pct_of_total": 3.3,
+      "events": 1035
+    },
+    {
+      "site": "jdk.internal.loader.BuiltinClassLoader.loadClass:580",
+      "top_caller": "java.lang.ClassLoader.loadClass:544",
+      "dominant_exception_class": "java.lang.ClassNotFoundException",
+      "rank": 3,
+      "dominant_exception_share_pct": 100,
+      "category": "jdk",
+      "pct_of_total": 0,
+      "events": 12
+    }
+  ],
+  "top_exception_classes": [
+    {
+      "top_site_category": "framework",
+      "throws_per_second": 250.8,
+      "rank": 1,
+      "top_throwing_site": "org.apache.tomcat.util.net.NioEndpoint$NioSocketWrapper.fillReadBuffer:1339",
+      "sample_message": null,
+      "class": "java.io.EOFException",
+      "pct_of_total": 96.6,
+      "events": 30052
+    },
+    {
+      "top_site_category": "jdk",
+      "throws_per_second": 8.6,
+      "rank": 2,
+      "top_throwing_site": "sun.nio.ch.SelectionKeyImpl.ensureValid:75",
+      "sample_message": null,
+      "class": "java.nio.channels.CancelledKeyException",
+      "pct_of_total": 3.3,
+      "events": 1035
+    },
+    {
+      "top_site_category": "jdk",
+      "throws_per_second": 0.1,
+      "rank": 3,
+      "top_throwing_site": "jdk.internal.loader.BuiltinClassLoader.loadClass:580",
+      "sample_message": "org.apache.catalina.webresources.WarResourceSet",
+      "class": "java.lang.ClassNotFoundException",
+      "pct_of_total": 0,
+      "events": 12
+    }
+  ],
+  "by_category": {
+    "jdk": {
+      "pct": 3.4,
+      "unique_classes": 2,
+      "events": 1047
+    },
+    "framework": {
+      "pct": 96.6,
+      "unique_classes": 1,
+      "events": 30052
+    },
+    "user_code": {
+      "pct": 0,
+      "unique_classes": 0,
+      "events": 0
+    },
+    "native": {
+      "pct": 0,
+      "unique_classes": 0,
+      "events": 0
+    }
+  }
+}
