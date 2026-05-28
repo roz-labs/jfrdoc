@@ -5,7 +5,7 @@ services:
     mem_limit: 2g
     ports: ["8080:8080"]
     volumes:
-      - ./samples:/jfr
+      - ./samples/petclinic/before:/jfr
     command:
       - -XX:NativeMemoryTracking=summary
       - -XX:StartFlightRecording=delay=15s,duration=120s,filename=/jfr/petclinic.jfr,settings=profile

@@ -1,0 +1,90 @@
+{
+  "summary": {
+    "total_errors_thrown": 0,
+    "without_stack_trace": 0,
+    "throws_per_second": 207.1,
+    "total_exceptions_thrown": 24647,
+    "unique_exception_classes": 2,
+    "with_stack_trace": 24647
+  },
+  "signals": {
+    "control_flow_smell": false,
+    "throw_rate_high": true,
+    "throw_rate_very_high": false,
+    "single_site_dominant": true,
+    "framework_used_for_categorization": "spring",
+    "dominant_class_pct": 96.9,
+    "single_class_dominant": true,
+    "dominant_class": "java.io.EOFException"
+  },
+  "recording": {
+    "duration_seconds": 119,
+    "path": "/Users/ridvanozcan/code/jfrdoc/samples/petclinic/after/petclinic.jfr"
+  },
+  "top_throwing_sites": [
+    {
+      "site": "org.apache.tomcat.util.net.NioEndpoint$NioSocketWrapper.fillReadBuffer:1339",
+      "top_caller": "org.apache.tomcat.util.net.NioEndpoint$NioSocketWrapper.read:1223",
+      "dominant_exception_class": "java.io.EOFException",
+      "rank": 1,
+      "dominant_exception_share_pct": 100,
+      "category": "framework",
+      "pct_of_total": 96.9,
+      "events": 23894
+    },
+    {
+      "site": "sun.nio.ch.SelectionKeyImpl.ensureValid:75",
+      "top_caller": "sun.nio.ch.SelectionKeyImpl.readyOps:138",
+      "dominant_exception_class": "java.nio.channels.CancelledKeyException",
+      "rank": 2,
+      "dominant_exception_share_pct": 100,
+      "category": "jdk",
+      "pct_of_total": 3.1,
+      "events": 753
+    }
+  ],
+  "top_exception_classes": [
+    {
+      "top_site_category": "framework",
+      "throws_per_second": 200.8,
+      "rank": 1,
+      "top_throwing_site": "org.apache.tomcat.util.net.NioEndpoint$NioSocketWrapper.fillReadBuffer:1339",
+      "sample_message": null,
+      "class": "java.io.EOFException",
+      "pct_of_total": 96.9,
+      "events": 23894
+    },
+    {
+      "top_site_category": "jdk",
+      "throws_per_second": 6.3,
+      "rank": 2,
+      "top_throwing_site": "sun.nio.ch.SelectionKeyImpl.ensureValid:75",
+      "sample_message": null,
+      "class": "java.nio.channels.CancelledKeyException",
+      "pct_of_total": 3.1,
+      "events": 753
+    }
+  ],
+  "by_category": {
+    "jdk": {
+      "pct": 3.1,
+      "unique_classes": 1,
+      "events": 753
+    },
+    "framework": {
+      "pct": 96.9,
+      "unique_classes": 1,
+      "events": 23894
+    },
+    "user_code": {
+      "pct": 0,
+      "unique_classes": 0,
+      "events": 0
+    },
+    "native": {
+      "pct": 0,
+      "unique_classes": 0,
+      "events": 0
+    }
+  }
+}

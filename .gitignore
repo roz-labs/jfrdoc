@@ -4,6 +4,7 @@
 !lib/zsmith.jar
 
 # Sample JFR recordings (not committed)
+samples/**/*.jfr
 samples/*.jfr
 
 # macOS

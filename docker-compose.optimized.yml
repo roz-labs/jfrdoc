@@ -1,0 +1,50 @@
+# Sibling of docker-compose.yml that runs Spring PetClinic with two bundled
+# changes applied at once (the comparison stays one before vs one after):
+#   1. Exploded JAR layout (no Spring Boot nested-JAR loader at runtime)
+#   2. Explicit -XX:+UseG1GC + -Xmx1g (no Serial GC default, real heap room)
+#
+# Run with:
+#   docker compose -f docker-compose.optimized.yml up --build --abort-on-container-exit --exit-code-from loadgen
+#   docker compose -f docker-compose.optimized.yml down
+#
+# Output JFR lands at ./samples/petclinic/after/petclinic.jfr — side-by-side with
+# the original ./samples/petclinic/before/petclinic.jfr so jfrdoc can be run
+# against each.
+#
+# See samples/petclinic/case-study.md for the full before/after story.
+services:
+  petclinic-optimized:
+    build: ./docker/petclinic-optimized
+    cpus: 1.0
+    mem_limit: 2g
+    ports: ["8080:8080"]
+    volumes:
+      - ./samples/petclinic/after:/jfr
+    command:
+      - -XX:NativeMemoryTracking=summary
+      - -XX:+UseG1GC
+      - -Xmx1g
+      - -XX:StartFlightRecording=delay=15s,duration=120s,filename=/jfr/petclinic.jfr,settings=profile
+      - -cp
+      - /app/BOOT-INF/classes:/app/BOOT-INF/lib/*
+      - org.springframework.samples.petclinic.PetClinicApplication
+    healthcheck:
+      test: ["CMD", "curl", "-sf", "http://localhost:8080/"]
+      interval: 3s
+      retries: 40
+
+  loadgen:
+    image: alpine/curl
+    depends_on:
+      petclinic-optimized:
+        condition: service_healthy
+    entrypoint: ["sh", "-c"]
+    command:
+      - |
+        end=$$(( $$(date +%s) + 150 ))
+        while [ $$(date +%s) -lt $$end ]; do
+          for ep in / /owners /owners?lastName=Davis /owners/1 /owners/1/edit /owners/2/pets/new /vets.html /owners/find; do
+            curl -s -o /dev/null "http://petclinic-optimized:8080$$ep" &
+          done
+          wait
+        done

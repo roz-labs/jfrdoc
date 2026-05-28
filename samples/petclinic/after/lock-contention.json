@@ -1,0 +1,146 @@
+{
+  "signals": {
+    "lock_acquire_dominant": false,
+    "park_total_likely_benign": false,
+    "has_real_contention": true,
+    "connection_pool_under_pressure": false
+  },
+  "thread_parking": {
+    "total_events": 16294,
+    "total_park_time_ms": 1135998.8,
+    "top_park_sites": [
+      {
+        "max_park_ms": 30001.4,
+        "total_park_ms": 927391.5,
+        "site": "java.util.concurrent.locks.LockSupport.parkNanos:271",
+        "category_hint": "pool_idle_wait",
+        "top_caller": "java.util.concurrent.locks.AbstractQueuedSynchronizer$ConditionObject.awaitNanos:1803",
+        "rank": 1,
+        "avg_park_ms": 68,
+        "events": 13647
+      },
+      {
+        "max_park_ms": 1052.4,
+        "total_park_ms": 208414.3,
+        "site": "java.util.concurrent.locks.LockSupport.park:369",
+        "category_hint": "pool_idle_wait",
+        "top_caller": "java.util.concurrent.locks.AbstractQueuedSynchronizer$ConditionNode.block:520",
+        "rank": 2,
+        "avg_park_ms": 78.9,
+        "events": 2643
+      },
+      {
+        "max_park_ms": 56.7,
+        "total_park_ms": 193,
+        "site": "java.util.concurrent.locks.LockSupport.park:223",
+        "category_hint": "pool_idle_wait",
+        "top_caller": "java.util.concurrent.locks.AbstractQueuedSynchronizer.acquire:790",
+        "rank": 3,
+        "avg_park_ms": 48.2,
+        "events": 4
+      }
+    ],
+    "by_category": [
+      {
+        "total_park_ms": 1135973.5,
+        "pct_of_park_time": 100,
+        "category": "pool_idle_wait",
+        "events": 16293
+      },
+      {
+        "total_park_ms": 25.3,
+        "pct_of_park_time": 0,
+        "category": "lock_acquire_wait",
+        "events": 1
+      },
+      {
+        "total_park_ms": 0,
+        "pct_of_park_time": 0,
+        "category": "connection_pool_wait",
+        "events": 0
+      },
+      {
+        "total_park_ms": 0,
+        "pct_of_park_time": 0,
+        "category": "future_wait",
+        "events": 0
+      },
+      {
+        "total_park_ms": 0,
+        "pct_of_park_time": 0,
+        "category": "condition_wait",
+        "events": 0
+      },
+      {
+        "total_park_ms": 0,
+        "pct_of_park_time": 0,
+        "category": "scheduled_task_wait",
+        "events": 0
+      },
+      {
+        "total_park_ms": 0,
+        "pct_of_park_time": 0,
+        "category": "other",
+        "events": 0
+      }
+    ]
+  },
+  "recording": {
+    "duration_seconds": 120.1,
+    "path": "/Users/ridvanozcan/code/jfrdoc/samples/petclinic/after/petclinic.jfr"
+  },
+  "monitor_wait": {
+    "total_events": 25,
+    "total_wait_time_ms": 294655.2,
+    "top_wait_sites": [{
+      "avg_wait_ms": 11786.2,
+      "site": "java.lang.Object.wait0",
+      "total_wait_ms": 294655.2,
+      "rank": 1,
+      "events": 25
+    }]
+  },
+  "monitor_contention": {
+    "total_events": 89,
+    "total_wait_time_ms": 3877.6,
+    "max_wait_ms": 74.2,
+    "top_contended_monitors": [
+      {
+        "avg_wait_ms": 43.3,
+        "monitor_class": "java.util.jar.JarFile",
+        "max_wait_ms": 74.2,
+        "top_call_site": "java.util.zip.ZipFile.getEntry:289",
+        "total_wait_ms": 2725.4,
+        "rank": 1,
+        "events": 63
+      },
+      {
+        "avg_wait_ms": 46,
+        "monitor_class": "java.lang.Object",
+        "max_wait_ms": 72.7,
+        "top_call_site": "sun.nio.ch.EPollSelectorImpl.clearInterrupt:295",
+        "total_wait_ms": 643.4,
+        "rank": 2,
+        "events": 14
+      },
+      {
+        "avg_wait_ms": 41.1,
+        "monitor_class": "jdk.internal.loader.URLClassPath",
+        "max_wait_ms": 55.7,
+        "top_call_site": "jdk.internal.loader.URLClassPath.getLoader:388",
+        "total_wait_ms": 451.8,
+        "rank": 3,
+        "events": 11
+      },
+      {
+        "avg_wait_ms": 57,
+        "monitor_class": "org.apache.coyote.AbstractProtocol$RecycledProcessors",
+        "max_wait_ms": 57,
+        "top_call_site": "org.apache.tomcat.util.collections.SynchronizedStack.push:58",
+        "total_wait_ms": 57,
+        "rank": 4,
+        "events": 1
+      }
+    ]
+  }
+}

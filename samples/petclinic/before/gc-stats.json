@@ -1,18 +1,18 @@
 {
   "summary": {
-    "total_gcs": 2040,
-    "p99_pause_ms": 2.44,
-    "total_pause_time_ms": 3291.63,
-    "max_pause_ms": 127.28,
-    "p50_pause_ms": 1.33,
-    "gcs_per_minute": 1018.8,
-    "avg_pause_ms": 1.61,
-    "p95_pause_ms": 1.95,
-    "pause_overhead_pct": 2.74
+    "total_gcs": 2284,
+    "p99_pause_ms": 2.2,
+    "total_pause_time_ms": 3258.13,
+    "max_pause_ms": 144.88,
+    "p50_pause_ms": 1.21,
+    "gcs_per_minute": 1140.7,
+    "avg_pause_ms": 1.43,
+    "p95_pause_ms": 1.7,
+    "pause_overhead_pct": 2.71
   },
   "by_cause": [
     {
-      "count": 2039,
+      "count": 2283,
       "cause": "Allocation Failure"
     },
     {
@@ -31,31 +31,31 @@
   },
   "by_name": [
     {
-      "max_pause_ms": 77.71,
+      "max_pause_ms": 67.49,
       "name": "DefNew",
-      "count": 2039,
-      "avg_pause_ms": 1.55,
-      "total_pause_ms": 3164.35
+      "count": 2283,
+      "avg_pause_ms": 1.36,
+      "total_pause_ms": 3113.25
     },
     {
-      "max_pause_ms": 127.28,
+      "max_pause_ms": 144.88,
       "name": "SerialOld",
       "count": 1,
-      "avg_pause_ms": 127.28,
-      "total_pause_ms": 127.28
+      "avg_pause_ms": 144.88,
+      "total_pause_ms": 144.88
     }
   ],
   "recording": {
     "duration_seconds": 120.1,
-    "path": "/Users/ridvanozcan/code/jfrdoc/samples/petclinic.jfr"
+    "path": "/Users/ridvanozcan/code/jfrdoc/samples/petclinic/before/petclinic.jfr"
   },
   "heap": {
-    "snapshots": 4080,
+    "snapshots": 4568,
     "max_used_mb": 65.9,
     "min_used_mb": 38.9,
-    "max_used_pct_of_committed": 96.7,
+    "max_used_pct_of_committed": 95,
     "avg_used_after_gc_mb": 39.7,
-    "committed_size_mb": 94.2
+    "committed_size_mb": 94.1
   },
   "anomalies": {
     "long_pauses_over_100ms": 1,

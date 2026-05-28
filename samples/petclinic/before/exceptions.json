@@ -2,10 +2,10 @@
   "summary": {
     "total_errors_thrown": 0,
     "without_stack_trace": 0,
-    "throws_per_second": 259.6,
-    "total_exceptions_thrown": 31099,
+    "throws_per_second": 250.1,
+    "total_exceptions_thrown": 29957,
     "unique_exception_classes": 3,
-    "with_stack_trace": 31099
+    "with_stack_trace": 29957
   },
   "signals": {
     "control_flow_smell": false,
@@ -13,13 +13,13 @@
     "throw_rate_very_high": false,
     "single_site_dominant": true,
     "framework_used_for_categorization": "spring",
-    "dominant_class_pct": 96.6,
+    "dominant_class_pct": 97,
     "single_class_dominant": true,
     "dominant_class": "java.io.EOFException"
   },
   "recording": {
     "duration_seconds": 119.8,
-    "path": "/Users/ridvanozcan/code/jfrdoc/samples/petclinic.jfr"
+    "path": "/Users/ridvanozcan/code/jfrdoc/samples/petclinic/before/petclinic.jfr"
   },
   "top_throwing_sites": [
     {
@@ -29,8 +29,8 @@
       "rank": 1,
       "dominant_exception_share_pct": 100,
       "category": "framework",
-      "pct_of_total": 96.6,
-      "events": 30052
+      "pct_of_total": 97,
+      "events": 29055
     },
     {
       "site": "sun.nio.ch.SelectionKeyImpl.ensureValid:75",
@@ -39,8 +39,8 @@
       "rank": 2,
       "dominant_exception_share_pct": 100,
       "category": "jdk",
-      "pct_of_total": 3.3,
-      "events": 1035
+      "pct_of_total": 3,
+      "events": 889
     },
     {
       "site": "jdk.internal.loader.BuiltinClassLoader.loadClass:580",
@@ -50,29 +50,29 @@
       "dominant_exception_share_pct": 100,
       "category": "jdk",
       "pct_of_total": 0,
-      "events": 12
+      "events": 13
     }
   ],
   "top_exception_classes": [
     {
       "top_site_category": "framework",
-      "throws_per_second": 250.8,
+      "throws_per_second": 242.5,
       "rank": 1,
       "top_throwing_site": "org.apache.tomcat.util.net.NioEndpoint$NioSocketWrapper.fillReadBuffer:1339",
       "sample_message": null,
       "class": "java.io.EOFException",
-      "pct_of_total": 96.6,
-      "events": 30052
+      "pct_of_total": 97,
+      "events": 29055
     },
     {
       "top_site_category": "jdk",
-      "throws_per_second": 8.6,
+      "throws_per_second": 7.4,
       "rank": 2,
       "top_throwing_site": "sun.nio.ch.SelectionKeyImpl.ensureValid:75",
       "sample_message": null,
       "class": "java.nio.channels.CancelledKeyException",
-      "pct_of_total": 3.3,
-      "events": 1035
+      "pct_of_total": 3,
+      "events": 889
     },
     {
       "top_site_category": "jdk",
@@ -82,19 +82,19 @@
       "sample_message": "org.apache.catalina.webresources.WarResourceSet",
       "class": "java.lang.ClassNotFoundException",
       "pct_of_total": 0,
-      "events": 12
+      "events": 13
     }
   ],
   "by_category": {
     "jdk": {
-      "pct": 3.4,
+      "pct": 3,
       "unique_classes": 2,
-      "events": 1047
+      "events": 902
     },
     "framework": {
-      "pct": 96.6,
+      "pct": 97,
       "unique_classes": 1,
-      "events": 30052
+      "events": 29055
     },
     "user_code": {
       "pct": 0,

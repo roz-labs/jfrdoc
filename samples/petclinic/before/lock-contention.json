@@ -6,52 +6,52 @@
     "connection_pool_under_pressure": false
   },
   "thread_parking": {
-    "total_events": 36745,
-    "total_park_time_ms": 1215959.4,
+    "total_events": 39903,
+    "total_park_time_ms": 1322703,
     "top_park_sites": [
       {
         "max_park_ms": 30000.1,
-        "total_park_ms": 1059242.5,
+        "total_park_ms": 1087578.7,
         "site": "java.util.concurrent.locks.LockSupport.parkNanos:271",
         "category_hint": "pool_idle_wait",
         "top_caller": "java.util.concurrent.locks.AbstractQueuedSynchronizer$ConditionObject.awaitNanos:1803",
         "rank": 1,
         "avg_park_ms": 29.6,
-        "events": 35758
+        "events": 36707
       },
       {
-        "max_park_ms": 1064.5,
-        "total_park_ms": 156080.1,
+        "max_park_ms": 1004.8,
+        "total_park_ms": 234952.5,
         "site": "java.util.concurrent.locks.LockSupport.park:369",
         "category_hint": "pool_idle_wait",
         "top_caller": "java.util.concurrent.locks.AbstractQueuedSynchronizer$ConditionNode.block:520",
         "rank": 2,
-        "avg_park_ms": 160.1,
-        "events": 975
+        "avg_park_ms": 73.6,
+        "events": 3192
       },
       {
-        "max_park_ms": 71.5,
-        "total_park_ms": 636.9,
+        "max_park_ms": 57,
+        "total_park_ms": 171.8,
         "site": "java.util.concurrent.locks.LockSupport.park:223",
         "category_hint": "pool_idle_wait",
         "top_caller": "java.util.concurrent.locks.AbstractQueuedSynchronizer.acquire:790",
         "rank": 3,
-        "avg_park_ms": 53.1,
-        "events": 12
+        "avg_park_ms": 42.9,
+        "events": 4
       }
     ],
     "by_category": [
       {
-        "total_park_ms": 1215594.5,
+        "total_park_ms": 1322619.7,
         "pct_of_park_time": 100,
         "category": "pool_idle_wait",
-        "events": 36738
+        "events": 39901
       },
       {
-        "total_park_ms": 364.9,
+        "total_park_ms": 83.4,
         "pct_of_park_time": 0,
         "category": "lock_acquire_wait",
-        "events": 7
+        "events": 2
       },
       {
         "total_park_ms": 0,
@@ -87,86 +87,86 @@
   },
   "recording": {
     "duration_seconds": 120.1,
-    "path": "/Users/ridvanozcan/code/jfrdoc/samples/petclinic.jfr"
+    "path": "/Users/ridvanozcan/code/jfrdoc/samples/petclinic/before/petclinic.jfr"
   },
   "monitor_wait": {
     "total_events": 95,
-    "total_wait_time_ms": 466999.5,
+    "total_wait_time_ms": 466889.5,
     "top_wait_sites": [{
-      "avg_wait_ms": 4915.8,
+      "avg_wait_ms": 4914.6,
       "site": "java.lang.Object.wait0",
-      "total_wait_ms": 466999.5,
+      "total_wait_ms": 466889.5,
       "rank": 1,
       "events": 95
     }]
   },
   "monitor_contention": {
-    "total_events": 813,
-    "total_wait_time_ms": 33475.5,
-    "max_wait_ms": 83.3,
+    "total_events": 734,
+    "total_wait_time_ms": 27207.5,
+    "max_wait_ms": 75.9,
     "top_contended_monitors": [
       {
-        "avg_wait_ms": 41.6,
+        "avg_wait_ms": 38.1,
         "monitor_class": "org.springframework.boot.loader.net.protocol.jar.UrlNestedJarFile",
-        "max_wait_ms": 83.3,
+        "max_wait_ms": 75.6,
         "top_call_site": "org.springframework.boot.loader.jar.NestedJarFile.hasEntry:251",
-        "total_wait_ms": 16448.6,
+        "total_wait_ms": 12151.2,
         "rank": 1,
-        "events": 395
+        "events": 319
       },
       {
-        "avg_wait_ms": 39.8,
+        "avg_wait_ms": 36.8,
         "monitor_class": "org.springframework.boot.loader.net.protocol.jar.UrlJarFiles$Cache",
-        "max_wait_ms": 79.4,
+        "max_wait_ms": 73,
         "top_call_site": "org.springframework.boot.loader.net.protocol.jar.UrlJarFiles$Cache.get:158",
-        "total_wait_ms": 12988.9,
+        "total_wait_ms": 11723.9,
         "rank": 2,
-        "events": 326
+        "events": 319
       },
       {
-        "avg_wait_ms": 47,
-        "monitor_class": "java.lang.Object",
-        "max_wait_ms": 74.2,
-        "top_call_site": "sun.nio.ch.EPollSelectorImpl.clearInterrupt:295",
-        "total_wait_ms": 1691.3,
-        "rank": 3,
-        "events": 36
-      },
-      {
-        "avg_wait_ms": 42.8,
+        "avg_wait_ms": 30.1,
         "monitor_class": "java.util.Hashtable",
-        "max_wait_ms": 71.8,
+        "max_wait_ms": 60.5,
         "top_call_site": "java.util.Hashtable.get:382",
-        "total_wait_ms": 1668.5,
+        "total_wait_ms": 1353.5,
+        "rank": 3,
+        "events": 45
+      },
+      {
+        "avg_wait_ms": 43.7,
+        "monitor_class": "java.lang.Object",
+        "max_wait_ms": 75.9,
+        "top_call_site": "sun.nio.ch.EPollSelectorImpl.clearInterrupt:295",
+        "total_wait_ms": 1137.3,
         "rank": 4,
-        "events": 39
-      },
-      {
-        "avg_wait_ms": 44.4,
-        "monitor_class": "java.util.jar.JarFile",
-        "max_wait_ms": 49.9,
-        "top_call_site": "java.util.zip.ZipFile.getEntry:289",
-        "total_wait_ms": 311,
-        "rank": 5,
-        "events": 7
-      },
-      {
-        "avg_wait_ms": 37.4,
-        "monitor_class": "jdk.internal.loader.URLClassPath",
-        "max_wait_ms": 63.4,
-        "top_call_site": "jdk.internal.loader.URLClassPath.getLoader:388",
-        "total_wait_ms": 299.2,
-        "rank": 6,
-        "events": 8
+        "events": 26
       },
       {
         "avg_wait_ms": 34,
-        "monitor_class": "java.util.Collections$SynchronizedMap",
-        "max_wait_ms": 35.8,
-        "top_call_site": "java.util.Collections$SynchronizedMap.get:2989",
-        "total_wait_ms": 67.9,
+        "monitor_class": "jdk.internal.loader.URLClassPath",
+        "max_wait_ms": 51.1,
+        "top_call_site": "jdk.internal.loader.URLClassPath.getLoader:388",
+        "total_wait_ms": 646.8,
+        "rank": 5,
+        "events": 19
+      },
+      {
+        "avg_wait_ms": 27.8,
+        "monitor_class": "java.util.jar.JarFile",
+        "max_wait_ms": 38.1,
+        "top_call_site": "java.util.zip.ZipFile.getEntry:289",
+        "total_wait_ms": 139,
+        "rank": 6,
+        "events": 5
+      },
+      {
+        "avg_wait_ms": 55.7,
+        "monitor_class": "org.apache.coyote.AbstractProtocol$RecycledProcessors",
+        "max_wait_ms": 55.7,
+        "top_call_site": "org.apache.tomcat.util.collections.SynchronizedStack.push:58",
+        "total_wait_ms": 55.7,
         "rank": 7,
-        "events": 2
+        "events": 1
       }
     ]
   }
