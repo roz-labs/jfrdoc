@@ -1,0 +1,192 @@
+{
+  "signals": {
+    "dominated_by_wait_frames": true,
+    "wait_frame_pct": 94.7,
+    "likely_on_cpu_native_present": false,
+    "dominant_native_method": "sun.nio.ch.Net.accept"
+  },
+  "recording": {
+    "duration_seconds": 119.9,
+    "path": "/Users/ridvanozcan/code/jfrdoc/samples/petclinic/after/petclinic.jfr"
+  },
+  "framework_used_for_categorization": "spring",
+  "categories": {
+    "jdk": {
+      "pct": 100,
+      "samples": 5335
+    },
+    "framework": {
+      "pct": 0,
+      "samples": 0
+    },
+    "user_code": {
+      "pct": 0,
+      "samples": 0
+    }
+  },
+  "native_samples": {"total": 5335},
+  "sample_quality": {
+    "unattributed_pct": 0,
+    "breakdown": {
+      "unknown_method_or_class": 0,
+      "no_stack_trace": 0
+    },
+    "attributed_samples": 5335,
+    "unattributed_samples": 0
+  },
+  "top_native_methods": [
+    {
+      "method": "sun.nio.ch.Net.accept",
+      "top_caller": "sun.nio.ch.ServerSocketChannelImpl.implAccept",
+      "rank": 1,
+      "top_caller_share_pct": 100,
+      "category": "jdk",
+      "pct_of_total": 47.8,
+      "samples": 2549
+    },
+    {
+      "method": "sun.nio.ch.EPoll.wait",
+      "top_caller": "sun.nio.ch.EPollSelectorImpl.doSelect",
+      "rank": 2,
+      "top_caller_share_pct": 100,
+      "category": "jdk",
+      "pct_of_total": 46.9,
+      "samples": 2504
+    },
+    {
+      "method": "sun.nio.ch.SocketDispatcher.write0",
+      "top_caller": "sun.nio.ch.SocketDispatcher.write",
+      "rank": 3,
+      "top_caller_share_pct": 100,
+      "category": "jdk",
+      "pct_of_total": 2.4,
+      "samples": 128
+    },
+    {
+      "method": "java.io.UnixFileSystem.getBooleanAttributes0",
+      "top_caller": "java.io.UnixFileSystem.hasBooleanAttributes",
+      "rank": 4,
+      "top_caller_share_pct": 100,
+      "category": "jdk",
+      "pct_of_total": 0.9,
+      "samples": 47
+    },
+    {
+      "method": "sun.nio.ch.EventFD.set0",
+      "top_caller": "sun.nio.ch.EventFD.set",
+      "rank": 5,
+      "top_caller_share_pct": 100,
+      "category": "jdk",
+      "pct_of_total": 0.8,
+      "samples": 45
+    },
+    {
+      "method": "sun.nio.ch.Net.shutdown",
+      "top_caller": "sun.nio.ch.SocketChannelImpl.implCloseNonBlockingMode",
+      "rank": 6,
+      "top_caller_share_pct": 100,
+      "category": "jdk",
+      "pct_of_total": 0.3,
+      "samples": 18
+    },
+    {
+      "method": "sun.nio.ch.SocketDispatcher.read0",
+      "top_caller": "sun.nio.ch.SocketDispatcher.read",
+      "rank": 7,
+      "top_caller_share_pct": 100,
+      "category": "jdk",
+      "pct_of_total": 0.2,
+      "samples": 11
+    },
+    {
+      "method": "sun.nio.ch.UnixDispatcher.close0",
+      "top_caller": "sun.nio.ch.UnixDispatcher.close",
+      "rank": 8,
+      "top_caller_share_pct": 100,
+      "category": "jdk",
+      "pct_of_total": 0.2,
+      "samples": 11
+    },
+    {
+      "method": "sun.nio.ch.Net.setIntOption0",
+      "top_caller": "sun.nio.ch.Net.setSocketOption",
+      "rank": 9,
+      "top_caller_share_pct": 100,
+      "category": "jdk",
+      "pct_of_total": 0.1,
+      "samples": 5
+    },
+    {
+      "method": "sun.nio.ch.IOUtil.configureBlocking",
+      "top_caller": "sun.nio.ch.SocketChannelImpl.lockedConfigureBlocking",
+      "rank": 10,
+      "top_caller_share_pct": 50,
+      "category": "jdk",
+      "pct_of_total": 0.1,
+      "samples": 4
+    },
+    {
+      "method": "sun.nio.ch.IOUtil.drain",
+      "top_caller": "sun.nio.ch.EventFD.reset",
+      "rank": 11,
+      "top_caller_share_pct": 100,
+      "category": "jdk",
+      "pct_of_total": 0.1,
+      "samples": 3
+    },
+    {
+      "method": "sun.nio.ch.EPoll.ctl",
+      "top_caller": "sun.nio.ch.EPollSelectorImpl.processUpdateQueue",
+      "rank": 12,
+      "top_caller_share_pct": 100,
+      "category": "jdk",
+      "pct_of_total": 0.1,
+      "samples": 3
+    },
+    {
+      "method": "sun.nio.ch.Net.getIntOption0",
+      "top_caller": "sun.nio.ch.Net.getSocketOption",
+      "rank": 13,
+      "top_caller_share_pct": 100,
+      "category": "jdk",
+      "pct_of_total": 0,
+      "samples": 2
+    },
+    {
+      "method": "java.lang.Class.isAssignableFrom",
+      "top_caller": "io.micrometer.observation.docs.ObservationDocumentation.observation",
+      "rank": 14,
+      "top_caller_share_pct": 50,
+      "category": "jdk",
+      "pct_of_total": 0,
+      "samples": 2
+    },
+    {
+      "method": "java.lang.Object.clone",
+      "top_caller": "org.thymeleaf.engine.Model.<init>",
+      "rank": 15,
+      "top_caller_share_pct": 100,
+      "category": "jdk",
+      "pct_of_total": 0,
+      "samples": 1
+    },
+    {
+      "method": "java.lang.reflect.Array.newArray",
+      "top_caller": "java.lang.reflect.Array.newInstance",
+      "rank": 16,
+      "top_caller_share_pct": 100,
+      "category": "jdk",
+      "pct_of_total": 0,
+      "samples": 1
+    },
+    {
+      "method": "java.lang.Throwable.fillInStackTrace",
+      "top_caller": "java.lang.Throwable.fillInStackTrace",
+      "rank": 17,
+      "top_caller_share_pct": 100,
+      "category": "jdk",
+      "pct_of_total": 0,
+      "samples": 1
+    }
+  ]
+}

@@ -10,7 +10,7 @@ import airhacks.zsmith.tools.control.Tool;
 
 record Config(String jfrFile, String memory, String cpu, String framework) {}
 
-List<Tool> TOOLS = List.of(new JfrSummaryTool(), new JfrTopMethodsTool(), new JfrGcStatsTool(), new JfrAllocationTool(), new JfrMemoryTool(), new JfrLockContentionTool(), new JfrExceptionsTool(), new JfrIoTool());
+List<Tool> TOOLS = List.of(new JfrSummaryTool(), new JfrTopMethodsTool(), new JfrGcStatsTool(), new JfrAllocationTool(), new JfrMemoryTool(), new JfrLockContentionTool(), new JfrExceptionsTool(), new JfrIoTool(), new JfrNativeMethodsTool());
 
 void main(String[] args) {
     if (args.length == 0 || args[0].equals("--help") || args[0].equals("-h")) {

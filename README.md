@@ -17,7 +17,7 @@ categorization, top callers, and concrete fixes you can ship today.
   <img alt="License" src="https://img.shields.io/badge/license-MIT-green">
 </p>
 
-> 🚧 **Day 10.** CPU-hotspot, GC, allocation, total memory footprint (with NMT-aware container-fit verdict), lock contention / thread parking, per-class exception throws, and file/socket I/O wait end-to-end against real Spring Boot recordings. Native-method sampling next.
+> 🚧 **Day 10.** CPU-hotspot, GC, allocation, total memory footprint (with NMT-aware container-fit verdict), lock contention / thread parking, per-class exception throws, file/socket I/O wait, and native-method sampling (with wait-vs-CPU disambiguation) end-to-end against real Spring Boot recordings.
 
 ---
 
@@ -85,22 +85,22 @@ No Maven, no Gradle, no npm. `lib/zsmith.jar` (the zero-dependency agent framewo
 
 ## What you get today
 
-| | What | Where |
-|-|-|-|
-| ✅ | **Recording context** — duration, JVM, OS, framework, container limits | `## Recording Context` |
-| ✅ | **CPU profile split** — user code vs framework vs JDK (on-CPU Java only; native CPU is out of scope) | `## CPU Profile` |
-| ✅ | **Top hotspots** with top callers and Spring/Quarkus-aware attribution | `### Top Hotspots` |
-| ✅ | **Findings** — severity-tagged observations with numeric evidence | `## Findings` |
-| ✅ | **Recommendations** — actionable fixes tied to each finding | `## Recommendations` |
-| ✅ | **GC behavior** — collector config, pause distribution (p50/p95/p99/max), pause overhead, anomalies | `## Garbage Collection` |
-| ✅ | **Memory footprint** — heap + metaspace + code cache + thread stacks + per-category NMT, with container-fit verdict | `## Memory Footprint` |
-| ✅ | **Allocation hotspots** — rate (MB/s), top classes, top sites with category | `## Allocation Hotspots` |
-| ✅ | **Instrumentation-health signals** — `sample_quality` block on CPU + allocation tools surfaces unattributed samples/bytes; flagged as a 🟡 finding when ≥5% so you know when to trust the attribution | `## CPU Profile`, `## Allocation Hotspots` |
-| ✅ | **Concurrency & locks** — monitor contention + thread parking with park-site categorization, so 36k benign pool-idle parks aren't mistaken for contention | `## Concurrency & Locks` |
+| | What                                                                                                                                                                                                                              | Where |
+|-|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-|
+| ✅ | **Recording context** — duration, JVM, OS, framework, container limits                                                                                                                                                            | `## Recording Context` |
+| ✅ | **CPU profile split** — user code vs framework vs JDK (on-CPU Java only; native CPU is out of scope)                                                                                                                              | `## CPU Profile` |
+| ✅ | **Top hotspots** with top callers and Spring/Quarkus-aware attribution                                                                                                                                                            | `### Top Hotspots` |
+| ✅ | **Findings** — severity-tagged observations with numeric evidence                                                                                                                                                                 | `## Findings` |
+| ✅ | **Recommendations** — actionable fixes tied to each finding                                                                                                                                                                       | `## Recommendations` |
+| ✅ | **GC behavior** — collector config, pause distribution (p50/p95/p99/max), pause overhead, anomalies                                                                                                                               | `## Garbage Collection` |
+| ✅ | **Memory footprint** — heap + metaspace + code cache + thread stacks + per-category NMT, with container-fit verdict                                                                                                               | `## Memory Footprint` |
+| ✅ | **Allocation hotspots** — rate (MB/s), top classes, top sites with category                                                                                                                                                       | `## Allocation Hotspots` |
+| ✅ | **Instrumentation-health signals** — `sample_quality` block on CPU + allocation tools surfaces unattributed samples/bytes; flagged as a 🟡 finding when ≥5% so you know when to trust the attribution                             | `## CPU Profile`, `## Allocation Hotspots` |
+| ✅ | **Concurrency & locks** — monitor contention + thread parking with park-site categorization, so 36k benign pool-idle parks aren't mistaken for contention                                                                         | `## Concurrency & Locks` |
 | ✅ | **Exception activity** — per-class throw rate, top throwing sites with framework-aware category, signals (control-flow smell, single-class dominance) so a 259/s EOFException out of Tomcat isn't mistaken for an application bug | `## Exception Activity` |
-| ✅ | **I/O activity** — file and socket blocking time above the JFR ~10ms threshold, per-file and per-endpoint, with DB-port awareness and an explicit "absence ≠ no I/O" caveat | `## I/O Activity` |
-| 🛠 | Native-method sampling (`jdk.NativeMethodSample`) — separate tool for blocked/busy-in-native time; keeps the CPU tool's on-CPU Java scope clean | _roadmap_ |
-| 🛠 | Virtual-thread sizing, K8s context | _roadmap_ |
+| ✅ | **I/O activity** — file and socket blocking time above the JFR ~10ms threshold, per-file and per-endpoint, with DB-port awareness and an explicit "absence ≠ no I/O" caveat                                                       | `## I/O Activity` |
+| ✅ | **Native-method sampling** (`jdk.NativeMethodSample`) — separate tool for blocked/busy-in-native time with wait-vs-CPU signals; keeps the CPU tool's on-CPU Java scope clean so `Net.accept` / `EPoll.wait` aren't mistaken for hotspots | `## Native Execution` |
+| 🛠 | Virtual-thread sizing, K8s context                                                                                                                                                                                                | _roadmap_ |
 
 The agent's report is explicit about today's scope (CPU + GC + allocation + memory + locks + exceptions + I/O) in its **Analysis Limitations** section, so nothing is hidden.
 
@@ -120,8 +120,9 @@ jfrdoc reads `.jfr` files via `jdk.jfr.consumer.RecordingFile` from the JDK — 
 | `jfr_lock_contention` | Monitor contention + thread parking with heuristic category hints (pool-idle vs connection-pool vs lock-acquire) |
 | `jfr_exceptions` | Per-class exception breakdown — throw rate, top classes, top throwing sites with category, control-flow-smell signal |
 | `jfr_io` | File and socket I/O wait — top files / endpoints by blocking time above the JFR ~10ms threshold, DB-port-aware signals, explicit threshold caveat |
+| `jfr_native_methods` | JVM native execution (syscalls / JNI) — top native methods with caller, wait-vs-CPU signal block, separate from CPU profile (mostly blocked-in-syscall wait, not on-CPU work) |
 
-…then synthesizes a markdown report with findings, evidence, and recommendations. As more tools land (native-method sampling), the same agent reaches for them.
+…then synthesizes a markdown report with findings, evidence, and recommendations. As more tools land, the same agent reaches for them.
 
 ---
 
@@ -156,6 +157,7 @@ Exercise each tool directly without the agent loop — useful for verifying the 
 ./jfrdoc debug-tool jfr-lock-contention samples/sample.jfr --top-n 10
 ./jfrdoc debug-tool jfr-exceptions      samples/sample.jfr --framework spring --top-n 10
 ./jfrdoc debug-tool jfr-io              samples/sample.jfr --top-n 10
+./jfrdoc debug-tool jfr-native-methods  samples/petclinic/after/petclinic.jfr --framework spring --top-n 10
 ```
 
 > 💡 **Recommended JVM flags for richest analysis.** For full memory analysis (per-category native memory and the `container_fit` verdict), enable Native Memory Tracking when generating the JFR:
@@ -195,6 +197,7 @@ OUT=samples/petclinic/before
 ./jfrdoc debug-tool jfr-lock-contention "$JFR" --top-n 10 > "$OUT/lock-contention.json"
 ./jfrdoc debug-tool jfr-exceptions      "$JFR" --framework spring --top-n 15 > "$OUT/exceptions.json"
 ./jfrdoc debug-tool jfr-io              "$JFR" --top-n 10 > "$OUT/io.json"
+./jfrdoc debug-tool jfr-native-methods  "$JFR" --framework spring --top-n 20 > "$OUT/native-methods.json"
 ```
 
 **Why containers, not host `java -jar`?** The JVM honors cgroup limits (`-XX:UseContainerSupport` is default on JDK 25), so GC heuristics, ForkJoin pool size, and `Runtime.availableProcessors()` all reflect the constrained environment — which is exactly what jfrdoc's `--container-cpu` / `--container-memory` flags claim in the report header. As a bonus, the build is reproducible across macOS / Linux / Windows because both build and run happen inside `eclipse-temurin:25-jdk`, so host Maven version, BSD vs GNU coreutils quirks, and corporate TLS-MITM proxies stop mattering for the recording step.
@@ -203,8 +206,7 @@ OUT=samples/petclinic/before
 
 ## Roadmap
 
-- ✅ **Done** — CLI scaffold, `jfr_summary` + `jfr_top_methods` + `jfr_gc_stats` + `jfr_allocation` + `jfr_memory` + `jfr_lock_contention` + `jfr_exceptions` + `jfr_io` tools, agent wiring, first dogfood on Spring PetClinic
-- 🛠 **Next** — native-method sampling tool (separate from `jfr_top_methods` to keep on-CPU Java scope clean)
+- ✅ **Done** — CLI scaffold, `jfr_summary` + `jfr_top_methods` + `jfr_gc_stats` + `jfr_allocation` + `jfr_memory` + `jfr_lock_contention` + `jfr_exceptions` + `jfr_io` + `jfr_native_methods` tools, agent wiring, first dogfood on Spring PetClinic
 - 📦 **Next month** — K8s-aware diagnostics, multi-`.jfr` correlation
 - ☁ **Future** — hosted SaaS with history and trends
 

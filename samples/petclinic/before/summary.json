@@ -16,7 +16,8 @@
     "monitor_contention": true,
     "gc": true,
     "execution_samples": true,
-    "exceptions": true
+    "exceptions": true,
+    "native_method_samples": true
   },
   "recordingStart": "2026-05-28T13:28:57.813876589Z",
   "totalEvents": 206227,
