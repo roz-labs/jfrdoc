@@ -1,0 +1,162 @@
+{
+  "file_io": {
+    "total_bytes_read_mb": 0,
+    "total_bytes_written_mb": 0,
+    "write_events": 0,
+    "total_write_time_ms": 0,
+    "top_files_by_time": [],
+    "total_read_time_ms": 0,
+    "read_events": 0
+  },
+  "summary": {
+    "slowest_operation_target": "172.18.0.3:58120",
+    "total_io_blocking_time_ms": 5562,
+    "dominant_io_type": "socket",
+    "slowest_single_operation_ms": 71.4,
+    "io_blocking_pct_of_recording": 4.7
+  },
+  "signals": {
+    "single_endpoint_dominant": false,
+    "io_data_likely_sparse": false,
+    "significant_socket_io": true,
+    "dominant_endpoint": "172.18.0.3:58120",
+    "repeated_file_access": false,
+    "repeated_file_path": null,
+    "significant_file_io": false
+  },
+  "socket_io": {
+    "total_bytes_read_mb": 0,
+    "total_bytes_written_mb": 1.8,
+    "write_events": 604,
+    "total_write_time_ms": 4840.9,
+    "top_endpoints_by_time": [
+      {
+        "endpoint": "172.18.0.3:58120",
+        "write_events": 1,
+        "avg_time_ms": 71.4,
+        "address": "172.18.0.3",
+        "top_call_site": "org.apache.tomcat.util.net.NioChannel.write:129",
+        "total_time_ms": 71.4,
+        "total_bytes_mb": 0,
+        "rank": 1,
+        "max_time_ms": 71.4,
+        "read_events": 0
+      },
+      {
+        "endpoint": "172.18.0.3:58442",
+        "write_events": 1,
+        "avg_time_ms": 70.1,
+        "address": "172.18.0.3",
+        "top_call_site": "org.apache.tomcat.util.net.NioChannel.write:129",
+        "total_time_ms": 70.1,
+        "total_bytes_mb": 0,
+        "rank": 2,
+        "max_time_ms": 70.1,
+        "read_events": 0
+      },
+      {
+        "endpoint": "172.18.0.3:50864",
+        "write_events": 1,
+        "avg_time_ms": 67.2,
+        "address": "172.18.0.3",
+        "top_call_site": "org.apache.tomcat.util.net.NioChannel.write:129",
+        "total_time_ms": 67.2,
+        "total_bytes_mb": 0,
+        "rank": 3,
+        "max_time_ms": 67.2,
+        "read_events": 0
+      },
+      {
+        "endpoint": "172.18.0.3:33606",
+        "write_events": 1,
+        "avg_time_ms": 67.1,
+        "address": "172.18.0.3",
+        "top_call_site": "org.apache.tomcat.util.net.NioChannel.write:129",
+        "total_time_ms": 67.1,
+        "total_bytes_mb": 0,
+        "rank": 4,
+        "max_time_ms": 67.1,
+        "read_events": 0
+      },
+      {
+        "endpoint": "172.18.0.3:58456",
+        "write_events": 1,
+        "avg_time_ms": 66.9,
+        "address": "172.18.0.3",
+        "top_call_site": "org.apache.tomcat.util.net.NioChannel.write:129",
+        "total_time_ms": 66.9,
+        "total_bytes_mb": 0,
+        "rank": 5,
+        "max_time_ms": 66.9,
+        "read_events": 0
+      },
+      {
+        "endpoint": "172.18.0.3:55996",
+        "write_events": 1,
+        "avg_time_ms": 65.1,
+        "address": "172.18.0.3",
+        "top_call_site": "org.apache.tomcat.util.net.NioChannel.write:129",
+        "total_time_ms": 65.1,
+        "total_bytes_mb": 0,
+        "rank": 6,
+        "max_time_ms": 65.1,
+        "read_events": 0
+      },
+      {
+        "endpoint": "172.18.0.3:60458",
+        "write_events": 2,
+        "avg_time_ms": 32.5,
+        "address": "172.18.0.3",
+        "top_call_site": "org.apache.tomcat.util.net.NioChannel.write:129",
+        "total_time_ms": 65,
+        "total_bytes_mb": 0,
+        "rank": 7,
+        "max_time_ms": 63.7,
+        "read_events": 0
+      },
+      {
+        "endpoint": "172.18.0.3:37788",
+        "write_events": 0,
+        "avg_time_ms": 64.6,
+        "address": "172.18.0.3",
+        "top_call_site": "org.apache.tomcat.util.net.NioChannel.read:154",
+        "total_time_ms": 64.6,
+        "total_bytes_mb": 0,
+        "rank": 8,
+        "max_time_ms": 64.6,
+        "read_events": 1
+      },
+      {
+        "endpoint": "172.18.0.3:57274",
+        "write_events": 1,
+        "avg_time_ms": 64,
+        "address": "172.18.0.3",
+        "top_call_site": "org.apache.tomcat.util.net.NioChannel.write:129",
+        "total_time_ms": 64,
+        "total_bytes_mb": 0,
+        "rank": 9,
+        "max_time_ms": 64,
+        "read_events": 0
+      },
+      {
+        "endpoint": "172.18.0.3:53486",
+        "write_events": 1,
+        "avg_time_ms": 63.9,
+        "address": "172.18.0.3",
+        "top_call_site": "org.apache.tomcat.util.net.NioChannel.write:129",
+        "total_time_ms": 63.9,
+        "total_bytes_mb": 0,
+        "rank": 10,
+        "max_time_ms": 63.9,
+        "read_events": 0
+      }
+    ],
+    "total_read_time_ms": 721.1,
+    "read_events": 168
+  },
+  "threshold_note": "Only I/O operations exceeding the JFR threshold (~10ms default in profile settings) are captured. Fast I/O operations are not represented in this analysis. Absence of events means no SLOW I/O, not no I/O.",
+  "recording": {
+    "duration_seconds": 119.5,
+    "path": "/Users/ridvanozcan/code/jfrdoc/samples/petclinic/before/petclinic.jfr"
+  }
+}

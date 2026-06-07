@@ -23,7 +23,8 @@ to it: [`before/summary.json`](before/summary.json),
 [`before/allocation.json`](before/allocation.json),
 [`before/memory.json`](before/memory.json),
 [`before/lock-contention.json`](before/lock-contention.json),
-[`before/exceptions.json`](before/exceptions.json).
+[`before/exceptions.json`](before/exceptions.json),
+[`before/io.json`](before/io.json).
 
 The two headline jfrdoc surfaced:
 
@@ -163,7 +164,8 @@ to it: [`after/summary.json`](after/summary.json),
 [`after/allocation.json`](after/allocation.json),
 [`after/memory.json`](after/memory.json),
 [`after/lock-contention.json`](after/lock-contention.json),
-[`after/exceptions.json`](after/exceptions.json).
+[`after/exceptions.json`](after/exceptions.json),
+[`after/io.json`](after/io.json).
 
 Same recording window, same container limits, same load mix. What moved:
 

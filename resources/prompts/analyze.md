@@ -7,7 +7,7 @@ You have been asked to analyze a JFR recording with the following context:
 - Container memory limit (MB): {{container_memory_mb}}
 - Container CPU limit: {{container_cpu}}
 
-You have access to seven tools:
+You have access to eight tools:
 - jfr_summary: returns high-level metadata about the recording (duration, JVM info, event distribution, which event families are present). ALWAYS call this first.
 - jfr_memory: returns total JVM memory footprint — heap, metaspace, code cache, thread stacks, and per-category native memory (when NMT is enabled) — plus a container_fit verdict comparing total committed memory to the container memory limit. ALWAYS call this — it degrades gracefully when NMT is unavailable.
 - jfr_top_methods: returns top on-CPU Java hotspots from jdk.ExecutionSample with category breakdown (user_code / framework / jdk). Scope is on-CPU Java only; native CPU and blocked-in-native time are not measured. Category percentages are computed against sample_quality.attributed_samples. The separate sample_quality block reports how many samples could not be attributed (no_stack_trace / native_top_frame / unknown_method_or_class); it is an instrumentation-health signal, not an attribution bucket. Call this after summary if execution_samples are present.
@@ -15,6 +15,7 @@ You have access to seven tools:
 - jfr_allocation: returns allocation rate (MB/s), top allocated classes by estimated bytes, top allocation sites with method + category, and category breakdown (user_code / framework / jdk; pct_of_bytes is against sample_quality.attributed_bytes). Also returns a sample_quality block reporting unattributed samples/bytes with breakdown by reason (no_stack_trace / native_top_frame / unknown_method_or_class); this is an instrumentation-health signal, not an attribution bucket. Call this when summary indicates allocation events are present.
 - jfr_lock_contention: returns monitor contention (jdk.JavaMonitorEnter) and thread parking (jdk.ThreadPark) analysis. Thread parking is heuristically categorized (pool_idle_wait / connection_pool_wait / lock_acquire_wait / future_wait / condition_wait / scheduled_task_wait / other). Most ThreadPark events are NORMAL idle waits, not contention — read the signals block. Call this when summary indicates monitor_contention or thread_parking events are present.
 - jfr_exceptions: returns per-class exception breakdown from jdk.JavaExceptionThrow and jdk.JavaErrorThrow events — throw rate, top exception classes (with sample message and dominant throwing site), top throwing sites with category, and signals block (throw_rate_high, single_class_dominant, control_flow_smell). Call this when summary.notable_events_present.exceptions is true.
+- jfr_io: returns file and socket I/O wait analysis from jdk.FileRead/FileWrite/SocketRead/SocketWrite events. These events fire only above a JFR threshold (~10ms default in profile settings), so this tool captures slow I/O only — fast I/O is invisible. Returns top files and socket endpoints by blocking time. Call this when summary.notable_events_present.io is true.
 
 Workflow:
 1. Call jfr_summary with the path above.
@@ -24,8 +25,9 @@ Workflow:
 5. If summary.notable_events_present.allocation is true, call jfr_allocation with the same path and the framework value above.
 6. If summary.notable_events_present.monitor_contention OR summary.notable_events_present.thread_parking is true, call jfr_lock_contention with the same path.
 7. If summary.notable_events_present.exceptions is true, call jfr_exceptions with the same path and the framework value above.
-8. Synthesize a markdown report using the EXACT structure shown below.
-9. Stop after producing the report. Do not ask follow-up questions, do not loop further.
+8. If summary.notable_events_present.io is true, call jfr_io with the same path.
+9. Synthesize a markdown report using the EXACT structure shown below.
+10. Stop after producing the report. Do not ask follow-up questions, do not loop further.
 
 Required output structure (markdown):
 
@@ -160,6 +162,28 @@ Otherwise: numbered list of top 3 sites distinct from already-discussed classes,
 N. `<site>` — <events> events (<pct_of_total>%, <category>), dominant exception `<dominant_exception_class>` (<dominant_exception_share_pct>%)
    Caller: `<top_caller>`]
 
+## I/O Activity
+
+[If jfr_io was NOT called: "No I/O events captured in this recording." Skip rest.
+
+If called and signals.io_data_likely_sparse is true (< 10 events): "Minimal slow-I/O activity captured (<N> events). Note: JFR only records I/O operations exceeding ~10ms; this application's I/O is either fast (below threshold) or in-memory. No I/O bottleneck detected." Skip the sub-sections.
+
+Otherwise: 2-4 sentences. Cover:
+1. Total I/O blocking time and which type dominates (file vs socket), citing summary.total_io_blocking_time_ms and dominant_io_type.
+2. If significant_socket_io and single_endpoint_dominant: name the dominant endpoint and its total time — this is likely a database or downstream service. Frame as "the application spends X ms blocked on <endpoint>".
+3. If repeated_file_access: name the repeatedly-read file — likely a missing cache (config reload, template re-read).
+4. ALWAYS include the threshold caveat: remind the reader that only slow I/O (>~10ms) is captured, so this shows bottlenecks not total I/O volume.
+
+### Top I/O Targets
+[Combine the most significant entries from top_endpoints_by_time and top_files_by_time, sorted by total_time_ms desc, top 5 overall. Format:
+N. <endpoint or path> — <total_time_ms> ms across <events> ops (<total_bytes_mb> MB, max <max_time_ms> ms) [socket|file]
+
+For top 2, add an interpretive sub-line:
+- Socket endpoint with DB-like port (5432, 3306, 1521, 27017, 6379, 9042) → "Likely <database type> — high cumulative wait suggests chatty queries (N+1?), missing indexes, or network latency to the DB"
+- Socket endpoint with HTTP-like port (80, 443, 8080) → "Downstream HTTP service — consider timeouts, connection pooling, or caching"
+- Repeatedly-read file → "Re-read N times — candidate for in-memory caching"
+- Large single read → "Bulk read — consider streaming or pagination if this is request-path"]
+
 ## Findings
 [Bulleted list. Each finding MUST follow this structure:
 - **[Severity emoji] [Short title]**: [Observation in one sentence]. **Evidence**: [specific numbers from tool outputs]. **Why it matters**: [one sentence on impact].
@@ -181,10 +205,10 @@ Only list findings supported by data. If there are no findings, write exactly: "
 If there are no findings, write: "No code or configuration changes recommended based on this recording." Do not invent recommendations.]
 
 ## Analysis Limitations
-This build analyzes CPU samples, GC behavior, object allocation, total memory footprint (with NMT for per-category native breakdown), lock contention / thread parking, and exception throws (per-class breakdown). The following are NOT yet covered and would change the picture if data is available:
-- I/O wait (file, socket) — jdk.FileRead, jdk.FileWrite, jdk.SocketRead, jdk.SocketWrite events not yet analyzed
-- Native-method sampling (JNI compute, native I/O syscalls)
+This build analyzes CPU samples, GC behavior, object allocation, total memory footprint (with NMT for per-category native breakdown), lock contention / thread parking, exception throws (per-class breakdown), and file/socket I/O wait. The following are NOT yet covered and would change the picture if data is available:
+- Native-method sampling (JNI compute, native I/O syscalls below the JFR threshold)
 - Class loading and JIT compilation overhead
+- Note: I/O analysis covers only operations exceeding ~10ms; high-frequency fast I/O is aggregated in CPU/allocation profiles instead
 
 [If container_memory or container_cpu were "not specified", add: "Container limits were not provided; container-fit analysis is not possible. Re-run with --container-memory and --container-cpu for fuller assessment."]
 
@@ -212,3 +236,7 @@ Rules you must follow:
     - For ClassNotFoundException, NoClassDefFoundError thrown by Spring's ClassUtils.isPresent or similar classpath-probe utilities: benign but expensive — note the cost without prescribing a code change.
     - For NumberFormatException, NoSuchElementException, IllegalArgumentException at >10/s rates: likely control-flow anti-pattern. This IS a finding.
     - For OOMError, StackOverflowError, or any Error subclass: ALWAYS a finding regardless of count.
+14. I/O event interpretation:
+    - JFR I/O events are threshold-gated (~10ms default). Absence of I/O events means no SLOW I/O — NOT no I/O. Never conclude "the application does no I/O" or "I/O is not a factor" from few/zero events; conclude "no slow I/O bottleneck detected."
+    - When socket I/O concentrates on a single endpoint with a database port (5432=PostgreSQL, 3306=MySQL, 1521=Oracle, 27017=MongoDB, 6379=Redis, 9042=Cassandra), the cumulative wait time is the key signal — frame it as database latency / chattiness, and suggest investigating query patterns (N+1, missing indexes) before blaming the network.
+    - For in-memory-database applications (H2, embedded), expect little or no socket I/O — this is normal and not a finding.
