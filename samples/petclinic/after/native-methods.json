@@ -1,7 +1,7 @@
 {
   "signals": {
     "dominated_by_wait_frames": true,
-    "wait_frame_pct": 94.7,
+    "wait_frame_pct": 93.9,
     "likely_on_cpu_native_present": false,
     "dominant_native_method": "sun.nio.ch.Net.accept"
   },
@@ -13,7 +13,7 @@
   "categories": {
     "jdk": {
       "pct": 100,
-      "samples": 5335
+      "samples": 4608
     },
     "framework": {
       "pct": 0,
@@ -24,14 +24,14 @@
       "samples": 0
     }
   },
-  "native_samples": {"total": 5335},
+  "native_samples": {"total": 4608},
   "sample_quality": {
     "unattributed_pct": 0,
     "breakdown": {
       "unknown_method_or_class": 0,
       "no_stack_trace": 0
     },
-    "attributed_samples": 5335,
+    "attributed_samples": 4608,
     "unattributed_samples": 0
   },
   "top_native_methods": [
@@ -41,8 +41,8 @@
       "rank": 1,
       "top_caller_share_pct": 100,
       "category": "jdk",
-      "pct_of_total": 47.8,
-      "samples": 2549
+      "pct_of_total": 47.4,
+      "samples": 2186
     },
     {
       "method": "sun.nio.ch.EPoll.wait",
@@ -50,8 +50,8 @@
       "rank": 2,
       "top_caller_share_pct": 100,
       "category": "jdk",
-      "pct_of_total": 46.9,
-      "samples": 2504
+      "pct_of_total": 46.5,
+      "samples": 2141
     },
     {
       "method": "sun.nio.ch.SocketDispatcher.write0",
@@ -59,8 +59,8 @@
       "rank": 3,
       "top_caller_share_pct": 100,
       "category": "jdk",
-      "pct_of_total": 2.4,
-      "samples": 128
+      "pct_of_total": 2.3,
+      "samples": 106
     },
     {
       "method": "java.io.UnixFileSystem.getBooleanAttributes0",
@@ -68,8 +68,8 @@
       "rank": 4,
       "top_caller_share_pct": 100,
       "category": "jdk",
-      "pct_of_total": 0.9,
-      "samples": 47
+      "pct_of_total": 1.2,
+      "samples": 55
     },
     {
       "method": "sun.nio.ch.EventFD.set0",
@@ -77,8 +77,8 @@
       "rank": 5,
       "top_caller_share_pct": 100,
       "category": "jdk",
-      "pct_of_total": 0.8,
-      "samples": 45
+      "pct_of_total": 1.1,
+      "samples": 52
     },
     {
       "method": "sun.nio.ch.Net.shutdown",
@@ -86,30 +86,30 @@
       "rank": 6,
       "top_caller_share_pct": 100,
       "category": "jdk",
-      "pct_of_total": 0.3,
-      "samples": 18
-    },
-    {
-      "method": "sun.nio.ch.SocketDispatcher.read0",
-      "top_caller": "sun.nio.ch.SocketDispatcher.read",
-      "rank": 7,
-      "top_caller_share_pct": 100,
-      "category": "jdk",
-      "pct_of_total": 0.2,
-      "samples": 11
+      "pct_of_total": 0.4,
+      "samples": 20
     },
     {
       "method": "sun.nio.ch.UnixDispatcher.close0",
       "top_caller": "sun.nio.ch.UnixDispatcher.close",
+      "rank": 7,
+      "top_caller_share_pct": 100,
+      "category": "jdk",
+      "pct_of_total": 0.3,
+      "samples": 14
+    },
+    {
+      "method": "sun.nio.ch.SocketDispatcher.read0",
+      "top_caller": "sun.nio.ch.SocketDispatcher.read",
       "rank": 8,
       "top_caller_share_pct": 100,
       "category": "jdk",
-      "pct_of_total": 0.2,
-      "samples": 11
+      "pct_of_total": 0.3,
+      "samples": 12
     },
     {
-      "method": "sun.nio.ch.Net.setIntOption0",
-      "top_caller": "sun.nio.ch.Net.setSocketOption",
+      "method": "sun.nio.ch.Net.getIntOption0",
+      "top_caller": "sun.nio.ch.Net.getSocketOption",
       "rank": 9,
       "top_caller_share_pct": 100,
       "category": "jdk",
@@ -117,10 +117,10 @@
       "samples": 5
     },
     {
-      "method": "sun.nio.ch.IOUtil.configureBlocking",
-      "top_caller": "sun.nio.ch.SocketChannelImpl.lockedConfigureBlocking",
+      "method": "sun.nio.ch.EPoll.ctl",
+      "top_caller": "sun.nio.ch.EPollSelectorImpl.processUpdateQueue",
       "rank": 10,
-      "top_caller_share_pct": 50,
+      "top_caller_share_pct": 100,
       "category": "jdk",
       "pct_of_total": 0.1,
       "samples": 4
@@ -135,44 +135,44 @@
       "samples": 3
     },
     {
-      "method": "sun.nio.ch.EPoll.ctl",
-      "top_caller": "sun.nio.ch.EPollSelectorImpl.processUpdateQueue",
+      "method": "java.lang.Class.forName0",
+      "top_caller": "java.lang.Class.forName",
       "rank": 12,
       "top_caller_share_pct": 100,
-      "category": "jdk",
-      "pct_of_total": 0.1,
-      "samples": 3
-    },
-    {
-      "method": "sun.nio.ch.Net.getIntOption0",
-      "top_caller": "sun.nio.ch.Net.getSocketOption",
-      "rank": 13,
-      "top_caller_share_pct": 100,
-      "category": "jdk",
-      "pct_of_total": 0,
-      "samples": 2
-    },
-    {
-      "method": "java.lang.Class.isAssignableFrom",
-      "top_caller": "io.micrometer.observation.docs.ObservationDocumentation.observation",
-      "rank": 14,
-      "top_caller_share_pct": 50,
       "category": "jdk",
       "pct_of_total": 0,
       "samples": 2
     },
     {
       "method": "java.lang.Object.clone",
-      "top_caller": "org.thymeleaf.engine.Model.<init>",
+      "top_caller": "org.springframework.core.annotation.AnnotatedElementAdapter.getAnnotations",
+      "rank": 13,
+      "top_caller_share_pct": 50,
+      "category": "jdk",
+      "pct_of_total": 0,
+      "samples": 2
+    },
+    {
+      "method": "sun.nio.ch.Net.setIntOption0",
+      "top_caller": "sun.nio.ch.Net.setSocketOption",
+      "rank": 14,
+      "top_caller_share_pct": 100,
+      "category": "jdk",
+      "pct_of_total": 0,
+      "samples": 2
+    },
+    {
+      "method": "sun.nio.ch.IOUtil.configureBlocking",
+      "top_caller": "sun.nio.ch.SocketChannelImpl.lockedConfigureBlocking",
       "rank": 15,
       "top_caller_share_pct": 100,
       "category": "jdk",
       "pct_of_total": 0,
-      "samples": 1
+      "samples": 2
     },
     {
-      "method": "java.lang.reflect.Array.newArray",
-      "top_caller": "java.lang.reflect.Array.newInstance",
+      "method": "jdk.internal.reflect.ConstantPool.getUTF8At0",
+      "top_caller": "jdk.internal.reflect.ConstantPool.getUTF8At",
       "rank": 16,
       "top_caller_share_pct": 100,
       "category": "jdk",
@@ -180,8 +180,8 @@
       "samples": 1
     },
     {
-      "method": "java.lang.Throwable.fillInStackTrace",
-      "top_caller": "java.lang.Throwable.fillInStackTrace",
+      "method": "sun.nio.ch.Net.localInetAddress",
+      "top_caller": "sun.nio.ch.Net.localAddress",
       "rank": 17,
       "top_caller_share_pct": 100,
       "category": "jdk",

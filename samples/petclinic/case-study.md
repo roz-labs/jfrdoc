@@ -29,30 +29,30 @@ to it: [`before/summary.json`](before/summary.json),
 The two headline jfrdoc surfaced:
 
 > 🔴 "~97% of on-CPU samples and ~75% of allocation bytes are JDK/framework
-> code inside the `jar:nested:` URL protocol; user code is only 2.5%
-> CPU / 1% allocation."
+> code inside the `jar:nested:` URL protocol; user code is only 2.8%
+> CPU / 0.9% allocation."
 >
-> 🔴 "Serial GC on a server workload … 2,283 young collections in 120 s
-> (1,140/min) … one SerialOld full collection took 144.88 ms."
+> 🔴 "Serial GC on a server workload … 2,321 young collections in 120 s
+> (1,159/min) … one SerialOld full collection took 148.91 ms."
 
 Numbers the report called out:
 
 | Signal | Value | Where in the report |
 |-|-|-|
 | **Loader / CPU** | | |
-| User-code CPU share | **2.5%** (JDK 62.9% / framework 34.6%) | `## CPU Profile` |
-| Top hotspot | `Arrays.binarySearch0` **6.5%** (called from JAR/classpath lookup) | `### Top Hotspots` #1 |
-| `java.net.URL.<init>` (2 sites combined) | **11.2%** of all samples | `### Top Hotspots` #2, #4 |
-| `JarFileUrlKey.equalsIgnoringCase` + `Handler.indexOfSeparator` | **6.8%** | `### Top Hotspots` #8, #9 |
+| User-code CPU share | **2.8%** (JDK 59.9% / framework 37.3%) | `## CPU Profile` |
+| Top hotspot | `NestedJarFile.hasEntry` **5.5%** (Spring Boot loader) | `### Top Hotspots` #1 |
+| `java.net.URL.<init>` (2 sites combined) | **10.5%** of all samples | `### Top Hotspots` #2, #4 |
+| `JarFileUrlKey.equalsIgnoringCase` + `Handler.indexOfSeparator` | **6.5%** | `### Top Hotspots` #8, #9 |
 | **Allocation / locks** | | |
-| Sustained allocation rate | **479.5 MB/s** | `## Allocation Hotspots` |
-| Top contended monitor | `UrlNestedJarFile` — **12,151.2 ms** wait (319 events) | `### Contended Monitors` #1 |
-| Second contended monitor | `UrlJarFiles$Cache` — **11,723.9 ms** wait (319 events) | `### Contended Monitors` #2 |
+| Sustained allocation rate | **495.1 MB/s** | `## Allocation Hotspots` |
+| Top contended monitor | `UrlNestedJarFile` — **13,390.1 ms** wait (353 events) | `### Contended Monitors` #1 |
+| Second contended monitor | `UrlJarFiles$Cache` — **10,256.1 ms** wait (277 events) | `### Contended Monitors` #2 |
 | **GC / heap** | | |
 | GC collector | **SerialGC** (DefNew young + SerialOld old) | `## Garbage Collection` |
-| GCs in 120 s | **2,283** (1,140/min) | `## Garbage Collection` |
-| Max GC pause | **144.88 ms** (single SerialOld STW full collection) | `### GC Anomalies` |
-| Heap committed | **94.1 MB** of 2 GiB container limit | `## Memory Footprint` |
+| GCs in 120 s | **2,321** (1,159/min) | `## Garbage Collection` |
+| Max GC pause | **148.91 ms** (single SerialOld STW full collection) | `### GC Anomalies` |
+| Heap committed | **94.2 MB** of 2 GiB container limit | `## Memory Footprint` |
 
 Two roots, one shared symptom. The top two contended monitors and ~30%+ of
 allocated bytes trace back to **Spring Boot's nested-JAR loader**
@@ -60,7 +60,7 @@ allocated bytes trace back to **Spring Boot's nested-JAR loader**
 inside the fat JAR on every request. And because the container is sized to
 **1 CPU**, the JVM auto-picks the single-threaded **SerialGC** and refuses to
 grow the heap past ~94 MB — so that allocation pressure fires a GC every
-~53 ms.
+~52 ms.
 
 ---
 
@@ -121,8 +121,10 @@ ENTRYPOINT ["java"]
 
 We took the explicit-flag path so the container limits stay identical
 between runs — only the JVM's own choices change. `-XX:+UseG1GC` replaces
-the single-threaded SerialGC; `-Xmx1g` lets the heap grow ~10× beyond
-the ~94 MB it stayed pinned at before.
+the single-threaded SerialGC; `-Xmx1g` raises the heap ceiling roughly
+~11× above the ~94 MB it stayed pinned at before, and in this recording
+G1 settles around ~170 MB at steady state — enough headroom to flatten
+the per-collection cadence.
 
 ### compose `command:` diff (loader + GC flags together)
 
@@ -172,36 +174,37 @@ Same recording window, same container limits, same load mix. What moved:
 | Signal | Before | After | Δ |
 |-|-|-|-|
 | **Loader / CPU** | | | |
-| User-code CPU share | 2.5% | **6.3%** | **+3.8 pp (2.5×)** |
-| Top hotspot | `Arrays.binarySearch0` (Spring Boot loader JAR lookup) | `JarFile.getEntry` (plain JDK URLClassLoader) | nature changed |
-| `java.net.URL.<init>` share | 11.2% | **0%** (gone from top 10) | **−11.2 pp** |
-| `JarFileUrlKey.equalsIgnoringCase` + `Handler.indexOfSeparator` | 6.8% | **0%** (gone) | **−6.8 pp** |
+| User-code CPU share | 2.8% | **6.7%** | **+3.9 pp (2.4×)** |
+| Top hotspot | `NestedJarFile.hasEntry` (Spring Boot loader) | `ZipFile$Source.getEntryPos` (plain JDK URLClassLoader) | nature changed |
+| `java.net.URL.<init>` share | 10.5% | **0%** (gone from top 10) | **−10.5 pp** |
+| `JarFileUrlKey.equalsIgnoringCase` + `Handler.indexOfSeparator` | 6.5% | **0%** (gone) | **−6.5 pp** |
 | **Allocation / locks** | | | |
-| Allocation rate | 479.5 MB/s | **103.2 MB/s** | **−78%** |
-| `UrlNestedJarFile` monitor wait | 12,151.2 ms (319 events) | **0 ms (monitor no longer exists)** | **−100%** |
-| `UrlJarFiles$Cache` monitor wait | 11,723.9 ms (319 events) | **0 ms (monitor no longer exists)** | **−100%** |
-| Total monitor-contention wait | 27.2 s (734 events) | **3.88 s (89 events)** | **−86%** |
+| Allocation rate | 495.1 MB/s | **86.5 MB/s** | **−83%** |
+| `UrlNestedJarFile` monitor wait | 13,390.1 ms (353 events) | **0 ms (monitor no longer exists)** | **−100%** |
+| `UrlJarFiles$Cache` monitor wait | 10,256.1 ms (277 events) | **0 ms (monitor no longer exists)** | **−100%** |
+| Total monitor-contention wait | 27.5 s (735 events) | **8.3 s (152 events)** | **−70%** |
 | **GC / heap** | | | |
 | GC collector | SerialGC (DefNew + SerialOld) | **G1 (G1New + G1Old)** | switched |
-| GCs in 120 s | 2,283 (1,140/min) | **173 (86.5/min)** | **−92%** |
-| Max GC pause | 144.88 ms (SerialOld full GC) | **72.25 ms (G1 mixed pause)** | **−50%** |
+| GCs in 120 s | 2,321 (1,159/min) | **161 (80.5/min)** | **−93%** |
+| Max GC pause | 148.91 ms (SerialOld full GC) | **65.96 ms (G1 old/mixed)** | **−56%** |
 | GC anomalies | 1 long pause >100 ms | **0** | cleared |
-| Heap committed | 94.1 MB (Serial wouldn't grow) | **157 MB** (G1 with `-Xmx1g` headroom) | +67% |
+| Heap committed | 94.2 MB (Serial wouldn't grow) | **171 MB** (G1 with `-Xmx1g` headroom) | +82% |
 
 The two top contended monitors from before — `UrlNestedJarFile` and
-`UrlJarFiles$Cache`, together responsible for ~88% of all monitor wait time
+`UrlJarFiles$Cache`, together responsible for ~86% of all monitor wait time
 in the original recording — **do not appear at all** in the after recording.
 They cannot: those classes are loaded only when the JVM is running through
 Spring Boot's nested-JAR URL protocol, and the after deployment doesn't use
 that protocol. What remains is plain JDK `java.util.jar.JarFile` contention
-at 2.73 s (63 events) — standard URLClassLoader behavior, an order of
-magnitude smaller.
+at 5.78 s (115 events) — standard `URLClassLoader` behavior on the
+classpath, still noticeably smaller than the 23.6 s of loader-specific
+contention that went away.
 
 The after report's own top finding ([`after/report.md`](after/report.md))
 is now no longer about the loader at all — it's a 🟡 note about the
-Tomcat NIO `EOFException` rate (200.8/s) coming from clients/load-balancer
+Tomcat NIO `EOFException` rate (187.8/s) coming from clients/load-balancer
 not reusing keep-alive connections, which was present in the before
-recording too but was hidden under the louder loader story.
+recording too (258.5/s there) but was hidden under the louder loader story.
 
 ---
 

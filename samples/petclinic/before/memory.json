@@ -2,12 +2,12 @@
   "container_fit": {
     "evaluable_reason": null,
     "container_limit_mb": 2048,
-    "total_committed_mb": 430.2,
+    "total_committed_mb": 436.4,
     "evaluable": true,
     "dominant_category": "Tracing",
     "verdict": "safe",
-    "headroom_pct": 79,
-    "headroom_mb": 1617.8
+    "headroom_pct": 78.7,
+    "headroom_mb": 1611.6
   },
   "signals": {
     "thread_count_high": false,
@@ -23,8 +23,8 @@
     "fallback_reason": null
   },
   "native_memory_total": {
-    "reserved_mb": 2181.5,
-    "committed_mb": 430.2
+    "reserved_mb": 2184.4,
+    "committed_mb": 436.4
   },
   "recording": {
     "duration_seconds": 120.1,
@@ -35,44 +35,50 @@
     "memory_limit_mb": 2048
   },
   "threads": {
-    "daemon_count_max": 29,
-    "estimated_stack_total_mb": 33,
+    "daemon_count_max": 27,
+    "estimated_stack_total_mb": 31,
     "active_count_avg": 30,
     "stack_size_kb_used": 1024,
-    "active_count_max": 33,
+    "active_count_max": 31,
     "stack_size_source": "default",
-    "peak_count": 33
+    "peak_count": 31
   },
   "native_memory_by_category": [
     {
-      "reserved_mb": 112.5,
-      "committed_mb": 112.5,
+      "reserved_mb": 105.1,
+      "committed_mb": 105.1,
       "category": "Tracing",
-      "pct_of_committed_total": 26.2
+      "pct_of_committed_total": 24.1
     },
     {
       "reserved_mb": 512,
       "committed_mb": 97.4,
       "category": "Java Heap",
-      "pct_of_committed_total": 22.6
+      "pct_of_committed_total": 22.3
     },
     {
       "reserved_mb": 128.4,
-      "committed_mb": 84.6,
+      "committed_mb": 84.5,
       "category": "Metaspace",
-      "pct_of_committed_total": 19.7
+      "pct_of_committed_total": 19.4
     },
     {
-      "reserved_mb": 272.3,
-      "committed_mb": 70.1,
+      "reserved_mb": 271.6,
+      "committed_mb": 68.7,
       "category": "Code",
-      "pct_of_committed_total": 16.3
+      "pct_of_committed_total": 15.7
     },
     {
       "reserved_mb": 19.4,
       "committed_mb": 19.4,
       "category": "Symbol",
-      "pct_of_committed_total": 4.5
+      "pct_of_committed_total": 4.4
+    },
+    {
+      "reserved_mb": 16.6,
+      "committed_mb": 16.6,
+      "category": "Arena Chunk",
+      "pct_of_committed_total": 3.8
     },
     {
       "reserved_mb": 1025.9,
@@ -84,13 +90,13 @@
       "reserved_mb": 16,
       "committed_mb": 13.7,
       "category": "Shared class space",
-      "pct_of_committed_total": 3.2
+      "pct_of_committed_total": 3.1
     },
     {
-      "reserved_mb": 10.8,
-      "committed_mb": 10.8,
+      "reserved_mb": 10.6,
+      "committed_mb": 10.6,
       "category": "Native Memory Tracking",
-      "pct_of_committed_total": 2.5
+      "pct_of_committed_total": 2.4
     },
     {
       "reserved_mb": 1.8,
@@ -99,20 +105,14 @@
       "pct_of_committed_total": 0.4
     },
     {
-      "reserved_mb": 1.4,
-      "committed_mb": 1.4,
-      "category": "Arena Chunk",
-      "pct_of_committed_total": 0.3
-    },
-    {
       "reserved_mb": 0.7,
       "committed_mb": 0.7,
       "category": "Internal",
       "pct_of_committed_total": 0.2
     },
     {
-      "reserved_mb": 77.7,
-      "committed_mb": 0.6,
+      "reserved_mb": 73.7,
+      "committed_mb": 0.5,
       "category": "Thread Stack",
       "pct_of_committed_total": 0.1
     },
@@ -135,8 +135,8 @@
       "pct_of_committed_total": 0.1
     },
     {
-      "reserved_mb": 0.2,
-      "committed_mb": 0.2,
+      "reserved_mb": 0.1,
+      "committed_mb": 0.1,
       "category": "Other",
       "pct_of_committed_total": 0
     },
@@ -208,23 +208,23 @@
     }
   ],
   "metaspace": {
-    "used_mb": 97.6,
+    "used_mb": 97.5,
     "available": true,
     "reserved_mb": 1152,
     "class_space_committed_mb": 14.1,
     "committed_mb": 98.3,
-    "class_space_used_mb": 13.7
+    "class_space_used_mb": 13.8
   },
   "code_cache": {
-    "used_estimate_mb": 39.8,
+    "used_estimate_mb": 39.1,
     "full_warnings": 0,
     "available": true,
     "reserved_mb": 240,
     "committed_mb": 240
   },
   "heap": {
-    "max_used_mb": 65.9,
+    "max_used_mb": 65.7,
     "reserved_mb": 512,
-    "committed_mb": 94.1
+    "committed_mb": 94.2
   }
 }

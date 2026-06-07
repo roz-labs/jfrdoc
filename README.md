@@ -77,7 +77,7 @@ EOF
 
 > ⚠️ **Redirect only stdout** (`> report.md`). zsmith's progress chatter goes to stderr — merging the streams with `2>&1` duplicates the report inside the file.
 
-Each analysis costs roughly **$0.40** in Anthropic API charges with `claude-opus-4-7`.
+Each analysis costs roughly **$0.50** in Anthropic API charges with `claude-opus-4-7`.
 
 No Maven, no Gradle, no npm. `lib/zsmith.jar` (the zero-dependency agent framework jfrdoc is built on) is committed in this repo, so the launcher runs out of the box. See [`lib/README.md`](lib/README.md) for version and rebuild instructions.
 

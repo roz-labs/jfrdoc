@@ -1,17 +1,17 @@
 {
   "summary": {
-    "total_gcs": 173,
-    "p99_pause_ms": 72.01,
-    "total_pause_time_ms": 1254.18,
-    "max_pause_ms": 72.25,
-    "p50_pause_ms": 3.16,
-    "gcs_per_minute": 86.5,
-    "avg_pause_ms": 7.25,
-    "p95_pause_ms": 21.51,
-    "pause_overhead_pct": 1.04
+    "total_gcs": 161,
+    "p99_pause_ms": 63.65,
+    "total_pause_time_ms": 1141.11,
+    "max_pause_ms": 65.96,
+    "p50_pause_ms": 3.25,
+    "gcs_per_minute": 80.5,
+    "avg_pause_ms": 7.09,
+    "p95_pause_ms": 22.32,
+    "pause_overhead_pct": 0.95
   },
   "by_cause": [{
-    "count": 173,
+    "count": 161,
     "cause": "G1 Evacuation Pause"
   }],
   "configuration": {
@@ -25,31 +25,31 @@
   },
   "by_name": [
     {
-      "max_pause_ms": 72.25,
+      "max_pause_ms": 38.35,
       "name": "G1New",
-      "count": 137,
-      "avg_pause_ms": 4.62,
-      "total_pause_ms": 633.36
+      "count": 130,
+      "avg_pause_ms": 4.05,
+      "total_pause_ms": 525.94
     },
     {
-      "max_pause_ms": 72.01,
+      "max_pause_ms": 65.96,
       "name": "G1Old",
-      "count": 36,
-      "avg_pause_ms": 17.24,
-      "total_pause_ms": 620.82
+      "count": 31,
+      "avg_pause_ms": 19.84,
+      "total_pause_ms": 615.17
     }
   ],
   "recording": {
-    "duration_seconds": 120.1,
+    "duration_seconds": 120,
     "path": "/Users/ridvanozcan/code/jfrdoc/samples/petclinic/after/petclinic.jfr"
   },
   "heap": {
-    "snapshots": 346,
-    "max_used_mb": 149.9,
-    "min_used_mb": 45.3,
-    "max_used_pct_of_committed": 94.1,
-    "avg_used_after_gc_mb": 48.3,
-    "committed_size_mb": 157
+    "snapshots": 322,
+    "max_used_mb": 146.4,
+    "min_used_mb": 45.1,
+    "max_used_pct_of_committed": 94,
+    "avg_used_after_gc_mb": 48,
+    "committed_size_mb": 171
   },
   "anomalies": {
     "long_pauses_over_100ms": 0,

@@ -2,12 +2,12 @@
   "container_fit": {
     "evaluable_reason": null,
     "container_limit_mb": 2048,
-    "total_committed_mb": 481,
+    "total_committed_mb": 504.7,
     "evaluable": true,
     "dominant_category": "Java Heap",
     "verdict": "safe",
-    "headroom_pct": 76.5,
-    "headroom_mb": 1567
+    "headroom_pct": 75.4,
+    "headroom_mb": 1543.3
   },
   "signals": {
     "thread_count_high": false,
@@ -23,11 +23,11 @@
     "fallback_reason": null
   },
   "native_memory_total": {
-    "reserved_mb": 2713.5,
-    "committed_mb": 481
+    "reserved_mb": 2720.8,
+    "committed_mb": 504.7
   },
   "recording": {
-    "duration_seconds": 120.1,
+    "duration_seconds": 120,
     "path": "/Users/ridvanozcan/code/jfrdoc/samples/petclinic/after/petclinic.jfr"
   },
   "container_context": {
@@ -35,68 +35,74 @@
     "memory_limit_mb": 2048
   },
   "threads": {
-    "daemon_count_max": 26,
-    "estimated_stack_total_mb": 30,
-    "active_count_avg": 29,
+    "daemon_count_max": 25,
+    "estimated_stack_total_mb": 29,
+    "active_count_avg": 28,
     "stack_size_kb_used": 1024,
-    "active_count_max": 30,
+    "active_count_max": 29,
     "stack_size_source": "default",
-    "peak_count": 30
+    "peak_count": 29
   },
   "native_memory_by_category": [
     {
       "reserved_mb": 1024,
-      "committed_mb": 157,
+      "committed_mb": 171,
       "category": "Java Heap",
-      "pct_of_committed_total": 32.6
+      "pct_of_committed_total": 33.9
     },
     {
-      "reserved_mb": 90.1,
-      "committed_mb": 90.1,
+      "reserved_mb": 95.6,
+      "committed_mb": 95.6,
       "category": "Tracing",
-      "pct_of_committed_total": 18.7
+      "pct_of_committed_total": 18.9
     },
     {
       "reserved_mb": 128.4,
-      "committed_mb": 83.9,
+      "committed_mb": 84,
       "category": "Metaspace",
-      "pct_of_committed_total": 17.5
+      "pct_of_committed_total": 16.6
     },
     {
       "reserved_mb": 259.3,
-      "committed_mb": 48.6,
+      "committed_mb": 48.7,
       "category": "Code",
-      "pct_of_committed_total": 10.1
+      "pct_of_committed_total": 9.7
     },
     {
       "reserved_mb": 55.4,
-      "committed_mb": 38.4,
+      "committed_mb": 38.7,
       "category": "GC",
-      "pct_of_committed_total": 8
+      "pct_of_committed_total": 7.7
     },
     {
       "reserved_mb": 19.3,
       "committed_mb": 19.3,
       "category": "Symbol",
-      "pct_of_committed_total": 4
+      "pct_of_committed_total": 3.8
     },
     {
       "reserved_mb": 1025.5,
       "committed_mb": 15.5,
       "category": "Class",
-      "pct_of_committed_total": 3.2
+      "pct_of_committed_total": 3.1
     },
     {
       "reserved_mb": 16,
       "committed_mb": 13.7,
       "category": "Shared class space",
-      "pct_of_committed_total": 2.8
+      "pct_of_committed_total": 2.7
     },
     {
-      "reserved_mb": 9.8,
-      "committed_mb": 9.8,
+      "reserved_mb": 10,
+      "committed_mb": 10,
       "category": "Native Memory Tracking",
       "pct_of_committed_total": 2
+    },
+    {
+      "reserved_mb": 4.2,
+      "committed_mb": 4.2,
+      "category": "Arena Chunk",
+      "pct_of_committed_total": 0.8
     },
     {
       "reserved_mb": 1.8,
@@ -111,13 +117,7 @@
       "pct_of_committed_total": 0.2
     },
     {
-      "reserved_mb": 0.7,
-      "committed_mb": 0.7,
-      "category": "Arena Chunk",
-      "pct_of_committed_total": 0.1
-    },
-    {
-      "reserved_mb": 81.7,
+      "reserved_mb": 79.7,
       "committed_mb": 0.5,
       "category": "Thread Stack",
       "pct_of_committed_total": 0.1
@@ -135,8 +135,8 @@
       "pct_of_committed_total": 0.1
     },
     {
-      "reserved_mb": 0.2,
-      "committed_mb": 0.2,
+      "reserved_mb": 0.1,
+      "committed_mb": 0.1,
       "category": "Other",
       "pct_of_committed_total": 0
     },
@@ -155,13 +155,13 @@
     {
       "reserved_mb": 0,
       "committed_mb": 0,
-      "category": "Serviceability",
+      "category": "GCCardSet",
       "pct_of_committed_total": 0
     },
     {
       "reserved_mb": 0,
       "committed_mb": 0,
-      "category": "GCCardSet",
+      "category": "Serviceability",
       "pct_of_committed_total": 0
     },
     {
@@ -208,7 +208,7 @@
     }
   ],
   "metaspace": {
-    "used_mb": 96.8,
+    "used_mb": 96.9,
     "available": true,
     "reserved_mb": 1152,
     "class_space_committed_mb": 14,
@@ -216,15 +216,15 @@
     "class_space_used_mb": 13.7
   },
   "code_cache": {
-    "used_estimate_mb": 23.6,
+    "used_estimate_mb": 23.7,
     "full_warnings": 0,
     "available": true,
     "reserved_mb": 240,
     "committed_mb": 240
   },
   "heap": {
-    "max_used_mb": 149.9,
+    "max_used_mb": 146.4,
     "reserved_mb": 1024,
-    "committed_mb": 157
+    "committed_mb": 171
   }
 }

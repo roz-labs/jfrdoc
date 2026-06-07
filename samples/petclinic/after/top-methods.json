@@ -1,22 +1,22 @@
 {
   "top_methods": [
     {
-      "method": "java.util.jar.JarFile.getEntry:499",
-      "top_caller": "java.util.jar.JarFile.getJarEntry",
+      "method": "java.util.zip.ZipFile$Source.getEntryPos:1873",
+      "top_caller": "java.util.zip.ZipFile.getEntry",
       "rank": 1,
       "top_caller_share_pct": 100,
       "category": "jdk",
-      "pct_of_total": 5.9,
-      "samples": 232
+      "pct_of_total": 6,
+      "samples": 241
     },
     {
-      "method": "java.util.zip.ZipFile$Source.getEntryPos:1873",
-      "top_caller": "java.util.zip.ZipFile.getEntry",
+      "method": "java.util.jar.JarFile.getEntry:499",
+      "top_caller": "java.util.jar.JarFile.getJarEntry",
       "rank": 2,
       "top_caller_share_pct": 100,
       "category": "jdk",
-      "pct_of_total": 5.6,
-      "samples": 221
+      "pct_of_total": 5.2,
+      "samples": 210
     },
     {
       "method": "java.util.jar.JarFile.getJarEntry:460",
@@ -24,183 +24,183 @@
       "rank": 3,
       "top_caller_share_pct": 100,
       "category": "jdk",
-      "pct_of_total": 3.2,
-      "samples": 126
+      "pct_of_total": 2.6,
+      "samples": 106
     },
     {
       "method": "java.util.concurrent.ConcurrentHashMap.get:958",
-      "top_caller": "org.apache.catalina.connector.Request.getAttribute",
+      "top_caller": "jdk.internal.loader.AbstractClassLoaderValue.get",
       "rank": 4,
-      "top_caller_share_pct": 21.1,
+      "top_caller_share_pct": 19.3,
       "category": "jdk",
-      "pct_of_total": 1.9,
-      "samples": 76
+      "pct_of_total": 1.4,
+      "samples": 57
+    },
+    {
+      "method": "java.util.HashMap.getNode:579",
+      "top_caller": "java.util.HashMap.get",
+      "rank": 5,
+      "top_caller_share_pct": 70.8,
+      "category": "jdk",
+      "pct_of_total": 1.2,
+      "samples": 48
+    },
+    {
+      "method": "org.apache.catalina.connector.RequestFacade.getAttribute:93",
+      "top_caller": "jakarta.servlet.ServletRequestWrapper.getAttribute",
+      "rank": 6,
+      "top_caller_share_pct": 100,
+      "category": "framework",
+      "pct_of_total": 1,
+      "samples": 40
     },
     {
       "method": "java.lang.invoke.Invokers$Holder.invokeExact_MT",
       "top_caller": "jdk.internal.reflect.DirectMethodHandleAccessor.invokeImpl",
-      "rank": 5,
-      "top_caller_share_pct": 68,
-      "category": "jdk",
-      "pct_of_total": 1.3,
-      "samples": 50
-    },
-    {
-      "method": "java.util.HashMap.getNode:586",
-      "top_caller": "java.util.HashMap.get",
-      "rank": 6,
-      "top_caller_share_pct": 57.6,
-      "category": "jdk",
-      "pct_of_total": 0.8,
-      "samples": 33
-    },
-    {
-      "method": "jdk.internal.util.ArraysSupport.mismatch:555",
-      "top_caller": "java.lang.String.startsWith",
       "rank": 7,
-      "top_caller_share_pct": 100,
+      "top_caller_share_pct": 76.3,
       "category": "jdk",
-      "pct_of_total": 0.7,
-      "samples": 29
-    },
-    {
-      "method": "java.util.zip.ZipFile$Source.getEntryPos:1860",
-      "top_caller": "java.util.zip.ZipFile.getEntry",
-      "rank": 8,
-      "top_caller_share_pct": 100,
-      "category": "jdk",
-      "pct_of_total": 0.7,
-      "samples": 27
+      "pct_of_total": 0.9,
+      "samples": 38
     },
     {
       "method": "org.apache.catalina.connector.CoyoteWriter.write:167",
       "top_caller": "org.apache.catalina.connector.CoyoteWriter.write",
-      "rank": 9,
+      "rank": 8,
       "top_caller_share_pct": 100,
       "category": "framework",
+      "pct_of_total": 0.8,
+      "samples": 33
+    },
+    {
+      "method": "java.util.concurrent.ConcurrentHashMap.get:952",
+      "top_caller": "org.thymeleaf.cache.StandardCache$CacheDataContainer.get",
+      "rank": 9,
+      "top_caller_share_pct": 25,
+      "category": "jdk",
+      "pct_of_total": 0.7,
+      "samples": 28
+    },
+    {
+      "method": "java.util.zip.ZipFile$Source.getEntryPos:1860",
+      "top_caller": "java.util.zip.ZipFile.getEntry",
+      "rank": 10,
+      "top_caller_share_pct": 100,
+      "category": "jdk",
       "pct_of_total": 0.7,
       "samples": 27
     },
     {
       "method": "java.util.HashMap.getNode:588",
-      "top_caller": "java.util.HashMap.get",
-      "rank": 10,
-      "top_caller_share_pct": 50,
+      "top_caller": "java.util.HashMap.getOrDefault",
+      "rank": 11,
+      "top_caller_share_pct": 38.5,
       "category": "jdk",
       "pct_of_total": 0.6,
+      "samples": 26
+    },
+    {
+      "method": "org.springframework.util.ObjectUtils.nullSafeEquals:347",
+      "top_caller": "org.springframework.util.ConcurrentReferenceHashMap$Segment.findInChain",
+      "rank": 12,
+      "top_caller_share_pct": 73.9,
+      "category": "framework",
+      "pct_of_total": 0.6,
+      "samples": 23
+    },
+    {
+      "method": "org.thymeleaf.engine.ElementTagStructureHandler.applyAttributes:543",
+      "top_caller": "org.thymeleaf.engine.ProcessorTemplateHandler.handleOpenElement",
+      "rank": 13,
+      "top_caller_share_pct": 63.6,
+      "category": "framework",
+      "pct_of_total": 0.5,
+      "samples": 22
+    },
+    {
+      "method": "jdk.internal.util.ArraysSupport.mismatch:555",
+      "top_caller": "java.lang.String.startsWith",
+      "rank": 14,
+      "top_caller_share_pct": 100,
+      "category": "jdk",
+      "pct_of_total": 0.5,
       "samples": 22
     },
     {
       "method": "java.util.HashMap.hash:338",
-      "top_caller": "java.util.HashMap.getNode",
-      "rank": 11,
-      "top_caller_share_pct": 45,
+      "top_caller": "java.util.HashMap.put",
+      "rank": 15,
+      "top_caller_share_pct": 52.4,
       "category": "jdk",
       "pct_of_total": 0.5,
-      "samples": 20
+      "samples": 21
+    },
+    {
+      "method": "java.lang.StringLatin1.replace:304",
+      "top_caller": "java.lang.String.replace",
+      "rank": 16,
+      "top_caller_share_pct": 100,
+      "category": "jdk",
+      "pct_of_total": 0.4,
+      "samples": 18
+    },
+    {
+      "method": "java.util.HashMap.putVal:636",
+      "top_caller": "java.util.HashMap.put",
+      "rank": 17,
+      "top_caller_share_pct": 83.3,
+      "category": "jdk",
+      "pct_of_total": 0.4,
+      "samples": 18
     },
     {
       "method": "java.util.Collections$UnmodifiableMap.get:1661",
       "top_caller": "org.thymeleaf.standard.expression.StandardExpressions.getVariableExpressionEvaluator",
-      "rank": 12,
-      "top_caller_share_pct": 65,
+      "rank": 18,
+      "top_caller_share_pct": 50,
       "category": "jdk",
-      "pct_of_total": 0.5,
-      "samples": 20
-    },
-    {
-      "method": "org.springframework.util.StringUtils.tokenizeToStringArray:1239",
-      "top_caller": "org.springframework.util.AntPathMatcher.tokenizePath",
-      "rank": 13,
-      "top_caller_share_pct": 57.9,
-      "category": "framework",
-      "pct_of_total": 0.5,
-      "samples": 19
-    },
-    {
-      "method": "org.thymeleaf.engine.Attributes.searchAttribute:128",
-      "top_caller": "org.thymeleaf.engine.Attributes.getAttribute",
-      "rank": 14,
-      "top_caller_share_pct": 52.6,
-      "category": "framework",
-      "pct_of_total": 0.5,
-      "samples": 19
-    },
-    {
-      "method": "java.util.concurrent.ConcurrentHashMap.get:959",
-      "top_caller": "jdk.internal.loader.BuiltinClassLoader.findMiscResource",
-      "rank": 15,
-      "top_caller_share_pct": 47.4,
-      "category": "jdk",
-      "pct_of_total": 0.5,
-      "samples": 19
-    },
-    {
-      "method": "org.apache.catalina.connector.RequestFacade.getAttribute:93",
-      "top_caller": "jakarta.servlet.ServletRequestWrapper.getAttribute",
-      "rank": 16,
-      "top_caller_share_pct": 100,
-      "category": "framework",
-      "pct_of_total": 0.5,
+      "pct_of_total": 0.4,
       "samples": 18
     },
     {
-      "method": "org.thymeleaf.util.ProcessorConfigurationUtils$TextProcessorWrapper.process:749",
-      "top_caller": "org.thymeleaf.engine.ProcessorTemplateHandler.handleText",
-      "rank": 17,
-      "top_caller_share_pct": 100,
-      "category": "framework",
-      "pct_of_total": 0.4,
-      "samples": 17
-    },
-    {
-      "method": "java.util.HashMap$HashIterator.nextNode:1610",
-      "top_caller": "java.util.HashMap$KeyIterator.next",
-      "rank": 18,
-      "top_caller_share_pct": 88.2,
-      "category": "jdk",
-      "pct_of_total": 0.4,
-      "samples": 17
-    },
-    {
-      "method": "org.thymeleaf.engine.Model.asEngineEvent:384",
-      "top_caller": "org.thymeleaf.engine.Model.insert",
+      "method": "org.thymeleaf.engine.AbstractTemplateHandler.handleCloseElement:250",
+      "top_caller": "org.thymeleaf.engine.OutputTemplateHandler.handleCloseElement",
       "rank": 19,
       "top_caller_share_pct": 100,
       "category": "framework",
       "pct_of_total": 0.4,
-      "samples": 16
+      "samples": 17
     },
     {
-      "method": "java.lang.invoke.DirectMethodHandle.allocateInstance:500",
-      "top_caller": "java.lang.invoke.DirectMethodHandle$Holder.newInvokeSpecial",
+      "method": "org.thymeleaf.engine.Attributes.write:456",
+      "top_caller": "org.thymeleaf.engine.OpenElementTag.write",
       "rank": 20,
-      "top_caller_share_pct": 75,
-      "category": "jdk",
+      "top_caller_share_pct": 88.2,
+      "category": "framework",
       "pct_of_total": 0.4,
-      "samples": 16
+      "samples": 17
     }
   ],
   "recording": {
-    "duration_seconds": 119.1,
+    "duration_seconds": 119.9,
     "path": "/Users/ridvanozcan/code/jfrdoc/samples/petclinic/after/petclinic.jfr"
   },
   "framework_used_for_categorization": "spring",
   "categories": {
     "jdk": {
-      "pct": 46.1,
-      "samples": 1827
+      "pct": 44.9,
+      "samples": 1805
     },
     "framework": {
-      "pct": 47.6,
-      "samples": 1885
+      "pct": 48.4,
+      "samples": 1944
     },
     "user_code": {
-      "pct": 6.3,
-      "samples": 250
+      "pct": 6.7,
+      "samples": 270
     }
   },
-  "execution_samples": {"total": 3962},
+  "execution_samples": {"total": 4019},
   "sample_quality": {
     "unattributed_pct": 0,
     "breakdown": {
@@ -208,7 +208,7 @@
       "unknown_method_or_class": 0,
       "no_stack_trace": 0
     },
-    "attributed_samples": 3962,
+    "attributed_samples": 4019,
     "unattributed_samples": 0
   }
 }
