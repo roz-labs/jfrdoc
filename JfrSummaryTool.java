@@ -119,7 +119,10 @@ public class JfrSummaryTool implements Tool {
                         || counts.getOrDefault("jdk.SocketWrite", 0L) > 0)
                 .put("exceptions", counts.getOrDefault("jdk.JavaExceptionThrow", 0L) > 0
                         || counts.getOrDefault("jdk.JavaErrorThrow", 0L) > 0)
-                .put("native_method_samples", counts.getOrDefault("jdk.NativeMethodSample", 0L) > 0);
+                .put("native_method_samples", counts.getOrDefault("jdk.NativeMethodSample", 0L) > 0)
+                .put("container", counts.getOrDefault("jdk.ContainerConfiguration", 0L) > 0
+                        || counts.getOrDefault("jdk.ContainerCPUThrottling", 0L) > 0
+                        || counts.getOrDefault("jdk.ContainerMemoryUsage", 0L) > 0);
     }
 
     static JSONObject derivedRates(Map<String, Long> counts, double durationSec) {

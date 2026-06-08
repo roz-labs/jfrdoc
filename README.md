@@ -17,7 +17,7 @@ categorization, top callers, and concrete fixes you can ship today.
   <img alt="License" src="https://img.shields.io/badge/license-MIT-green">
 </p>
 
-> 🚧 **Day 10.** CPU-hotspot, GC, allocation, total memory footprint (with NMT-aware container-fit verdict), lock contention / thread parking, per-class exception throws, file/socket I/O wait, and native-method sampling (with wait-vs-CPU disambiguation) end-to-end against real Spring Boot recordings.
+> 🚧 **Day 11.** CPU-hotspot, GC, allocation, total memory footprint (with NMT-aware container-fit verdict), lock contention / thread parking, per-class exception throws, file/socket I/O wait, native-method sampling (with wait-vs-CPU disambiguation), and the container / Kubernetes cgroup view (CPU throttling, `memory.failcnt`, declared-vs-observed limits) end-to-end against real Spring Boot recordings.
 
 ---
 
@@ -100,7 +100,8 @@ No Maven, no Gradle, no npm. `lib/zsmith.jar` (the zero-dependency agent framewo
 | ✅ | **Exception activity** — per-class throw rate, top throwing sites with framework-aware category, signals (control-flow smell, single-class dominance) so a 259/s EOFException out of Tomcat isn't mistaken for an application bug | `## Exception Activity` |
 | ✅ | **I/O activity** — file and socket blocking time above the JFR ~10ms threshold, per-file and per-endpoint, with DB-port awareness and an explicit "absence ≠ no I/O" caveat                                                       | `## I/O Activity` |
 | ✅ | **Native-method sampling** (`jdk.NativeMethodSample`) — separate tool for blocked/busy-in-native time with wait-vs-CPU signals; keeps the CPU tool's on-CPU Java scope clean so `Net.accept` / `EPoll.wait` aren't mistaken for hotspots | `## Native Execution` |
-| 🛠 | Virtual-thread sizing, K8s context                                                                                                                                                                                                | _roadmap_ |
+| ✅ | **Container & Kubernetes** (`jdk.Container*`) — the cgroup view the JVM actually saw: effective CPU limit, **CPU throttling %** (the CFS-quota tail-latency the kubelet imposes), peak memory vs limit, **`memory.failcnt`** (OOMKill precursor), and a declared-vs-observed cross-check of the `--container-*` flags. Absence ≠ healthy — it says so when no cgroup limit was set | `## Container & Kubernetes` |
+| 🛠 | Virtual-thread sizing                                                                                                                                                                                                              | _roadmap_ |
 
 The agent's report is explicit about today's scope (CPU + GC + allocation + memory + locks + exceptions + I/O) in its **Analysis Limitations** section, so nothing is hidden.
 
@@ -108,7 +109,7 @@ The agent's report is explicit about today's scope (CPU + GC + allocation + memo
 
 ## How it works
 
-jfrdoc reads `.jfr` files via `jdk.jfr.consumer.RecordingFile` from the JDK — **no java agent, no runtime overhead in your app**. A single Claude-driven agent built on [zsmith](https://github.com/AdamBien/zsmith) calls eight tools:
+jfrdoc reads `.jfr` files via `jdk.jfr.consumer.RecordingFile` from the JDK — **no java agent, no runtime overhead in your app**. A single Claude-driven agent built on [zsmith](https://github.com/AdamBien/zsmith) calls ten tools:
 
 | Tool | Purpose |
 |-|-|
@@ -121,6 +122,7 @@ jfrdoc reads `.jfr` files via `jdk.jfr.consumer.RecordingFile` from the JDK — 
 | `jfr_exceptions` | Per-class exception breakdown — throw rate, top classes, top throwing sites with category, control-flow-smell signal |
 | `jfr_io` | File and socket I/O wait — top files / endpoints by blocking time above the JFR ~10ms threshold, DB-port-aware signals, explicit threshold caveat |
 | `jfr_native_methods` | JVM native execution (syscalls / JNI) — top native methods with caller, wait-vs-CPU signal block, separate from CPU profile (mostly blocked-in-syscall wait, not on-CPU work) |
+| `jfr_container` | Container / Kubernetes cgroup view — effective CPU limit, CPU throttling %, CPU utilization vs limit, peak memory vs limit, `memory.failcnt` (OOMKill precursor), declared-vs-observed limit cross-check; degrades gracefully (reports absence) when not run under a cgroup limit |
 
 …then synthesizes a markdown report with findings, evidence, and recommendations. As more tools land, the same agent reaches for them.
 
@@ -158,7 +160,10 @@ Exercise each tool directly without the agent loop — useful for verifying the 
 ./jfrdoc debug-tool jfr-exceptions      samples/sample.jfr --framework spring --top-n 10
 ./jfrdoc debug-tool jfr-io              samples/sample.jfr --top-n 10
 ./jfrdoc debug-tool jfr-native-methods  samples/petclinic/after/petclinic.jfr --framework spring --top-n 10
+./jfrdoc debug-tool jfr-container       samples/sample.jfr --container-cpu 1 --container-memory 2Gi
 ```
+
+> ℹ️ `jfr_container` reads `jdk.Container*` events, which the JVM only emits when it runs **inside a cgroup with limits** (a Docker `--cpus`/`--memory` container or a K8s Pod with `resources.limits`). Against a recording made on an unconstrained host (like `samples/sample.jfr`) it returns `container_events_present: false` with a caveat — that is expected, not an error. For real throttling / `memory.failcnt` data, record under limits (see the Kubernetes dogfood below).
 
 > 💡 **Recommended JVM flags for richest analysis.** For full memory analysis (per-category native memory and the `container_fit` verdict), enable Native Memory Tracking when generating the JFR:
 > ```
@@ -198,6 +203,7 @@ OUT=samples/petclinic/before
 ./jfrdoc debug-tool jfr-exceptions      "$JFR" --framework spring --top-n 15 > "$OUT/exceptions.json"
 ./jfrdoc debug-tool jfr-io              "$JFR" --top-n 10 > "$OUT/io.json"
 ./jfrdoc debug-tool jfr-native-methods  "$JFR" --framework spring --top-n 20 > "$OUT/native-methods.json"
+./jfrdoc debug-tool jfr-container       "$JFR" --container-cpu 1 --container-memory 2Gi > "$OUT/container.json"
 ```
 
 **Why containers, not host `java -jar`?** The JVM honors cgroup limits (`-XX:UseContainerSupport` is default on JDK 25), so GC heuristics, ForkJoin pool size, and `Runtime.availableProcessors()` all reflect the constrained environment — which is exactly what jfrdoc's `--container-cpu` / `--container-memory` flags claim in the report header. As a bonus, the build is reproducible across macOS / Linux / Windows because both build and run happen inside `eclipse-temurin:25-jdk`, so host Maven version, BSD vs GNU coreutils quirks, and corporate TLS-MITM proxies stop mattering for the recording step.
@@ -206,8 +212,8 @@ OUT=samples/petclinic/before
 
 ## Roadmap
 
-- ✅ **Done** — CLI scaffold, `jfr_summary` + `jfr_top_methods` + `jfr_gc_stats` + `jfr_allocation` + `jfr_memory` + `jfr_lock_contention` + `jfr_exceptions` + `jfr_io` + `jfr_native_methods` tools, agent wiring, first dogfood on Spring PetClinic
-- 📦 **Next month** — K8s-aware diagnostics, multi-`.jfr` correlation
+- ✅ **Done** — CLI scaffold, `jfr_summary` + `jfr_top_methods` + `jfr_gc_stats` + `jfr_allocation` + `jfr_memory` + `jfr_lock_contention` + `jfr_exceptions` + `jfr_io` + `jfr_native_methods` + `jfr_container` (K8s-aware: CPU throttling, `memory.failcnt`) tools, agent wiring, first dogfood on Spring PetClinic
+- 📦 **Next month** — virtual-thread sizing, multi-`.jfr` correlation
 - ☁ **Future** — hosted SaaS with history and trends
 
 ---

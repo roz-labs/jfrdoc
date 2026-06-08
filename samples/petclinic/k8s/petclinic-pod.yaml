@@ -1,0 +1,61 @@
+# Kubernetes dogfood for jfr_container.
+#
+# This Pod reproduces the exact kubelet -> cgroup -> JFR path that the
+# jfr_container tool reads. The JVM honors resources.limits the same way it
+# honors `docker run --cpus/--memory`, so jdk.ContainerConfiguration /
+# jdk.ContainerCPUThrottling / jdk.ContainerMemoryUsage fire with real values.
+#
+# The CPU limit is intentionally tight (500m) relative to the HTTP load the
+# sidecar drives, so the CFS quota throttles the app under load -> non-zero
+# jdk.ContainerCPUThrottling. That is the headline signal jfr_container surfaces.
+apiVersion: v1
+kind: Pod
+metadata:
+  name: petclinic-jfr
+  labels: { app: petclinic-jfr }
+spec:
+  restartPolicy: Never
+  volumes:
+    - name: jfr
+      emptyDir: {}
+  containers:
+    - name: petclinic
+      image: jfrdoc-petclinic:local   # built + kind-loaded by run.sh
+      imagePullPolicy: Never
+      args:
+        - -XX:NativeMemoryTracking=summary
+        - -XX:StartFlightRecording=delay=15s,duration=120s,filename=/jfr/petclinic.jfr,settings=profile
+        - -jar
+        - /app.jar
+      ports:
+        - containerPort: 8080
+      resources:
+        requests:
+          cpu: "250m"
+          memory: "1Gi"
+        limits:
+          cpu: "500m"           # tight on purpose -> CFS throttling under load
+          memory: "2Gi"
+      volumeMounts:
+        - { name: jfr, mountPath: /jfr }
+      readinessProbe:
+        httpGet: { path: /, port: 8080 }
+        periodSeconds: 3
+        failureThreshold: 40
+
+    # Load generator in the same Pod -> reaches petclinic on localhost.
+    - name: loadgen
+      image: alpine/curl
+      command: ["sh", "-c"]
+      args:
+        - |
+          # wait for the server, then hammer it for ~150s so the 120s JFR window
+          # (after the 15s delay) is fully under load.
+          until curl -sf http://localhost:8080/ >/dev/null 2>&1; do sleep 2; done
+          end=$(( $(date +%s) + 150 ))
+          while [ $(date +%s) -lt $end ]; do
+            for ep in / /owners /owners?lastName=Davis /owners/1 /owners/1/edit /owners/2/pets/new /vets.html /owners/find; do
+              curl -s -o /dev/null "http://localhost:8080$ep" &
+            done
+            wait
+          done
