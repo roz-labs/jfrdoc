@@ -1,0 +1,173 @@
+{
+  "signals": {
+    "lock_acquire_dominant": false,
+    "park_total_likely_benign": false,
+    "has_real_contention": true,
+    "connection_pool_under_pressure": false
+  },
+  "thread_parking": {
+    "total_events": 48852,
+    "total_park_time_ms": 1724952.8,
+    "top_park_sites": [
+      {
+        "max_park_ms": 30001.4,
+        "total_park_ms": 1447603,
+        "site": "java.util.concurrent.locks.LockSupport.parkNanos:269",
+        "category_hint": "pool_idle_wait",
+        "top_caller": "java.util.concurrent.locks.AbstractQueuedSynchronizer$ConditionObject.awaitNanos:1797",
+        "rank": 1,
+        "avg_park_ms": 32.9,
+        "events": 44009
+      },
+      {
+        "max_park_ms": 1057,
+        "total_park_ms": 277292.1,
+        "site": "java.util.concurrent.locks.LockSupport.park:371",
+        "category_hint": "pool_idle_wait",
+        "top_caller": "java.util.concurrent.locks.AbstractQueuedSynchronizer$ConditionNode.block:519",
+        "rank": 2,
+        "avg_park_ms": 57.3,
+        "events": 4841
+      },
+      {
+        "max_park_ms": 29.1,
+        "total_park_ms": 57.6,
+        "site": "java.util.concurrent.locks.LockSupport.park:221",
+        "category_hint": "lock_acquire_wait",
+        "top_caller": "java.util.concurrent.locks.AbstractQueuedSynchronizer.acquire:788",
+        "rank": 3,
+        "avg_park_ms": 28.8,
+        "events": 2
+      }
+    ],
+    "by_category": [
+      {
+        "total_park_ms": 1376840.8,
+        "pct_of_park_time": 79.8,
+        "category": "pool_idle_wait",
+        "events": 48755
+      },
+      {
+        "total_park_ms": 348082.9,
+        "pct_of_park_time": 20.2,
+        "category": "condition_wait",
+        "events": 96
+      },
+      {
+        "total_park_ms": 29.1,
+        "pct_of_park_time": 0,
+        "category": "lock_acquire_wait",
+        "events": 1
+      },
+      {
+        "total_park_ms": 0,
+        "pct_of_park_time": 0,
+        "category": "connection_pool_wait",
+        "events": 0
+      },
+      {
+        "total_park_ms": 0,
+        "pct_of_park_time": 0,
+        "category": "future_wait",
+        "events": 0
+      },
+      {
+        "total_park_ms": 0,
+        "pct_of_park_time": 0,
+        "category": "scheduled_task_wait",
+        "events": 0
+      },
+      {
+        "total_park_ms": 0,
+        "pct_of_park_time": 0,
+        "category": "other",
+        "events": 0
+      }
+    ]
+  },
+  "recording": {
+    "duration_seconds": 120.9,
+    "path": "/Users/ridvanozcan/code/jfrdoc/samples/petclinic-ubi9/before/petclinic.jfr"
+  },
+  "monitor_wait": {
+    "total_events": 2,
+    "total_wait_time_ms": 120735.1,
+    "top_wait_sites": [{
+      "avg_wait_ms": 60367.5,
+      "site": "java.lang.Object.wait0",
+      "total_wait_ms": 120735.1,
+      "rank": 1,
+      "events": 2
+    }]
+  },
+  "monitor_contention": {
+    "total_events": 826,
+    "total_wait_time_ms": 28245.8,
+    "max_wait_ms": 162,
+    "top_contended_monitors": [
+      {
+        "avg_wait_ms": 31.2,
+        "monitor_class": "org.springframework.boot.loader.net.protocol.jar.UrlJarFiles$Cache",
+        "max_wait_ms": 73.8,
+        "top_call_site": "org.springframework.boot.loader.net.protocol.jar.UrlJarFiles$Cache.get:158",
+        "total_wait_ms": 14280.2,
+        "rank": 1,
+        "events": 457
+      },
+      {
+        "avg_wait_ms": 38.4,
+        "monitor_class": "org.springframework.boot.loader.net.protocol.jar.UrlNestedJarFile",
+        "max_wait_ms": 162,
+        "top_call_site": "org.springframework.boot.loader.jar.NestedJarFile.hasEntry:251",
+        "total_wait_ms": 11341.6,
+        "rank": 2,
+        "events": 295
+      },
+      {
+        "avg_wait_ms": 36.1,
+        "monitor_class": "java.util.Hashtable",
+        "max_wait_ms": 65.8,
+        "top_call_site": "java.util.Hashtable.get:380",
+        "total_wait_ms": 1552.6,
+        "rank": 3,
+        "events": 43
+      },
+      {
+        "avg_wait_ms": 33.2,
+        "monitor_class": "java.lang.Object",
+        "max_wait_ms": 61,
+        "top_call_site": "sun.nio.ch.EPollSelectorImpl.clearInterrupt:268",
+        "total_wait_ms": 631.7,
+        "rank": 4,
+        "events": 19
+      },
+      {
+        "avg_wait_ms": 32.8,
+        "monitor_class": "jdk.internal.loader.URLClassPath",
+        "max_wait_ms": 57.5,
+        "top_call_site": "jdk.internal.loader.URLClassPath.getLoader:424",
+        "total_wait_ms": 328,
+        "rank": 5,
+        "events": 10
+      },
+      {
+        "avg_wait_ms": 59.4,
+        "monitor_class": "java.util.jar.JarFile",
+        "max_wait_ms": 59.4,
+        "top_call_site": "java.util.zip.ZipFile.getEntry:337",
+        "total_wait_ms": 59.4,
+        "rank": 6,
+        "events": 1
+      },
+      {
+        "avg_wait_ms": 52.3,
+        "monitor_class": "java.util.ArrayDeque",
+        "max_wait_ms": 52.3,
+        "top_call_site": "sun.nio.ch.SelectorImpl.cancel:254",
+        "total_wait_ms": 52.3,
+        "rank": 7,
+        "events": 1
+      }
+    ]
+  }
+}

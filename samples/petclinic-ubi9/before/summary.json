@@ -1,0 +1,73 @@
+{
+  "jvm": {
+    "jvmVersion": "OpenJDK 64-Bit Server VM (21.0.11+10-LTS) for linux-aarch64 JRE (21.0.11+10-LTS), built on 2026-04-21T00:00:00Z by \"mockbuild\" with gcc 11.3.0",
+    "jvmName": "OpenJDK 64-Bit Server VM",
+    "jvmArguments": "-XX:NativeMemoryTracking=summary -Xms342m -Xmx1367m -XX:+UseParallelGC -XX:MinHeapFreeRatio=10 -XX:MaxHeapFreeRatio=70 -XX:GCTimeRatio=4 -XX:AdaptiveSizePolicyWeight=90 -XX:MaxMetaspaceSize=200m -XX:NewRatio=5 -XX:StartFlightRecording=delay=15s,duration=120s,filename=/jfr/petclinic.jfr,settings=profile",
+    "javaArguments": "/app.jar",
+    "jvmStartTime": "2026-06-12T22:29:35.692Z"
+  },
+  "path": "samples/petclinic-ubi9/before/petclinic.jfr",
+  "distinctEventTypes": 89,
+  "recordingEnd": "2026-06-12T22:31:52.235527580Z",
+  "notable_events_present": {
+    "allocation": true,
+    "thread_parking": true,
+    "io": true,
+    "monitor_contention": true,
+    "gc": true,
+    "execution_samples": true,
+    "exceptions": false,
+    "native_method_samples": true
+  },
+  "recordingStart": "2026-06-12T22:29:51.295683113Z",
+  "totalEvents": 178332,
+  "recordingDurationSeconds": 120.939,
+  "topEventTypes": [
+    {
+      "count": 48852,
+      "type": "jdk.ThreadPark"
+    },
+    {
+      "count": 34075,
+      "type": "jdk.ObjectAllocationSample"
+    },
+    {
+      "count": 17347,
+      "type": "jdk.PromoteObjectInNewPLAB"
+    },
+    {
+      "count": 9300,
+      "type": "jdk.MetaspaceChunkFreeListSummary"
+    },
+    {
+      "count": 9300,
+      "type": "jdk.GCReferenceStatistics"
+    },
+    {
+      "count": 6981,
+      "type": "jdk.GCPhasePauseLevel2"
+    },
+    {
+      "count": 6978,
+      "type": "jdk.GCPhasePauseLevel1"
+    },
+    {
+      "count": 4839,
+      "type": "jdk.NativeMethodSample"
+    },
+    {
+      "count": 4650,
+      "type": "jdk.GCHeapSummary"
+    },
+    {
+      "count": 4650,
+      "type": "jdk.MetaspaceSummary"
+    }
+  ],
+  "derived": {
+    "javaExceptionThrowCount": 0,
+    "executionSamplesPerSecond": 30.1,
+    "executionSamplesCount": 3644,
+    "javaExceptionThrowPerSecond": 0
+  }
+}

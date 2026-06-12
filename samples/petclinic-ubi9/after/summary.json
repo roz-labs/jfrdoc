@@ -1,0 +1,73 @@
+{
+  "jvm": {
+    "jvmVersion": "OpenJDK 64-Bit Server VM (21.0.11+10-LTS) for linux-aarch64 JRE (21.0.11+10-LTS), built on 2026-04-21T00:00:00Z by \"mockbuild\" with gcc 11.3.0",
+    "jvmName": "OpenJDK 64-Bit Server VM",
+    "jvmArguments": "-XX:NativeMemoryTracking=summary -Xms342m -Xmx1367m -XX:+UseG1GC -XX:MaxGCPauseMillis=200 -XX:InitiatingHeapOccupancyPercent=35 -XX:+UseStringDeduplication -XX:MinHeapFreeRatio=10 -XX:MaxHeapFreeRatio=70 -XX:MaxMetaspaceSize=200m -XX:StartFlightRecording=delay=15s,duration=120s,filename=/jfr/petclinic.jfr,settings=profile",
+    "javaArguments": "/app.jar",
+    "jvmStartTime": "2026-06-12T22:32:34.708Z"
+  },
+  "path": "samples/petclinic-ubi9/after/petclinic.jfr",
+  "distinctEventTypes": 99,
+  "recordingEnd": "2026-06-12T22:34:51.177595269Z",
+  "notable_events_present": {
+    "allocation": true,
+    "thread_parking": true,
+    "io": true,
+    "monitor_contention": true,
+    "gc": true,
+    "execution_samples": true,
+    "exceptions": false,
+    "native_method_samples": true
+  },
+  "recordingStart": "2026-06-12T22:32:50.318717622Z",
+  "totalEvents": 168518,
+  "recordingDurationSeconds": 120.858,
+  "topEventTypes": [
+    {
+      "count": 65156,
+      "type": "jdk.GCPhaseParallel"
+    },
+    {
+      "count": 36489,
+      "type": "jdk.ThreadPark"
+    },
+    {
+      "count": 33146,
+      "type": "jdk.ObjectAllocationSample"
+    },
+    {
+      "count": 4692,
+      "type": "jdk.NativeMethodSample"
+    },
+    {
+      "count": 4200,
+      "type": "jdk.TenuringDistribution"
+    },
+    {
+      "count": 3213,
+      "type": "jdk.NativeMemoryUsage"
+    },
+    {
+      "count": 3200,
+      "type": "jdk.ExecutionSample"
+    },
+    {
+      "count": 2341,
+      "type": "jdk.PromoteObjectInNewPLAB"
+    },
+    {
+      "count": 1660,
+      "type": "jdk.ModuleExport"
+    },
+    {
+      "count": 1195,
+      "type": "jdk.PromoteObjectOutsidePLAB"
+    }
+  ],
+  "derived": {
+    "javaExceptionThrowCount": 0,
+    "executionSamplesPerSecond": 26.5,
+    "executionSamplesCount": 3200,
+    "javaExceptionThrowPerSecond": 0
+  }
+}

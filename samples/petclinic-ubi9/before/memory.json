@@ -1,0 +1,230 @@
+{
+  "container_fit": {
+    "evaluable_reason": null,
+    "container_limit_mb": 2048,
+    "total_committed_mb": 705.5,
+    "evaluable": true,
+    "dominant_category": "Java Heap",
+    "verdict": "safe",
+    "headroom_pct": 65.6,
+    "headroom_mb": 1342.5
+  },
+  "signals": {
+    "thread_count_high": false,
+    "enable_nmt_recommended": false,
+    "container_limit_missing": false,
+    "metaspace_unbounded": false,
+    "code_cache_near_full": false,
+    "metaspace_near_committed": true
+  },
+  "nmt": {
+    "categories_count": 27,
+    "available": true,
+    "fallback_reason": null
+  },
+  "native_memory_total": {
+    "reserved_mb": 2207.2,
+    "committed_mb": 705.5
+  },
+  "recording": {
+    "duration_seconds": 120.9,
+    "path": "/Users/ridvanozcan/code/jfrdoc/samples/petclinic-ubi9/before/petclinic.jfr"
+  },
+  "container_context": {
+    "limit_provided": true,
+    "memory_limit_mb": 2048
+  },
+  "threads": {
+    "daemon_count_max": 30,
+    "estimated_stack_total_mb": 34,
+    "active_count_avg": 31,
+    "stack_size_kb_used": 1024,
+    "active_count_max": 34,
+    "stack_size_source": "default",
+    "peak_count": 34
+  },
+  "native_memory_by_category": [
+    {
+      "reserved_mb": 1368,
+      "committed_mb": 324,
+      "category": "Java Heap",
+      "pct_of_committed_total": 45.9
+    },
+    {
+      "reserved_mb": 100.6,
+      "committed_mb": 100.6,
+      "category": "Tracing",
+      "pct_of_committed_total": 14.3
+    },
+    {
+      "reserved_mb": 128.4,
+      "committed_mb": 88.3,
+      "category": "Metaspace",
+      "pct_of_committed_total": 12.5
+    },
+    {
+      "reserved_mb": 248.3,
+      "committed_mb": 65,
+      "category": "Code",
+      "pct_of_committed_total": 9.2
+    },
+    {
+      "reserved_mb": 53.6,
+      "committed_mb": 49.9,
+      "category": "GC",
+      "pct_of_committed_total": 7.1
+    },
+    {
+      "reserved_mb": 34.6,
+      "committed_mb": 34.6,
+      "category": "Symbol",
+      "pct_of_committed_total": 4.9
+    },
+    {
+      "reserved_mb": 162.2,
+      "committed_mb": 16,
+      "category": "Class",
+      "pct_of_committed_total": 2.3
+    },
+    {
+      "reserved_mb": 16,
+      "committed_mb": 12.7,
+      "category": "Shared class space",
+      "pct_of_committed_total": 1.8
+    },
+    {
+      "reserved_mb": 7.6,
+      "committed_mb": 7.6,
+      "category": "Native Memory Tracking",
+      "pct_of_committed_total": 1.1
+    },
+    {
+      "reserved_mb": 4.4,
+      "committed_mb": 4.4,
+      "category": "Arena Chunk",
+      "pct_of_committed_total": 0.6
+    },
+    {
+      "reserved_mb": 0.8,
+      "committed_mb": 0.8,
+      "category": "Internal",
+      "pct_of_committed_total": 0.1
+    },
+    {
+      "reserved_mb": 81.7,
+      "committed_mb": 0.6,
+      "category": "Thread Stack",
+      "pct_of_committed_total": 0.1
+    },
+    {
+      "reserved_mb": 0.3,
+      "committed_mb": 0.3,
+      "category": "Compiler",
+      "pct_of_committed_total": 0
+    },
+    {
+      "reserved_mb": 0.3,
+      "committed_mb": 0.3,
+      "category": "Module",
+      "pct_of_committed_total": 0
+    },
+    {
+      "reserved_mb": 0.2,
+      "committed_mb": 0.2,
+      "category": "Other",
+      "pct_of_committed_total": 0
+    },
+    {
+      "reserved_mb": 0.1,
+      "committed_mb": 0.1,
+      "category": "Thread",
+      "pct_of_committed_total": 0
+    },
+    {
+      "reserved_mb": 0.1,
+      "committed_mb": 0.1,
+      "category": "Synchronization",
+      "pct_of_committed_total": 0
+    },
+    {
+      "reserved_mb": 0,
+      "committed_mb": 0,
+      "category": "Object Monitors",
+      "pct_of_committed_total": 0
+    },
+    {
+      "reserved_mb": 0,
+      "committed_mb": 0,
+      "category": "Serviceability",
+      "pct_of_committed_total": 0
+    },
+    {
+      "reserved_mb": 0,
+      "committed_mb": 0,
+      "category": "Safepoint",
+      "pct_of_committed_total": 0
+    },
+    {
+      "reserved_mb": 0,
+      "committed_mb": 0,
+      "category": "String Deduplication",
+      "pct_of_committed_total": 0
+    },
+    {
+      "reserved_mb": 0,
+      "committed_mb": 0,
+      "category": "Arguments",
+      "pct_of_committed_total": 0
+    },
+    {
+      "reserved_mb": 0,
+      "committed_mb": 0,
+      "category": "Statistics",
+      "pct_of_committed_total": 0
+    },
+    {
+      "reserved_mb": 0,
+      "committed_mb": 0,
+      "category": "Logging",
+      "pct_of_committed_total": 0
+    },
+    {
+      "reserved_mb": 0,
+      "committed_mb": 0,
+      "category": "GCCardSet",
+      "pct_of_committed_total": 0
+    },
+    {
+      "reserved_mb": 0,
+      "committed_mb": 0,
+      "category": "JVMCI",
+      "pct_of_committed_total": 0
+    },
+    {
+      "reserved_mb": 0,
+      "committed_mb": 0,
+      "category": "Test",
+      "pct_of_committed_total": 0
+    }
+  ],
+  "metaspace": {
+    "used_mb": 100.8,
+    "available": true,
+    "reserved_mb": 288,
+    "class_space_committed_mb": 13.8,
+    "committed_mb": 101.7,
+    "class_space_used_mb": 13.4
+  },
+  "code_cache": {
+    "used_estimate_mb": 56.3,
+    "full_warnings": 0,
+    "available": true,
+    "reserved_mb": 240,
+    "committed_mb": 240
+  },
+  "heap": {
+    "max_used_mb": 84.6,
+    "reserved_mb": 1368,
+    "committed_mb": 311.5
+  }
+}

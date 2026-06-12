@@ -1,0 +1,42 @@
+services:
+  petclinic-g1:
+    build: .
+    cpus: 1.0
+    mem_limit: 2g
+    ports: ["8080:8080"]
+    volumes:
+      - ./:/jfr
+    command:
+      - -XX:NativeMemoryTracking=summary
+      - -Xms342m
+      - -Xmx1367m
+      - -XX:+UseG1GC
+      - -XX:MaxGCPauseMillis=200
+      - -XX:InitiatingHeapOccupancyPercent=35
+      - -XX:+UseStringDeduplication
+      - -XX:MinHeapFreeRatio=10
+      - -XX:MaxHeapFreeRatio=70
+      - -XX:MaxMetaspaceSize=200m
+      - -XX:StartFlightRecording=delay=15s,duration=120s,filename=/jfr/petclinic.jfr,settings=profile
+      - -jar
+      - /app.jar
+    healthcheck:
+      test: ["CMD", "curl", "-sf", "http://localhost:8080/"]
+      interval: 3s
+      retries: 40
+
+  loadgen:
+    image: alpine/curl
+    depends_on:
+      petclinic-g1:
+        condition: service_healthy
+    entrypoint: ["sh", "-c"]
+    command:
+      - |
+        end=$$(( $$(date +%s) + 150 ))
+        while [ $$(date +%s) -lt $$end ]; do
+          for ep in / /owners /owners?lastName=Davis /owners/1 /owners/1/edit /owners/2/pets/new /vets.html /owners/find; do
+            curl -s -o /dev/null "http://petclinic-g1:8080$$ep" &
+          done
+          wait
+        done

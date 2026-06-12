@@ -1,0 +1,162 @@
+{
+  "file_io": {
+    "total_bytes_read_mb": 0,
+    "total_bytes_written_mb": 0,
+    "write_events": 0,
+    "total_write_time_ms": 0,
+    "top_files_by_time": [],
+    "total_read_time_ms": 0,
+    "read_events": 0
+  },
+  "summary": {
+    "slowest_operation_target": "172.18.0.3:57072",
+    "total_io_blocking_time_ms": 3771.7,
+    "dominant_io_type": "socket",
+    "slowest_single_operation_ms": 71.2,
+    "io_blocking_pct_of_recording": 3.1
+  },
+  "signals": {
+    "single_endpoint_dominant": false,
+    "io_data_likely_sparse": false,
+    "significant_socket_io": true,
+    "dominant_endpoint": "172.18.0.3:57072",
+    "repeated_file_access": false,
+    "repeated_file_path": null,
+    "significant_file_io": false
+  },
+  "socket_io": {
+    "total_bytes_read_mb": 0,
+    "total_bytes_written_mb": 0.3,
+    "write_events": 93,
+    "total_write_time_ms": 3659,
+    "top_endpoints_by_time": [
+      {
+        "endpoint": "172.18.0.3:57072",
+        "write_events": 1,
+        "avg_time_ms": 71.2,
+        "address": "172.18.0.3",
+        "top_call_site": "sun.nio.ch.SocketChannelImpl.write:152",
+        "total_time_ms": 71.2,
+        "total_bytes_mb": 0,
+        "rank": 1,
+        "max_time_ms": 71.2,
+        "read_events": 0
+      },
+      {
+        "endpoint": "172.18.0.3:56274",
+        "write_events": 1,
+        "avg_time_ms": 69.3,
+        "address": "172.18.0.3",
+        "top_call_site": "sun.nio.ch.SocketChannelImpl.write:152",
+        "total_time_ms": 69.3,
+        "total_bytes_mb": 0,
+        "rank": 2,
+        "max_time_ms": 69.3,
+        "read_events": 0
+      },
+      {
+        "endpoint": "172.18.0.3:57016",
+        "write_events": 1,
+        "avg_time_ms": 69.1,
+        "address": "172.18.0.3",
+        "top_call_site": "sun.nio.ch.SocketChannelImpl.write:152",
+        "total_time_ms": 69.1,
+        "total_bytes_mb": 0,
+        "rank": 3,
+        "max_time_ms": 69.1,
+        "read_events": 0
+      },
+      {
+        "endpoint": "172.18.0.3:57548",
+        "write_events": 1,
+        "avg_time_ms": 65.7,
+        "address": "172.18.0.3",
+        "top_call_site": "sun.nio.ch.SocketChannelImpl.write:152",
+        "total_time_ms": 65.7,
+        "total_bytes_mb": 0,
+        "rank": 4,
+        "max_time_ms": 65.7,
+        "read_events": 0
+      },
+      {
+        "endpoint": "172.18.0.3:50482",
+        "write_events": 1,
+        "avg_time_ms": 65.1,
+        "address": "172.18.0.3",
+        "top_call_site": "sun.nio.ch.SocketChannelImpl.write:152",
+        "total_time_ms": 65.1,
+        "total_bytes_mb": 0,
+        "rank": 5,
+        "max_time_ms": 65.1,
+        "read_events": 0
+      },
+      {
+        "endpoint": "172.18.0.3:59680",
+        "write_events": 1,
+        "avg_time_ms": 63.7,
+        "address": "172.18.0.3",
+        "top_call_site": "sun.nio.ch.SocketChannelImpl.write:152",
+        "total_time_ms": 63.7,
+        "total_bytes_mb": 0,
+        "rank": 6,
+        "max_time_ms": 63.7,
+        "read_events": 0
+      },
+      {
+        "endpoint": "172.18.0.3:59532",
+        "write_events": 1,
+        "avg_time_ms": 62.4,
+        "address": "172.18.0.3",
+        "top_call_site": "sun.nio.ch.SocketChannelImpl.write:152",
+        "total_time_ms": 62.4,
+        "total_bytes_mb": 0,
+        "rank": 7,
+        "max_time_ms": 62.4,
+        "read_events": 0
+      },
+      {
+        "endpoint": "172.18.0.3:50154",
+        "write_events": 1,
+        "avg_time_ms": 62.2,
+        "address": "172.18.0.3",
+        "top_call_site": "sun.nio.ch.SocketChannelImpl.write:152",
+        "total_time_ms": 62.2,
+        "total_bytes_mb": 0,
+        "rank": 8,
+        "max_time_ms": 62.2,
+        "read_events": 0
+      },
+      {
+        "endpoint": "172.18.0.3:57440",
+        "write_events": 1,
+        "avg_time_ms": 62,
+        "address": "172.18.0.3",
+        "top_call_site": "sun.nio.ch.SocketChannelImpl.write:152",
+        "total_time_ms": 62,
+        "total_bytes_mb": 0,
+        "rank": 9,
+        "max_time_ms": 62,
+        "read_events": 0
+      },
+      {
+        "endpoint": "172.18.0.3:56800",
+        "write_events": 1,
+        "avg_time_ms": 62,
+        "address": "172.18.0.3",
+        "top_call_site": "sun.nio.ch.SocketChannelImpl.write:152",
+        "total_time_ms": 62,
+        "total_bytes_mb": 0,
+        "rank": 10,
+        "max_time_ms": 62,
+        "read_events": 0
+      }
+    ],
+    "total_read_time_ms": 112.7,
+    "read_events": 4
+  },
+  "threshold_note": "Only I/O operations exceeding the JFR threshold (~10ms default in profile settings) are captured. Fast I/O operations are not represented in this analysis. Absence of events means no SLOW I/O, not no I/O.",
+  "recording": {
+    "duration_seconds": 120,
+    "path": "/Users/ridvanozcan/code/jfrdoc/samples/petclinic-ubi9/before/petclinic.jfr"
+  }
+}

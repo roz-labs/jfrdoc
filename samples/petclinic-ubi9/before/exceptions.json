@@ -1,0 +1,48 @@
+{
+  "summary": {
+    "total_errors_thrown": 0,
+    "without_stack_trace": 0,
+    "throws_per_second": 0,
+    "total_exceptions_thrown": 0,
+    "unique_exception_classes": 0,
+    "with_stack_trace": 0
+  },
+  "signals": {
+    "control_flow_smell": false,
+    "throw_rate_high": false,
+    "throw_rate_very_high": false,
+    "single_site_dominant": false,
+    "framework_used_for_categorization": "other",
+    "dominant_class_pct": 0,
+    "single_class_dominant": false,
+    "dominant_class": null
+  },
+  "recording": {
+    "duration_seconds": 0,
+    "path": "/Users/ridvanozcan/code/jfrdoc/samples/petclinic-ubi9/before/petclinic.jfr"
+  },
+  "top_throwing_sites": [],
+  "top_exception_classes": [],
+  "by_category": {
+    "jdk": {
+      "pct": 0,
+      "unique_classes": 0,
+      "events": 0
+    },
+    "framework": {
+      "pct": 0,
+      "unique_classes": 0,
+      "events": 0
+    },
+    "user_code": {
+      "pct": 0,
+      "unique_classes": 0,
+      "events": 0
+    },
+    "native": {
+      "pct": 0,
+      "unique_classes": 0,
+      "events": 0
+    }
+  }
+}

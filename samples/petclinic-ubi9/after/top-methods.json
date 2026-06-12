@@ -1,0 +1,214 @@
+{
+  "top_methods": [
+    {
+      "method": "java.lang.String.equalsIgnoreCase:1982",
+      "top_caller": "org.springframework.boot.loader.net.protocol.jar.JarFileUrlKey.equalsIgnoringCase",
+      "rank": 1,
+      "top_caller_share_pct": 100,
+      "category": "jdk",
+      "pct_of_total": 5.6,
+      "samples": 178
+    },
+    {
+      "method": "java.lang.ThreadLocal$ThreadLocalMap.getEntry:504",
+      "top_caller": "java.lang.ThreadLocal.get",
+      "rank": 2,
+      "top_caller_share_pct": 100,
+      "category": "jdk",
+      "pct_of_total": 5.4,
+      "samples": 172
+    },
+    {
+      "method": "java.net.URL.<init>:654",
+      "top_caller": "java.net.URL.<init>",
+      "rank": 3,
+      "top_caller_share_pct": 98.6,
+      "category": "jdk",
+      "pct_of_total": 4.3,
+      "samples": 139
+    },
+    {
+      "method": "java.lang.StringLatin1.toLowerCase:428",
+      "top_caller": "java.lang.String.toLowerCase",
+      "rank": 4,
+      "top_caller_share_pct": 100,
+      "category": "jdk",
+      "pct_of_total": 3.8,
+      "samples": 123
+    },
+    {
+      "method": "java.util.Arrays.binarySearch0:1717",
+      "top_caller": "java.util.Arrays.binarySearch",
+      "rank": 5,
+      "top_caller_share_pct": 100,
+      "category": "jdk",
+      "pct_of_total": 3.8,
+      "samples": 122
+    },
+    {
+      "method": "org.springframework.boot.loader.net.protocol.jar.Handler.indexOfSeparator:174",
+      "top_caller": "org.springframework.boot.loader.net.protocol.jar.Handler.indexOfSeparator",
+      "rank": 6,
+      "top_caller_share_pct": 100,
+      "category": "framework",
+      "pct_of_total": 2.9,
+      "samples": 94
+    },
+    {
+      "method": "jdk.internal.loader.URLClassPath.getLoader:432",
+      "top_caller": "jdk.internal.loader.URLClassPath.findResource",
+      "rank": 7,
+      "top_caller_share_pct": 100,
+      "category": "jdk",
+      "pct_of_total": 2.4,
+      "samples": 77
+    },
+    {
+      "method": "java.net.URLStreamHandler.parseURL:326",
+      "top_caller": "java.net.URL.<init>",
+      "rank": 8,
+      "top_caller_share_pct": 100,
+      "category": "jdk",
+      "pct_of_total": 2.1,
+      "samples": 67
+    },
+    {
+      "method": "java.net.URL.<init>:778",
+      "top_caller": "java.net.URL.<init>",
+      "rank": 9,
+      "top_caller_share_pct": 100,
+      "category": "jdk",
+      "pct_of_total": 2.1,
+      "samples": 66
+    },
+    {
+      "method": "sun.net.www.ParseUtil.firstEncodeIndex:93",
+      "top_caller": "sun.net.www.ParseUtil.encodePath",
+      "rank": 10,
+      "top_caller_share_pct": 100,
+      "category": "jdk",
+      "pct_of_total": 2,
+      "samples": 64
+    },
+    {
+      "method": "java.util.concurrent.ConcurrentHashMap.get:946",
+      "top_caller": "jdk.internal.loader.AbstractClassLoaderValue.get",
+      "rank": 11,
+      "top_caller_share_pct": 17.7,
+      "category": "jdk",
+      "pct_of_total": 1.9,
+      "samples": 62
+    },
+    {
+      "method": "java.lang.Class.getName:950",
+      "top_caller": "java.net.URL.isBuiltinStreamHandler",
+      "rank": 12,
+      "top_caller_share_pct": 93.1,
+      "category": "jdk",
+      "pct_of_total": 1.8,
+      "samples": 58
+    },
+    {
+      "method": "java.util.HashMap.getNode:587",
+      "top_caller": "java.util.HashMap.get",
+      "rank": 13,
+      "top_caller_share_pct": 94.6,
+      "category": "jdk",
+      "pct_of_total": 1.8,
+      "samples": 56
+    },
+    {
+      "method": "java.net.URL.<init>:801",
+      "top_caller": "java.net.URL.<init>",
+      "rank": 14,
+      "top_caller_share_pct": 100,
+      "category": "jdk",
+      "pct_of_total": 1.7,
+      "samples": 53
+    },
+    {
+      "method": "java.util.Hashtable.get:384",
+      "top_caller": "java.net.URL.getURLStreamHandler",
+      "rank": 15,
+      "top_caller_share_pct": 100,
+      "category": "jdk",
+      "pct_of_total": 1.6,
+      "samples": 52
+    },
+    {
+      "method": "org.springframework.boot.loader.net.protocol.jar.UrlJarFiles.getCached:81",
+      "top_caller": "org.springframework.boot.loader.net.protocol.jar.UrlJarFiles.getOrCreate",
+      "rank": 16,
+      "top_caller_share_pct": 100,
+      "category": "framework",
+      "pct_of_total": 1.5,
+      "samples": 47
+    },
+    {
+      "method": "java.util.HashMap.getNode:578",
+      "top_caller": "java.util.HashMap.get",
+      "rank": 17,
+      "top_caller_share_pct": 69,
+      "category": "jdk",
+      "pct_of_total": 1.3,
+      "samples": 42
+    },
+    {
+      "method": "org.springframework.boot.loader.net.protocol.jar.Canonicalizer.canonicalizeAfter:33",
+      "top_caller": "org.springframework.boot.loader.net.protocol.jar.Handler.extractRelativePath",
+      "rank": 18,
+      "top_caller_share_pct": 100,
+      "category": "framework",
+      "pct_of_total": 1.3,
+      "samples": 42
+    },
+    {
+      "method": "org.apache.catalina.connector.CoyoteWriter.write:167",
+      "top_caller": "org.apache.catalina.connector.CoyoteWriter.write",
+      "rank": 19,
+      "top_caller_share_pct": 100,
+      "category": "framework",
+      "pct_of_total": 0.9,
+      "samples": 29
+    },
+    {
+      "method": "java.net.URL.<init>:720",
+      "top_caller": "java.net.URL.<init>",
+      "rank": 20,
+      "top_caller_share_pct": 100,
+      "category": "jdk",
+      "pct_of_total": 0.8,
+      "samples": 25
+    }
+  ],
+  "recording": {
+    "duration_seconds": 120.1,
+    "path": "/Users/ridvanozcan/code/jfrdoc/samples/petclinic-ubi9/after/petclinic.jfr"
+  },
+  "framework_used_for_categorization": "other",
+  "categories": {
+    "jdk": {
+      "pct": 61.3,
+      "samples": 1962
+    },
+    "framework": {
+      "pct": 26.9,
+      "samples": 862
+    },
+    "user_code": {
+      "pct": 11.8,
+      "samples": 376
+    }
+  },
+  "execution_samples": {"total": 3200},
+  "sample_quality": {
+    "unattributed_pct": 0,
+    "breakdown": {
+      "native_top_frame": 0,
+      "unknown_method_or_class": 0,
+      "no_stack_trace": 0
+    },
+    "attributed_samples": 3200,
+    "unattributed_samples": 0
+  }
+}

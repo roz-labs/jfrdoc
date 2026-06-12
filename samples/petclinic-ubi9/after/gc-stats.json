@@ -1,0 +1,62 @@
+{
+  "summary": {
+    "total_gcs": 294,
+    "p99_pause_ms": 72.98,
+    "total_pause_time_ms": 1682.12,
+    "max_pause_ms": 75.53,
+    "p50_pause_ms": 2.32,
+    "gcs_per_minute": 146,
+    "avg_pause_ms": 5.72,
+    "p95_pause_ms": 20.15,
+    "pause_overhead_pct": 1.39
+  },
+  "by_cause": [{
+    "count": 294,
+    "cause": "G1 Evacuation Pause"
+  }],
+  "configuration": {
+    "concurrent_gc_threads": 1,
+    "uses_dynamic_gc_threads": true,
+    "young_collector": "G1New",
+    "old_collector": "G1Old",
+    "gc_time_ratio": 12,
+    "parallel_gc_threads": 1,
+    "pause_target_ms": null
+  },
+  "by_name": [
+    {
+      "max_pause_ms": 75.53,
+      "name": "G1New",
+      "count": 280,
+      "avg_pause_ms": 4.8,
+      "total_pause_ms": 1343.56
+    },
+    {
+      "max_pause_ms": 74.45,
+      "name": "G1Old",
+      "count": 14,
+      "avg_pause_ms": 24.18,
+      "total_pause_ms": 338.56
+    }
+  ],
+  "recording": {
+    "duration_seconds": 120.9,
+    "path": "/Users/ridvanozcan/code/jfrdoc/samples/petclinic-ubi9/after/petclinic.jfr"
+  },
+  "heap": {
+    "snapshots": 588,
+    "max_used_mb": 266.3,
+    "min_used_mb": 36.9,
+    "max_used_pct_of_committed": 70.6,
+    "avg_used_after_gc_mb": 39.2,
+    "committed_size_mb": 342
+  },
+  "anomalies": {
+    "long_pauses_over_100ms": 0,
+    "evacuation_failures": 0,
+    "explicit_system_gcs": 0,
+    "full_gcs": 0,
+    "humongous_allocations": 0,
+    "long_pauses_over_500ms": 0
+  }
+}
