@@ -24,7 +24,8 @@ to it: [`before/summary.json`](before/summary.json),
 [`before/memory.json`](before/memory.json),
 [`before/lock-contention.json`](before/lock-contention.json),
 [`before/exceptions.json`](before/exceptions.json),
-[`before/io.json`](before/io.json).
+[`before/io.json`](before/io.json),
+[`before/native-methods.json`](before/native-methods.json).
 
 The two headline jfrdoc surfaced:
 
@@ -89,7 +90,7 @@ class directly with a plain filesystem classpath. Dependencies under
 `BOOT-INF/lib/*.jar` are then read by the JDK's standard `URLClassLoader`
 — no `UrlNestedJarFile`, no `UrlJarFiles$Cache`, no per-request URL parsing.
 
-Before — [`docker/petclinic/Dockerfile`](../../docker/petclinic/Dockerfile):
+Before — [`before/Dockerfile`](before/Dockerfile):
 
 ```dockerfile
 WORKDIR /src
@@ -99,7 +100,7 @@ RUN git clone --depth 1 https://github.com/spring-projects/spring-petclinic.git 
 ENTRYPOINT ["java"]
 ```
 
-After — [`docker/petclinic-optimized/Dockerfile`](../../docker/petclinic-optimized/Dockerfile):
+After — [`after/Dockerfile`](after/Dockerfile):
 
 ```dockerfile
 WORKDIR /src
@@ -128,11 +129,11 @@ the per-collection cadence.
 
 ### compose `command:` diff (loader + GC flags together)
 
-Before — [`docker-compose.yml`](../../docker-compose.yml):
+Before — [`before/docker-compose.yml`](before/docker-compose.yml):
 
 ```yaml
 volumes:
-  - ./samples/petclinic/before:/jfr
+  - ./:/jfr
 command:
   - -XX:NativeMemoryTracking=summary
   - -XX:StartFlightRecording=delay=15s,duration=120s,filename=/jfr/petclinic.jfr,settings=profile
@@ -140,11 +141,11 @@ command:
   - /app.jar
 ```
 
-After — [`docker-compose.optimized.yml`](../../docker-compose.optimized.yml):
+After — [`after/docker-compose.yml`](after/docker-compose.yml):
 
 ```yaml
 volumes:
-  - ./samples/petclinic/after:/jfr            # mount target dir for this run
+  - ./:/jfr
 command:
   - -XX:NativeMemoryTracking=summary
   - -XX:+UseG1GC                # 2b. no more SerialGC default
@@ -167,7 +168,8 @@ to it: [`after/summary.json`](after/summary.json),
 [`after/memory.json`](after/memory.json),
 [`after/lock-contention.json`](after/lock-contention.json),
 [`after/exceptions.json`](after/exceptions.json),
-[`after/io.json`](after/io.json).
+[`after/io.json`](after/io.json),
+[`after/native-methods.json`](after/native-methods.json).
 
 Same recording window, same container limits, same load mix. What moved:
 
@@ -216,17 +218,16 @@ straight next to this document — no manual moves.
 **Record the `before` JFR** (fat jar):
 
 ```bash
-docker compose up --build --abort-on-container-exit --exit-code-from loadgen
-docker compose down
+docker compose -f samples/petclinic/before/docker-compose.yml up --build --abort-on-container-exit --exit-code-from loadgen
+docker compose -f samples/petclinic/before/docker-compose.yml down
 # → samples/petclinic/before/petclinic.jfr
 ```
 
 **Record the `after` JFR** (exploded layout + G1 + `-Xmx1g`):
 
 ```bash
-docker compose -f docker-compose.optimized.yml up --build \
-  --abort-on-container-exit --exit-code-from loadgen
-docker compose -f docker-compose.optimized.yml down
+docker compose -f samples/petclinic/after/docker-compose.yml up --build --abort-on-container-exit --exit-code-from loadgen
+docker compose -f samples/petclinic/after/docker-compose.yml down
 # → samples/petclinic/after/petclinic.jfr
 ```
 

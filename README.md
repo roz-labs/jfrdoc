@@ -108,7 +108,7 @@ The agent's report is explicit about today's scope (CPU + GC + allocation + memo
 
 ## How it works
 
-jfrdoc reads `.jfr` files via `jdk.jfr.consumer.RecordingFile` from the JDK — **no java agent, no runtime overhead in your app**. A single Claude-driven agent built on [zsmith](https://github.com/AdamBien/zsmith) calls eight tools:
+jfrdoc reads `.jfr` files via `jdk.jfr.consumer.RecordingFile` from the JDK — **no java agent, no runtime overhead in your app**. A single Claude-driven agent built on [zsmith](https://github.com/AdamBien/zsmith) calls nine tools:
 
 | Tool | Purpose |
 |-|-|
@@ -129,78 +129,34 @@ jfrdoc reads `.jfr` files via `jdk.jfr.consumer.RecordingFile` from the JDK — 
 ## Sample report
 
 [`samples/petclinic/before/report.md`](samples/petclinic/before/report.md) — end-to-end run against a 120-second JFR of [Spring PetClinic](https://github.com/spring-projects/spring-petclinic) 4.0.0-SNAPSHOT under HTTP load.
-Raw tool outputs (handy as prompt-tuning fixtures): [`summary.json`](samples/petclinic/before/summary.json), [`top-methods.json`](samples/petclinic/before/top-methods.json), [`gc-stats.json`](samples/petclinic/before/gc-stats.json), [`allocation.json`](samples/petclinic/before/allocation.json), [`memory.json`](samples/petclinic/before/memory.json), [`lock-contention.json`](samples/petclinic/before/lock-contention.json), [`exceptions.json`](samples/petclinic/before/exceptions.json), [`io.json`](samples/petclinic/before/io.json).
+Raw tool outputs (handy as prompt-tuning fixtures): [`summary.json`](samples/petclinic/before/summary.json), [`top-methods.json`](samples/petclinic/before/top-methods.json), [`gc-stats.json`](samples/petclinic/before/gc-stats.json), [`allocation.json`](samples/petclinic/before/allocation.json), [`memory.json`](samples/petclinic/before/memory.json), [`lock-contention.json`](samples/petclinic/before/lock-contention.json), [`exceptions.json`](samples/petclinic/before/exceptions.json), [`io.json`](samples/petclinic/before/io.json), [`native-methods.json`](samples/petclinic/before/native-methods.json).
 
 ### Case study — apply the top recommendations, re-record, diff the numbers
 
-[`samples/petclinic/case-study.md`](samples/petclinic/case-study.md) walks through one end-to-end loop: take the two 🔴 findings from the PetClinic report (Spring Boot's nested-JAR loader dominating CPU/allocation/locks, and SerialGC firing 2,283 times in 120 s on a 94 MB heap), apply both of jfrdoc's recommended fixes — exploded JAR layout + `-XX:+UseG1GC -Xmx1g` — as a single bundled deployment change, and re-record under the same container limits and load to see what actually moves. Headline deltas: user-code CPU share **2.5% → 6.3%** (2.5×), allocation rate **479.5 → 103.2 MB/s** (−78%), GC count **2,283 → 173** (−92%), and both Spring Boot loader monitors that ate 23.9 s of wall time disappear entirely. The "after" Dockerfile lives at [`docker/petclinic-optimized/Dockerfile`](docker/petclinic-optimized/Dockerfile) and the matching compose file at [`docker-compose.optimized.yml`](docker-compose.optimized.yml); the after report sits at [`samples/petclinic/after/report.md`](samples/petclinic/after/report.md) so both runs are reproducible side-by-side.
+[`samples/petclinic/case-study.md`](samples/petclinic/case-study.md) walks through one end-to-end loop: take the two 🔴 findings from the PetClinic report (Spring Boot's nested-JAR loader dominating CPU/allocation/locks, and SerialGC firing 2,283 times in 120 s on a 94 MB heap), apply both of jfrdoc's recommended fixes — exploded JAR layout + `-XX:+UseG1GC -Xmx1g` — as a single bundled deployment change, and re-record under the same container limits and load to see what actually moves. Headline deltas: user-code CPU share **2.5% → 6.3%** (2.5×), allocation rate **479.5 → 103.2 MB/s** (−78%), GC count **2,283 → 173** (−92%), and both Spring Boot loader monitors that ate 23.9 s of wall time disappear entirely. The "after" Dockerfile lives at [`samples/petclinic/after/Dockerfile`](samples/petclinic/after/Dockerfile) and the matching compose file at [`samples/petclinic/after/docker-compose.yml`](samples/petclinic/after/docker-compose.yml); the after report sits at [`samples/petclinic/after/report.md`](samples/petclinic/after/report.md) so both runs are reproducible side-by-side.
 
 ---
 
 ## Development
 
-Generate a tiny `.jfr` for fast local iteration (8 s of allocation churn):
-
-```bash
-./samples/gen-sample.sh        # writes samples/sample.jfr
-```
+For quick local iteration, generate a tiny 8-second `.jfr` — see [`samples/gen-sample/README.md`](samples/gen-sample/README.md).
 
 Exercise each tool directly without the agent loop — useful for verifying the JSON the agent sees:
 
 ```bash
-./jfrdoc debug-tool jfr-summary         samples/sample.jfr
-./jfrdoc debug-tool jfr-top-methods     samples/sample.jfr --top-n 10
-./jfrdoc debug-tool jfr-top-methods     samples/sample.jfr --top-n 5 --framework quarkus
-./jfrdoc debug-tool jfr-gc-stats        samples/sample.jfr
-./jfrdoc debug-tool jfr-allocation      samples/sample.jfr --framework spring --top-n 10
-./jfrdoc debug-tool jfr-memory          samples/sample.jfr --container-memory 2Gi
-./jfrdoc debug-tool jfr-lock-contention samples/sample.jfr --top-n 10
-./jfrdoc debug-tool jfr-exceptions      samples/sample.jfr --framework spring --top-n 10
-./jfrdoc debug-tool jfr-io              samples/sample.jfr --top-n 10
-./jfrdoc debug-tool jfr-native-methods  samples/petclinic/after/petclinic.jfr --framework spring --top-n 10
+./jfrdoc debug-tool jfr-summary         samples/gen-sample/sample.jfr
+./jfrdoc debug-tool jfr-top-methods     samples/gen-sample/sample.jfr --top-n 10
+./jfrdoc debug-tool jfr-top-methods     samples/gen-sample/sample.jfr --top-n 5 --framework quarkus
+./jfrdoc debug-tool jfr-gc-stats        samples/gen-sample/sample.jfr
+./jfrdoc debug-tool jfr-allocation      samples/gen-sample/sample.jfr --framework spring --top-n 10
+./jfrdoc debug-tool jfr-memory          samples/gen-sample/sample.jfr --container-memory 2Gi
+./jfrdoc debug-tool jfr-lock-contention samples/gen-sample/sample.jfr --top-n 10
+./jfrdoc debug-tool jfr-exceptions      samples/gen-sample/sample.jfr --framework spring --top-n 10
+./jfrdoc debug-tool jfr-io              samples/gen-sample/sample.jfr --top-n 10
+./jfrdoc debug-tool jfr-native-methods  samples/gen-sample/sample.jfr --framework spring --top-n 10
 ```
 
-> 💡 **Recommended JVM flags for richest analysis.** For full memory analysis (per-category native memory and the `container_fit` verdict), enable Native Memory Tracking when generating the JFR:
-> ```
-> -XX:NativeMemoryTracking=summary
-> ```
-> This adds ~1% memory overhead and is safe in production. NMT events fire roughly once per minute, so capture **at least 90–120 s** for reliable per-category data; shorter recordings may show NMT as unavailable even when the flag is set.
-
-### Refresh the dogfood snapshot
-
-Two independent steps. Step 1 records a fresh JFR in a container (no host JDK / Maven needed). Step 2 runs jfrdoc against the recording. The case study has both halves — the `before` (fat-jar) and `after` (exploded + G1 + `-Xmx1g`) runs — but the snippets below show the `before` half; for the `after` half, swap `docker-compose.yml` for `docker-compose.optimized.yml` and `before/` for `after/` everywhere.
-
-**Step 1 — record `samples/petclinic/before/petclinic.jfr`** (needs `docker` + `docker compose`):
-
-```bash
-docker compose up --build --abort-on-container-exit --exit-code-from loadgen
-docker compose down
-```
-
-`docker-compose.yml` runs Spring PetClinic under cgroup limits of 1 CPU / 2 GB and a 120 s JFR window, while an `alpine/curl` sidecar drives load against `/owners`, `/vets.html`, `/owners/{id}/edit`, etc. The recording is bind-mounted to `./samples/petclinic/before/petclinic.jfr` so it appears on the host the moment the JVM finalizes it. Change the limits, JFR window, or load endpoints by editing `docker-compose.yml` directly — there are no env-var indirections.
-
-**Step 2 — analyze with jfrdoc** (needs Java 25 + your Anthropic key):
-
-```bash
-JFR=samples/petclinic/before/petclinic.jfr
-OUT=samples/petclinic/before
-
-./jfrdoc analyze "$JFR" \
-    --framework spring --container-cpu 1 --container-memory 2Gi \
-    > "$OUT/report.md"
-
-./jfrdoc debug-tool jfr-summary         "$JFR" > "$OUT/summary.json"
-./jfrdoc debug-tool jfr-top-methods     "$JFR" --framework spring --top-n 20 > "$OUT/top-methods.json"
-./jfrdoc debug-tool jfr-gc-stats        "$JFR" > "$OUT/gc-stats.json"
-./jfrdoc debug-tool jfr-allocation      "$JFR" --framework spring --top-n 20 > "$OUT/allocation.json"
-./jfrdoc debug-tool jfr-memory          "$JFR" --container-memory 2Gi > "$OUT/memory.json"
-./jfrdoc debug-tool jfr-lock-contention "$JFR" --top-n 10 > "$OUT/lock-contention.json"
-./jfrdoc debug-tool jfr-exceptions      "$JFR" --framework spring --top-n 15 > "$OUT/exceptions.json"
-./jfrdoc debug-tool jfr-io              "$JFR" --top-n 10 > "$OUT/io.json"
-./jfrdoc debug-tool jfr-native-methods  "$JFR" --framework spring --top-n 20 > "$OUT/native-methods.json"
-```
-
-**Why containers, not host `java -jar`?** The JVM honors cgroup limits (`-XX:UseContainerSupport` is default on JDK 25), so GC heuristics, ForkJoin pool size, and `Runtime.availableProcessors()` all reflect the constrained environment — which is exactly what jfrdoc's `--container-cpu` / `--container-memory` flags claim in the report header. As a bonus, the build is reproducible across macOS / Linux / Windows because both build and run happen inside `eclipse-temurin:25-jdk`, so host Maven version, BSD vs GNU coreutils quirks, and corporate TLS-MITM proxies stop mattering for the recording step.
+To re-record the PetClinic dogfood snapshots or run jfrdoc against them, see [`samples/petclinic/README.md`](samples/petclinic/README.md).
 
 ---
 

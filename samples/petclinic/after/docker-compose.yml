@@ -1,16 +1,19 @@
 services:
-  petclinic:
-    build: ./docker/petclinic
+  petclinic-optimized:
+    build: .
     cpus: 1.0
     mem_limit: 2g
     ports: ["8080:8080"]
     volumes:
-      - ./samples/petclinic/before:/jfr
+      - ./:/jfr
     command:
       - -XX:NativeMemoryTracking=summary
+      - -XX:+UseG1GC
+      - -Xmx1g
       - -XX:StartFlightRecording=delay=15s,duration=120s,filename=/jfr/petclinic.jfr,settings=profile
-      - -jar
-      - /app.jar
+      - -cp
+      - /app/BOOT-INF/classes:/app/BOOT-INF/lib/*
+      - org.springframework.samples.petclinic.PetClinicApplication
     healthcheck:
       test: ["CMD", "curl", "-sf", "http://localhost:8080/"]
       interval: 3s
@@ -19,7 +22,7 @@ services:
   loadgen:
     image: alpine/curl
     depends_on:
-      petclinic:
+      petclinic-optimized:
         condition: service_healthy
     entrypoint: ["sh", "-c"]
     command:
@@ -27,7 +30,7 @@ services:
         end=$$(( $$(date +%s) + 150 ))
         while [ $$(date +%s) -lt $$end ]; do
           for ep in / /owners /owners?lastName=Davis /owners/1 /owners/1/edit /owners/2/pets/new /vets.html /owners/find; do
-            curl -s -o /dev/null "http://petclinic:8080$$ep" &
+            curl -s -o /dev/null "http://petclinic-optimized:8080$$ep" &
           done
           wait
         done
