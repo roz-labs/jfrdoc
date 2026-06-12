@@ -1,0 +1,380 @@
+{
+  "large_object_allocations": {
+    "outside_tlab_events": 0,
+    "top_classes": []
+  },
+  "top_allocated_classes": [
+    {
+      "estimated_mb": 25115,
+      "rank": 1,
+      "class": "byte[]",
+      "samples": 17015,
+      "pct_of_bytes": 44.1
+    },
+    {
+      "estimated_mb": 9600.4,
+      "rank": 2,
+      "class": "java.lang.String",
+      "samples": 5400,
+      "pct_of_bytes": 16.9
+    },
+    {
+      "estimated_mb": 9400.4,
+      "rank": 3,
+      "class": "java.net.URL",
+      "samples": 5331,
+      "pct_of_bytes": 16.5
+    },
+    {
+      "estimated_mb": 4707.9,
+      "rank": 4,
+      "class": "org.springframework.boot.loader.net.protocol.jar.JarFileUrlKey",
+      "samples": 2688,
+      "pct_of_bytes": 8.3
+    },
+    {
+      "estimated_mb": 568,
+      "rank": 5,
+      "class": "java.lang.Object[]",
+      "samples": 354,
+      "pct_of_bytes": 1
+    },
+    {
+      "estimated_mb": 549.8,
+      "rank": 6,
+      "class": "java.time.Instant",
+      "samples": 144,
+      "pct_of_bytes": 1
+    },
+    {
+      "estimated_mb": 423.2,
+      "rank": 7,
+      "class": "java.io.EOFException",
+      "samples": 149,
+      "pct_of_bytes": 0.7
+    },
+    {
+      "estimated_mb": 367.6,
+      "rank": 8,
+      "class": "org.thymeleaf.engine.IEngineTemplateEvent[]",
+      "samples": 219,
+      "pct_of_bytes": 0.6
+    },
+    {
+      "estimated_mb": 347.6,
+      "rank": 9,
+      "class": "java.util.concurrent.locks.AbstractQueuedSynchronizer$ConditionNode",
+      "samples": 110,
+      "pct_of_bytes": 0.6
+    },
+    {
+      "estimated_mb": 237,
+      "rank": 10,
+      "class": "java.util.HashMap$Node",
+      "samples": 210,
+      "pct_of_bytes": 0.4
+    },
+    {
+      "estimated_mb": 192.1,
+      "rank": 11,
+      "class": "java.util.HashMap$Node[]",
+      "samples": 78,
+      "pct_of_bytes": 0.3
+    },
+    {
+      "estimated_mb": 182.1,
+      "rank": 12,
+      "class": "org.thymeleaf.engine.ElementProcessorIterator",
+      "samples": 78,
+      "pct_of_bytes": 0.3
+    },
+    {
+      "estimated_mb": 148.2,
+      "rank": 13,
+      "class": "org.springframework.core.ResolvableType",
+      "samples": 47,
+      "pct_of_bytes": 0.3
+    },
+    {
+      "estimated_mb": 138.8,
+      "rank": 14,
+      "class": "org.thymeleaf.processor.element.IElementProcessor[]",
+      "samples": 80,
+      "pct_of_bytes": 0.2
+    },
+    {
+      "estimated_mb": 134.7,
+      "rank": 15,
+      "class": "java.util.ArrayList",
+      "samples": 80,
+      "pct_of_bytes": 0.2
+    },
+    {
+      "estimated_mb": 130.3,
+      "rank": 16,
+      "class": "java.util.concurrent.ConcurrentHashMap$Node",
+      "samples": 69,
+      "pct_of_bytes": 0.2
+    },
+    {
+      "estimated_mb": 125.5,
+      "rank": 17,
+      "class": "java.lang.String[]",
+      "samples": 70,
+      "pct_of_bytes": 0.2
+    },
+    {
+      "estimated_mb": 112.8,
+      "rank": 18,
+      "class": "org.h2.mvstore.tx.TxDecisionMaker$LockDecisionMaker",
+      "samples": 15,
+      "pct_of_bytes": 0.2
+    },
+    {
+      "estimated_mb": 110.9,
+      "rank": 19,
+      "class": "org.thymeleaf.engine.Attribute",
+      "samples": 44,
+      "pct_of_bytes": 0.2
+    },
+    {
+      "estimated_mb": 110.7,
+      "rank": 20,
+      "class": "java.util.HashMap",
+      "samples": 61,
+      "pct_of_bytes": 0.2
+    }
+  ],
+  "recording": {
+    "duration_seconds": 122.2,
+    "path": "/Users/ridvanozcan/code/jfrdoc/samples/petclinic-ubi8/before/petclinic.jfr"
+  },
+  "top_allocation_sites": [
+    {
+      "estimated_mb": 16347.3,
+      "method": "java.util.Arrays.copyOfRange:3822",
+      "rank": 1,
+      "category": "jdk",
+      "top_class_allocated": "byte[]",
+      "samples": 9057,
+      "pct_of_bytes": 28.7
+    },
+    {
+      "estimated_mb": 7545,
+      "method": "jdk.internal.misc.Unsafe.allocateUninitializedArray:1375",
+      "rank": 2,
+      "category": "jdk",
+      "top_class_allocated": "byte[]",
+      "samples": 4372,
+      "pct_of_bytes": 13.3
+    },
+    {
+      "estimated_mb": 7457.9,
+      "method": "java.lang.StringLatin1.newString:769",
+      "rank": 3,
+      "category": "jdk",
+      "top_class_allocated": "java.lang.String",
+      "samples": 4168,
+      "pct_of_bytes": 13.1
+    },
+    {
+      "estimated_mb": 4807.6,
+      "method": "org.springframework.boot.loader.net.protocol.jar.JarUrlConnection.open:340",
+      "rank": 4,
+      "category": "framework",
+      "top_class_allocated": "java.net.URL",
+      "samples": 2662,
+      "pct_of_bytes": 8.4
+    },
+    {
+      "estimated_mb": 4592.1,
+      "method": "jdk.internal.loader.URLClassPath$Loader.findResource:607",
+      "rank": 5,
+      "category": "jdk",
+      "top_class_allocated": "java.net.URL",
+      "samples": 2668,
+      "pct_of_bytes": 8.1
+    },
+    {
+      "estimated_mb": 2381.8,
+      "method": "org.springframework.boot.loader.net.protocol.jar.UrlJarFiles$Cache.get:157",
+      "rank": 6,
+      "category": "framework",
+      "top_class_allocated": "org.springframework.boot.loader.net.protocol.jar.JarFileUrlKey",
+      "samples": 1282,
+      "pct_of_bytes": 4.2
+    },
+    {
+      "estimated_mb": 2326.1,
+      "method": "org.springframework.boot.loader.net.protocol.jar.UrlJarFiles$Cache.putIfAbsent:183",
+      "rank": 7,
+      "category": "framework",
+      "top_class_allocated": "org.springframework.boot.loader.net.protocol.jar.JarFileUrlKey",
+      "samples": 1406,
+      "pct_of_bytes": 4.1
+    },
+    {
+      "estimated_mb": 1953.4,
+      "method": "java.lang.StringConcatHelper.newString:387",
+      "rank": 8,
+      "category": "jdk",
+      "top_class_allocated": "java.lang.String",
+      "samples": 1095,
+      "pct_of_bytes": 3.4
+    },
+    {
+      "estimated_mb": 729.5,
+      "method": "java.nio.HeapByteBuffer.<init>:64",
+      "rank": 9,
+      "category": "jdk",
+      "top_class_allocated": "byte[]",
+      "samples": 3324,
+      "pct_of_bytes": 1.3
+    },
+    {
+      "estimated_mb": 549.8,
+      "method": "java.time.Instant.create:415",
+      "rank": 10,
+      "category": "jdk",
+      "top_class_allocated": "java.time.Instant",
+      "samples": 144,
+      "pct_of_bytes": 1
+    },
+    {
+      "estimated_mb": 423.2,
+      "method": "org.apache.tomcat.util.net.NioEndpoint$NioSocketWrapper.fillReadBuffer:1339",
+      "rank": 11,
+      "category": "framework",
+      "top_class_allocated": "java.io.EOFException",
+      "samples": 149,
+      "pct_of_bytes": 0.7
+    },
+    {
+      "estimated_mb": 339.8,
+      "method": "java.util.concurrent.locks.AbstractQueuedSynchronizer$ConditionObject.awaitNanos:1668",
+      "rank": 12,
+      "category": "jdk",
+      "top_class_allocated": "java.util.concurrent.locks.AbstractQueuedSynchronizer$ConditionNode",
+      "samples": 106,
+      "pct_of_bytes": 0.6
+    },
+    {
+      "estimated_mb": 305.4,
+      "method": "org.thymeleaf.engine.Model.<init>:76",
+      "rank": 13,
+      "category": "user_code",
+      "top_class_allocated": "org.thymeleaf.engine.IEngineTemplateEvent[]",
+      "samples": 169,
+      "pct_of_bytes": 0.5
+    },
+    {
+      "estimated_mb": 237,
+      "method": "java.util.HashMap.newNode:1901",
+      "rank": 14,
+      "category": "jdk",
+      "top_class_allocated": "java.util.HashMap$Node",
+      "samples": 210,
+      "pct_of_bytes": 0.4
+    },
+    {
+      "estimated_mb": 218.9,
+      "method": "java.util.Arrays.copyOf:3537",
+      "rank": 15,
+      "category": "jdk",
+      "top_class_allocated": "byte[]",
+      "samples": 125,
+      "pct_of_bytes": 0.4
+    },
+    {
+      "estimated_mb": 208.3,
+      "method": "java.util.ArrayList.grow:239",
+      "rank": 16,
+      "category": "jdk",
+      "top_class_allocated": "java.lang.Object[]",
+      "samples": 120,
+      "pct_of_bytes": 0.4
+    },
+    {
+      "estimated_mb": 192.1,
+      "method": "java.util.HashMap.resize:702",
+      "rank": 17,
+      "category": "jdk",
+      "top_class_allocated": "java.util.HashMap$Node[]",
+      "samples": 78,
+      "pct_of_bytes": 0.3
+    },
+    {
+      "estimated_mb": 182.1,
+      "method": "org.thymeleaf.engine.ProcessorExecutionVars.<init>:41",
+      "rank": 18,
+      "category": "user_code",
+      "top_class_allocated": "org.thymeleaf.engine.ElementProcessorIterator",
+      "samples": 78,
+      "pct_of_bytes": 0.3
+    },
+    {
+      "estimated_mb": 117.8,
+      "method": "java.lang.invoke.DirectMethodHandle.allocateInstance:520",
+      "rank": 19,
+      "category": "jdk",
+      "top_class_allocated": "org.springframework.core.convert.TypeDescriptor$$Lambda$203+0x0000008801138c00.1398241764",
+      "samples": 70,
+      "pct_of_bytes": 0.2
+    },
+    {
+      "estimated_mb": 113.2,
+      "method": "java.util.concurrent.ConcurrentHashMap.putVal:1019",
+      "rank": 20,
+      "category": "jdk",
+      "top_class_allocated": "java.util.concurrent.ConcurrentHashMap$Node",
+      "samples": 57,
+      "pct_of_bytes": 0.2
+    }
+  ],
+  "framework_used_for_categorization": "other",
+  "categories": {
+    "jdk": {
+      "estimated_mb": 42728,
+      "samples": 27350,
+      "pct_of_bytes": 75.1
+    },
+    "framework": {
+      "estimated_mb": 11853.9,
+      "samples": 6496,
+      "pct_of_bytes": 20.8
+    },
+    "user_code": {
+      "estimated_mb": 2321.5,
+      "samples": 1169,
+      "pct_of_bytes": 4.1
+    }
+  },
+  "samples": {"total": 35069},
+  "sample_quality": {
+    "attributed_bytes": 59667568184,
+    "unattributed_bytes": 5348616,
+    "unattributed_pct_of_bytes": 0,
+    "breakdown": {
+      "native_top_frame": {
+        "bytes": 0,
+        "samples": 0
+      },
+      "unknown_method_or_class": {
+        "bytes": 0,
+        "samples": 0
+      },
+      "no_stack_trace": {
+        "bytes": 5348616,
+        "samples": 54
+      }
+    },
+    "attributed_samples": 35015,
+    "unattributed_samples": 54,
+    "unattributed_pct_of_samples": 0.2
+  },
+  "estimated_allocation_rate": {
+    "total_estimated_mb": 56908.5,
+    "total_estimated_bytes": 59672916800,
+    "mb_per_second": 465.7
+  }
+}

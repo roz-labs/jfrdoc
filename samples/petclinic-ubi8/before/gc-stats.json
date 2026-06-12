@@ -1,0 +1,68 @@
+{
+  "summary": {
+    "total_gcs": 2234,
+    "p99_pause_ms": 3.27,
+    "total_pause_time_ms": 4418.19,
+    "max_pause_ms": 229.51,
+    "p50_pause_ms": 1.55,
+    "gcs_per_minute": 1095.2,
+    "avg_pause_ms": 1.98,
+    "p95_pause_ms": 2.01,
+    "pause_overhead_pct": 3.61
+  },
+  "by_cause": [
+    {
+      "count": 2232,
+      "cause": "Allocation Failure"
+    },
+    {
+      "count": 2,
+      "cause": "Metadata GC Threshold"
+    }
+  ],
+  "configuration": {
+    "concurrent_gc_threads": 0,
+    "uses_dynamic_gc_threads": true,
+    "young_collector": "ParallelScavenge",
+    "old_collector": "ParallelOld",
+    "gc_time_ratio": 4,
+    "parallel_gc_threads": 1,
+    "pause_target_ms": null
+  },
+  "by_name": [
+    {
+      "max_pause_ms": 61.64,
+      "name": "ParallelScavenge",
+      "count": 2233,
+      "avg_pause_ms": 1.88,
+      "total_pause_ms": 4188.67
+    },
+    {
+      "max_pause_ms": 229.51,
+      "name": "ParallelOld",
+      "count": 1,
+      "avg_pause_ms": 229.51,
+      "total_pause_ms": 229.51
+    }
+  ],
+  "recording": {
+    "duration_seconds": 122.4,
+    "path": "/Users/ridvanozcan/code/jfrdoc/samples/petclinic-ubi8/before/petclinic.jfr"
+  },
+  "heap": {
+    "snapshots": 4468,
+    "max_used_mb": 84.8,
+    "min_used_mb": 36.2,
+    "max_used_pct_of_committed": 27.2,
+    "avg_used_after_gc_mb": 47.6,
+    "committed_size_mb": 311.5
+  },
+  "anomalies": {
+    "long_pauses_over_100ms": 1,
+    "evacuation_failures": 0,
+    "explicit_system_gcs": 0,
+    "full_gcs": 0,
+    "humongous_allocations": 0,
+    "long_pauses_over_500ms": 0
+  }
+}

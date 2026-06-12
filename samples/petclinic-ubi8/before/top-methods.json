@@ -1,0 +1,214 @@
+{
+  "top_methods": [
+    {
+      "method": "java.util.zip.ZipFile$Source.getEntryPos:1816",
+      "top_caller": "java.util.zip.ZipFile.getEntry",
+      "rank": 1,
+      "top_caller_share_pct": 100,
+      "category": "jdk",
+      "pct_of_total": 58,
+      "samples": 3530
+    },
+    {
+      "method": "java.net.URL.<init>:703",
+      "top_caller": "java.net.URL.<init>",
+      "rank": 2,
+      "top_caller_share_pct": 100,
+      "category": "jdk",
+      "pct_of_total": 2.5,
+      "samples": 153
+    },
+    {
+      "method": "java.util.concurrent.ConcurrentHashMap.get:946",
+      "top_caller": "java.net.URLConnection.getDefaultUseCaches",
+      "rank": 3,
+      "top_caller_share_pct": 67.4,
+      "category": "jdk",
+      "pct_of_total": 2.3,
+      "samples": 141
+    },
+    {
+      "method": "java.net.URL.<init>:569",
+      "top_caller": "java.net.URL.<init>",
+      "rank": 4,
+      "top_caller_share_pct": 99.2,
+      "category": "jdk",
+      "pct_of_total": 2.1,
+      "samples": 125
+    },
+    {
+      "method": "java.util.HashMap.getNode:570",
+      "top_caller": "java.util.HashMap.get",
+      "rank": 5,
+      "top_caller_share_pct": 96.7,
+      "category": "jdk",
+      "pct_of_total": 2,
+      "samples": 123
+    },
+    {
+      "method": "org.springframework.boot.loader.zip.ZipContent.getFirstLookupIndex:283",
+      "top_caller": "org.springframework.boot.loader.zip.ZipContent.hasEntry",
+      "rank": 6,
+      "top_caller_share_pct": 100,
+      "category": "framework",
+      "pct_of_total": 1.9,
+      "samples": 117
+    },
+    {
+      "method": "java.lang.String.equalsIgnoreCase:1968",
+      "top_caller": "org.springframework.boot.loader.net.protocol.jar.JarFileUrlKey.equalsIgnoringCase",
+      "rank": 7,
+      "top_caller_share_pct": 100,
+      "category": "jdk",
+      "pct_of_total": 1.7,
+      "samples": 106
+    },
+    {
+      "method": "java.net.URLStreamHandler.setURL:514",
+      "top_caller": "java.net.URLStreamHandler.parseURL",
+      "rank": 8,
+      "top_caller_share_pct": 54.4,
+      "category": "jdk",
+      "pct_of_total": 1.7,
+      "samples": 103
+    },
+    {
+      "method": "java.util.Arrays.binarySearch0:1716",
+      "top_caller": "java.util.Arrays.binarySearch",
+      "rank": 9,
+      "top_caller_share_pct": 100,
+      "category": "jdk",
+      "pct_of_total": 1.4,
+      "samples": 87
+    },
+    {
+      "method": "org.springframework.boot.loader.net.protocol.jar.Handler.indexOfSeparator:174",
+      "top_caller": "org.springframework.boot.loader.net.protocol.jar.Handler.indexOfSeparator",
+      "rank": 10,
+      "top_caller_share_pct": 100,
+      "category": "framework",
+      "pct_of_total": 1.3,
+      "samples": 82
+    },
+    {
+      "method": "java.util.HashMap.getNode:577",
+      "top_caller": "java.util.HashMap.get",
+      "rank": 11,
+      "top_caller_share_pct": 100,
+      "category": "jdk",
+      "pct_of_total": 0.7,
+      "samples": 45
+    },
+    {
+      "method": "java.lang.Class.getName:865",
+      "top_caller": "java.net.URL.isBuiltinStreamHandler",
+      "rank": 12,
+      "top_caller_share_pct": 69.8,
+      "category": "jdk",
+      "pct_of_total": 0.7,
+      "samples": 43
+    },
+    {
+      "method": "java.util.HashMap.getNode:579",
+      "top_caller": "java.util.HashMap.get",
+      "rank": 13,
+      "top_caller_share_pct": 51.7,
+      "category": "jdk",
+      "pct_of_total": 0.5,
+      "samples": 29
+    },
+    {
+      "method": "sun.net.www.ParseUtil.firstEncodeIndex:93",
+      "top_caller": "sun.net.www.ParseUtil.encodePath",
+      "rank": 14,
+      "top_caller_share_pct": 100,
+      "category": "jdk",
+      "pct_of_total": 0.5,
+      "samples": 28
+    },
+    {
+      "method": "java.lang.StringLatin1.regionMatchesCI:404",
+      "top_caller": "java.lang.String.regionMatches",
+      "rank": 15,
+      "top_caller_share_pct": 100,
+      "category": "jdk",
+      "pct_of_total": 0.3,
+      "samples": 20
+    },
+    {
+      "method": "org.apache.catalina.connector.CoyoteWriter.write:167",
+      "top_caller": "org.apache.catalina.connector.CoyoteWriter.write",
+      "rank": 16,
+      "top_caller_share_pct": 100,
+      "category": "framework",
+      "pct_of_total": 0.3,
+      "samples": 18
+    },
+    {
+      "method": "org.springframework.boot.loader.net.protocol.jar.UrlJarFiles.cacheIfAbsent:96",
+      "top_caller": "org.springframework.boot.loader.net.protocol.jar.JarUrlConnection.open",
+      "rank": 17,
+      "top_caller_share_pct": 100,
+      "category": "framework",
+      "pct_of_total": 0.3,
+      "samples": 17
+    },
+    {
+      "method": "jakarta.servlet.ServletRequestWrapper.getAttribute:84",
+      "top_caller": "org.thymeleaf.web.servlet.JakartaServletWebExchange.getAttributeValue",
+      "rank": 18,
+      "top_caller_share_pct": 50,
+      "category": "framework",
+      "pct_of_total": 0.3,
+      "samples": 16
+    },
+    {
+      "method": "java.lang.ThreadLocal$ThreadLocalMap.getEntryAfterMiss:462",
+      "top_caller": "java.lang.ThreadLocal$ThreadLocalMap.getEntry",
+      "rank": 19,
+      "top_caller_share_pct": 100,
+      "category": "jdk",
+      "pct_of_total": 0.2,
+      "samples": 15
+    },
+    {
+      "method": "java.util.Hashtable.get:384",
+      "top_caller": "java.net.URL.getURLStreamHandler",
+      "rank": 20,
+      "top_caller_share_pct": 100,
+      "category": "jdk",
+      "pct_of_total": 0.2,
+      "samples": 14
+    }
+  ],
+  "recording": {
+    "duration_seconds": 122.1,
+    "path": "/Users/ridvanozcan/code/jfrdoc/samples/petclinic-ubi8/before/petclinic.jfr"
+  },
+  "framework_used_for_categorization": "other",
+  "categories": {
+    "jdk": {
+      "pct": 82.3,
+      "samples": 5010
+    },
+    "framework": {
+      "pct": 12.4,
+      "samples": 757
+    },
+    "user_code": {
+      "pct": 5.2,
+      "samples": 318
+    }
+  },
+  "execution_samples": {"total": 6085},
+  "sample_quality": {
+    "unattributed_pct": 0,
+    "breakdown": {
+      "native_top_frame": 0,
+      "unknown_method_or_class": 0,
+      "no_stack_trace": 0
+    },
+    "attributed_samples": 6085,
+    "unattributed_samples": 0
+  }
+}

@@ -1,0 +1,67 @@
+{
+  "container_fit": {
+    "evaluable_reason": "NMT not available \u2014 cannot compute total JVM committed memory",
+    "container_limit_mb": 2048,
+    "total_committed_mb": null,
+    "evaluable": false,
+    "dominant_category": null,
+    "verdict": null,
+    "headroom_pct": null,
+    "headroom_mb": null
+  },
+  "signals": {
+    "thread_count_high": false,
+    "enable_nmt_recommended": true,
+    "container_limit_missing": false,
+    "metaspace_unbounded": false,
+    "code_cache_near_full": false,
+    "metaspace_near_committed": true
+  },
+  "nmt": {
+    "categories_count": 0,
+    "available": false,
+    "fallback_reason": "Native Memory Tracking not enabled in the source recording. Restart the JVM with -XX:NativeMemoryTracking=summary to capture per-category memory data."
+  },
+  "native_memory_total": {
+    "reserved_mb": null,
+    "committed_mb": null
+  },
+  "recording": {
+    "duration_seconds": 122.4,
+    "path": "/Users/ridvanozcan/code/jfrdoc/samples/petclinic-ubi8/before/petclinic.jfr"
+  },
+  "container_context": {
+    "limit_provided": true,
+    "memory_limit_mb": 2048
+  },
+  "threads": {
+    "daemon_count_max": 27,
+    "estimated_stack_total_mb": 31,
+    "active_count_avg": 30,
+    "stack_size_kb_used": 1024,
+    "active_count_max": 31,
+    "stack_size_source": "default",
+    "peak_count": 31
+  },
+  "native_memory_by_category": [],
+  "metaspace": {
+    "used_mb": 98.5,
+    "available": true,
+    "reserved_mb": 288,
+    "class_space_committed_mb": 13.6,
+    "committed_mb": 99.1,
+    "class_space_used_mb": 13.3
+  },
+  "code_cache": {
+    "used_estimate_mb": 36.1,
+    "full_warnings": 0,
+    "available": true,
+    "reserved_mb": 240,
+    "committed_mb": 240
+  },
+  "heap": {
+    "max_used_mb": 84.8,
+    "reserved_mb": 1368,
+    "committed_mb": 311.5
+  }
+}
